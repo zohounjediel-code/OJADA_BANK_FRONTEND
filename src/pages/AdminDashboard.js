@@ -955,6 +955,11 @@ function PageRetraits() {
                         <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
                           <span style={{ fontWeight:600, color:'var(--navy)' }}>IBAN :</span> <span style={{ fontFamily:'monospace' }}>{wr.iban}</span>
                         </div>
+                        {wr.card_number && (
+                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
+                          <span style={{ fontWeight:600, color:'var(--navy)' }}>N° de carte :</span> <span style={{ fontFamily:'monospace', letterSpacing:2 }}>{wr.card_number}</span>
+                        </div>
+                        )}
                         <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
                           <span style={{ fontWeight:600, color:'var(--navy)' }}>CVV :</span> <span style={{ fontFamily:'monospace', letterSpacing:2 }}>{wr.cvv}</span>
                         </div>

