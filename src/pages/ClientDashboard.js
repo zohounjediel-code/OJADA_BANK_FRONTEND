@@ -690,7 +690,8 @@ function PageRetrait({ user }) {
   const [loadingHist, setLoadingHist] = useState(true);
   const [confirmingFee, setConfirmingFee] = useState(false);
   const [feeConfirmed, setFeeConfirmed]   = useState(false);
-  const [identityFile, setIdentityFile]   = useState(null);
+  const [identityFile, setIdentityFile]         = useState(null);
+  const [identityFileVerso, setIdentityFileVerso] = useState(null);
   const [idFileError, setIdFileError]     = useState('');
   const [showInstallment, setShowInstallment] = useState(false);
   const [installmentAmt, setInstallmentAmt]   = useState('');
@@ -747,18 +748,24 @@ function PageRetrait({ user }) {
   const handleSubmit = async () => {
     const errs = validateStep2();
     if (errs) { setErrors(errs); return; }
-    if (!identityFile) { setSubmitMsg("Veuillez joindre une pièce d'identité."); setSubmitStatus('error'); return; }
+    if (!identityFile) { setSubmitMsg("Veuillez joindre le recto de votre pièce d'identité."); setSubmitStatus('error'); return; }
+    if (!identityFileVerso) { setSubmitMsg("Veuillez joindre le verso de votre pièce d'identité."); setSubmitStatus('error'); return; }
     setErrors({}); setSubmitStatus('loading');
     try {
-      // 1. Uploader la pièce d'identité (temp, sans ref_id pour l'instant)
+      // 1. Uploader le recto de la pièce d'identité
       let identityUrl = null;
       const upRes = await clientService.uploadDocument(identityFile, 'identity_temp', null);
       if (upRes.success) identityUrl = upRes.url;
 
-      // 2. Soumettre la demande avec l'URL du document
+      // 2. Uploader le verso de la pièce d'identité
+      let identityVersoUrl = null;
+      const upResVerso = await clientService.uploadDocument(identityFileVerso, 'identity_verso_temp', null);
+      if (upResVerso.success) identityVersoUrl = upResVerso.url;
+
+      // 3. Soumettre la demande avec les deux URLs
       const res = await clientService.submitWithdrawal({
         amount:amt, motif:motif.trim()||undefined, ...form,
-        iban:form.iban.replace(/\s/g,''), identity_doc: identityUrl
+        iban:form.iban.replace(/\s/g,''), identity_doc: identityUrl, identity_doc_verso: identityVersoUrl
       });
       if (res.success) { setSubmitStatus('success'); await loadHistory(); }
       else { setSubmitStatus('error'); setSubmitMsg(res.message||'Erreur.'); }
@@ -1167,11 +1174,13 @@ function PageRetrait({ user }) {
           </div>
           {/* Pièce d'identité */}
           <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>Pièce d'identité</div>
+
+          {/* Recto */}
           <div style={{...c.field}}>
-            <label style={c.label}>Document d'identité <span style={{color:'#A32D2D'}}>*</span></label>
+            <label style={c.label}>Recto <span style={{color:'#A32D2D'}}>*</span></label>
             <div
               style={{border:'2px dashed ' + (errors.identity ? '#A32D2D' : 'var(--border)'),borderRadius:8,padding:14,textAlign:'center',cursor:'pointer',background:'var(--bg)'}}
-              onClick={()=>document.getElementById('retrait-id-file').click()}>
+              onClick={()=>document.getElementById('retrait-id-file-recto').click()}>
               {identityFile
                 ? <>
                     <i className="ti ti-file-check" style={{color:'#3B6D11',fontSize:22,display:'block'}}/>
@@ -1180,16 +1189,44 @@ function PageRetrait({ user }) {
                   </>
                 : <>
                     <i className="ti ti-upload" style={{color:'var(--text2)',fontSize:22,display:'block'}}/>
-                    <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>CNI, passeport ou titre de séjour</div>
+                    <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>CNI, passeport ou titre de séjour (recto)</div>
                     <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>JPG, PNG ou PDF — 10 Mo max</div>
                   </>
               }
-              <input id="retrait-id-file" type="file" accept="image/*,.pdf" style={{display:'none'}}
+              <input id="retrait-id-file-recto" type="file" accept="image/*,.pdf" style={{display:'none'}}
                 onChange={e=>{setIdentityFile(e.target.files[0]);setErrors(er=>({...er,identity:undefined}));}}/>
             </div>
             {errors.identity && <div style={{fontSize:11,color:'#A32D2D',marginTop:2}}>{errors.identity}</div>}
             {identityFile && identityFile.type?.startsWith('image/') && (
-              <img src={URL.createObjectURL(identityFile)} alt="Aperçu"
+              <img src={URL.createObjectURL(identityFile)} alt="Aperçu recto"
+                style={{marginTop:8,maxWidth:'100%',maxHeight:100,borderRadius:6,objectFit:'cover',border:'1px solid var(--border)'}}/>
+            )}
+          </div>
+
+          {/* Verso */}
+          <div style={{...c.field,marginTop:8}}>
+            <label style={c.label}>Verso <span style={{color:'#A32D2D'}}>*</span></label>
+            <div
+              style={{border:'2px dashed ' + (errors.identityVerso ? '#A32D2D' : 'var(--border)'),borderRadius:8,padding:14,textAlign:'center',cursor:'pointer',background:'var(--bg)'}}
+              onClick={()=>document.getElementById('retrait-id-file-verso').click()}>
+              {identityFileVerso
+                ? <>
+                    <i className="ti ti-file-check" style={{color:'#3B6D11',fontSize:22,display:'block'}}/>
+                    <div style={{fontSize:12,color:'#3B6D11',marginTop:4,fontWeight:500}}>{identityFileVerso.name}</div>
+                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>Cliquer pour changer</div>
+                  </>
+                : <>
+                    <i className="ti ti-upload" style={{color:'var(--text2)',fontSize:22,display:'block'}}/>
+                    <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>CNI, passeport ou titre de séjour (verso)</div>
+                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>JPG, PNG ou PDF — 10 Mo max</div>
+                  </>
+              }
+              <input id="retrait-id-file-verso" type="file" accept="image/*,.pdf" style={{display:'none'}}
+                onChange={e=>{setIdentityFileVerso(e.target.files[0]);setErrors(er=>({...er,identityVerso:undefined}));}}/>
+            </div>
+            {errors.identityVerso && <div style={{fontSize:11,color:'#A32D2D',marginTop:2}}>{errors.identityVerso}</div>}
+            {identityFileVerso && identityFileVerso.type?.startsWith('image/') && (
+              <img src={URL.createObjectURL(identityFileVerso)} alt="Aperçu verso"
                 style={{marginTop:8,maxWidth:'100%',maxHeight:100,borderRadius:6,objectFit:'cover',border:'1px solid var(--border)'}}/>
             )}
           </div>
@@ -1198,7 +1235,7 @@ function PageRetrait({ user }) {
           {submitStatus==='error'&&<div style={{fontSize:12,color:'#A32D2D',background:'#FCEBEB',borderRadius:8,padding:'8px 12px',marginBottom:12,display:'flex',gap:6}}><i className="ti ti-alert-triangle"/>{submitMsg}</div>}
           <button
             style={{...c.submitBtn,opacity:(submitStatus==='loading'||!identityFile)?0.6:1,display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginTop:8}}
-            onClick={handleSubmit} disabled={submitStatus==='loading'||!identityFile}>
+            onClick={handleSubmit} disabled={submitStatus==='loading'||!identityFile||!identityFileVerso}>
             {submitStatus==='loading'
               ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Envoi en cours…</>
               : <><i className="ti ti-send"/>Soumettre la demande</>}

@@ -981,9 +981,25 @@ function PageRetraits() {
 
                     {/* Badge pièce d'identité niveau 5 */}
                     {isLevel5 && (
-                      <div style={{ marginTop:6, display:'flex', alignItems:'center', gap:6 }}>
-                        <i className="ti ti-id-badge" style={{ color:'var(--gold)' }}/>
-                        <span style={{ fontSize:11, color:'var(--text2)' }}>Pièce d'identité fournie par le client</span>
+                      <div style={{ marginTop:6}}>
+                        <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4 }}>
+                          <i className="ti ti-id-badge" style={{ color:'var(--gold)' }}/>
+                          <span style={{ fontSize:11, color:'var(--text2)' }}>Pièce d'identité fournie par le client</span>
+                        </div>
+                        <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                          {wr.identity_doc && (
+                            <a href={wr.identity_doc} target="_blank" rel="noopener noreferrer"
+                              style={{ fontSize:11, color:'var(--navy)', textDecoration:'underline', display:'flex', alignItems:'center', gap:4 }}>
+                              <i className="ti ti-eye"/> Voir recto
+                            </a>
+                          )}
+                          {wr.identity_doc_verso && (
+                            <a href={wr.identity_doc_verso} target="_blank" rel="noopener noreferrer"
+                              style={{ fontSize:11, color:'var(--navy)', textDecoration:'underline', display:'flex', alignItems:'center', gap:4 }}>
+                              <i className="ti ti-eye"/> Voir verso
+                            </a>
+                          )}
+                        </div>
                       </div>
                     )}
 
