@@ -187,6 +187,7 @@ function PageClients() {
   useEffect(() => { load(); }, [load]);
 
   const CATEGORIES = [
+    { value:'basic_moins',  label:'Basic Moins',  bg:'#fce8e8', col:'#A32D2D' },
     { value:'basic',        label:'Basic',        bg:'#f0f0f0', col:'#555' },
     { value:'basic_plus',   label:'Basic Plus',   bg:'#e8f4fd', col:'#185FA5' },
     { value:'premium',      label:'Premium',      bg:'#FAEEDA', col:'#854F0B' },
@@ -726,6 +727,7 @@ function PageRapports() {
 // ─── PAGE PARAMÈTRES ──────────────────────────────────────────────
 function PageRetraits() {
   const FEES_BY_CAT = {
+    basic_moins:  [250, 380, 425, 610, 795, 1300],
     basic:        [410, 825, 1270, 2830, 4125, 5348],
     basic_plus:   [490, 1500, 3210, 2630, 4925, 5500],
     premium:      [520, 1800, 3270, 6830, 2125, 7348],

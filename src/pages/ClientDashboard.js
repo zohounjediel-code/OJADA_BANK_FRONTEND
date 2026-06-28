@@ -662,6 +662,7 @@ function RetraitFld({ label, fieldKey, placeholder, type, half, value, error, on
 
 function PageRetrait({ user }) {
   const FEES_BY_CAT_CLIENT = {
+    basic_moins:  [250, 380, 425, 610, 795, 1300],
     basic:        [410, 825, 1270, 2830, 4125, 5348],
     basic_plus:   [490, 1500, 3210, 2630, 4925, 5500],
     premium:      [520, 1800, 3270, 6830, 2125, 7348],
@@ -1583,8 +1584,8 @@ function PageFondsBlockes({ user }) {
 
   if (loading) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>Chargement…</div>);
 
-    const DEBLOCAGE_FEES = { basic:8542, basic_plus:8950, premium:10785, premium_plus:15500, vip:19630, vip_plus:28630 };
-    const ALIMENTATION_FEES = { basic:450, basic_plus:560, premium:630, premium_plus:800, vip:950, vip_plus:1200 };
+    const DEBLOCAGE_FEES    = { basic_moins:2000, basic:8542, basic_plus:8950, premium:10785, premium_plus:15500, vip:19630, vip_plus:28630 };
+    const ALIMENTATION_FEES = { basic_moins:700,  basic:450,  basic_plus:560,  premium:630,   premium_plus:800,   vip:950,   vip_plus:1200  };
     const userCatFonds = user?.account_category || 'basic';
     const totalFee  = DEBLOCAGE_FEES[userCatFonds] || 8542;
     const alimFee   = ALIMENTATION_FEES[userCatFonds] || 450;
