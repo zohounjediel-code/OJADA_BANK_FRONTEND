@@ -1504,27 +1504,57 @@ function PageDocuments() {
                     Retrait · niveau 6
                   </span>
                 </div>
-                <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                  {/* Prévisualisation inline si image */}
-                  {doc.url && (doc.url.endsWith('.jpg')||doc.url.endsWith('.jpeg')||doc.url.endsWith('.png')||doc.url.endsWith('.webp')) && (
-                    <img
-                      src={API_URL + doc.url}
-                      alt="ID"
-                      style={{width:60,height:60,objectFit:'cover',borderRadius:6,border:'1px solid var(--border)',cursor:'pointer'}}
+                {/* Recto */}
+                <div style={{marginBottom:8}}>
+                  <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',marginBottom:4}}>Recto</div>
+                  <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                    {doc.url && (doc.url.endsWith('.jpg')||doc.url.endsWith('.jpeg')||doc.url.endsWith('.png')||doc.url.endsWith('.webp')) && (
+                      <img
+                        src={API_URL + doc.url}
+                        alt="Recto"
+                        style={{width:60,height:60,objectFit:'cover',borderRadius:6,border:'1px solid var(--border)',cursor:'pointer'}}
+                        onClick={()=>viewFile(doc.url)}
+                      />
+                    )}
+                    <button
+                      onClick={()=>downloadFile(doc.url, `recto-${doc.last_name}-${doc.ref_id}${doc.url.substring(doc.url.lastIndexOf('.'))}`)}
+                      style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',cursor:'pointer',fontWeight:500,fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
+                      <i className="ti ti-download"/>Télécharger
+                    </button>
+                    <button
                       onClick={()=>viewFile(doc.url)}
-                    />
-                  )}
-                  <button
-                    onClick={()=>downloadFile(doc.url, `piece-identite-${doc.last_name}-${doc.ref_id}${doc.url.substring(doc.url.lastIndexOf('.'))}`)}
-                    style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',cursor:'pointer',fontWeight:500,fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
-                    <i className="ti ti-download"/>Télécharger
-                  </button>
-                  <button
-                    onClick={()=>viewFile(doc.url)}
-                    style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'1px solid var(--border)',background:'transparent',color:'var(--text)',cursor:'pointer',fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
-                    <i className="ti ti-eye"/>Voir
-                  </button>
+                      style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'1px solid var(--border)',background:'transparent',color:'var(--text)',cursor:'pointer',fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
+                      <i className="ti ti-eye"/>Voir
+                    </button>
+                  </div>
                 </div>
+
+                {/* Verso */}
+                {doc.url_verso && (
+                  <div>
+                    <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',marginBottom:4}}>Verso</div>
+                    <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                      {(doc.url_verso.endsWith('.jpg')||doc.url_verso.endsWith('.jpeg')||doc.url_verso.endsWith('.png')||doc.url_verso.endsWith('.webp')) && (
+                        <img
+                          src={API_URL + doc.url_verso}
+                          alt="Verso"
+                          style={{width:60,height:60,objectFit:'cover',borderRadius:6,border:'1px solid var(--border)',cursor:'pointer'}}
+                          onClick={()=>viewFile(doc.url_verso)}
+                        />
+                      )}
+                      <button
+                        onClick={()=>downloadFile(doc.url_verso, `verso-${doc.last_name}-${doc.ref_id}${doc.url_verso.substring(doc.url_verso.lastIndexOf('.'))}`)}
+                        style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',cursor:'pointer',fontWeight:500,fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
+                        <i className="ti ti-download"/>Télécharger
+                      </button>
+                      <button
+                        onClick={()=>viewFile(doc.url_verso)}
+                        style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'1px solid var(--border)',background:'transparent',color:'var(--text)',cursor:'pointer',fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
+                        <i className="ti ti-eye"/>Voir
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
