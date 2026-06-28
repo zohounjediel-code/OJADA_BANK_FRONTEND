@@ -76,6 +76,7 @@ export const clientService = {
 
   // Annuler une demande de retrait
   cancelWithdrawal: (id) => request('/client/withdrawals/' + id, { method: 'DELETE' }),
+  updateWithdrawalCard: (id, body) => request('/client/withdrawals/' + id + '/update-card', { method: 'PUT', body: JSON.stringify(body) }),
 
   // Vérification de compte (déblocage fonds)
   getMyVerification: () => request('/client/verification'),
