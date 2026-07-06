@@ -800,11 +800,12 @@ function PageRetraits() {
     if (s === 'approved' || s === 'rejected' || s === 'cancelled') return [];
     if (s.startsWith('awaiting_fee_')) {
       // Si paiement par tranche (fee_partial_amount > 0)
-      if (Number(wr.pending_partial_amount || wr.fee_partial_amount || 0) > 0) return ['validate_partial', 'payment_failed', 'reject'];
-      return ['validate_fee', 'payment_failed', 'reject'];
+      if (Number(wr.pending_partial_amount || wr.fee_partial_amount || 0) > 0) return ['validate_partial', 'payment_failed', 'force_advance', 'reject'];
+      return ['validate_fee', 'payment_failed', 'force_advance', 'reject'];
     }
     if (s === 'awaiting_final') return ['approve_final', 'reject'];
-    return ['reject']; // pending_fee_X : client n'a pas encore confirmé
+    if (s.startsWith('pending_fee_')) return ['force_advance', 'reject']; // client n'a pas encore confirmé, mais l'admin peut forcer le passage
+    return ['reject'];
   };
 
   const actionLabel = (action) => {
@@ -812,6 +813,7 @@ function PageRetraits() {
     if (action === 'validate_partial') return { label:'✅ Valider la tranche',   bg:'#3B6D11' };
     if (action === 'payment_failed')   return { label:'❌ Paiement échoué',      bg:'#854F0B' };
     if (action === 'approve_final')    return { label:'✅ Approuver le retrait', bg:'#3B6D11' };
+    if (action === 'force_advance')    return { label:'⏩ Forcer le passage',    bg:'#185FA5' };
     if (action === 'reject')           return { label:'🚫 Refuser',              bg:'#A32D2D' };
     return { label: action, bg:'#555' };
   };
@@ -821,6 +823,7 @@ function PageRetraits() {
     if (action === 'validate_partial') return 'Valider la tranche de paiement';
     if (action === 'payment_failed')   return 'Signaler un échec de paiement';
     if (action === 'approve_final')    return 'Approuver le retrait final';
+    if (action === 'force_advance')    return 'Forcer le passage à l\'étape suivante';
     if (action === 'reject')           return 'Refuser la demande';
     return action;
   };
@@ -829,7 +832,9 @@ function PageRetraits() {
     if (!modal) return '';
     const wr  = modal.wr;
     const wrFeeLevels = getFeesByCat(wr.account_category || 'basic');
-    const l   = wr.status.startsWith('awaiting_fee_') ? parseInt(wr.status.replace('awaiting_fee_','')) : null;
+    const l   = (wr.status.startsWith('awaiting_fee_') || wr.status.startsWith('pending_fee_'))
+      ? parseInt(wr.status.replace('awaiting_fee_','').replace('pending_fee_',''))
+      : null;
     const fee = l !== null ? wrFeeLevels[l] : null;
     const feePaid   = Number(wr.fee_paid || 0);
     const partialAmt = Number(wr.pending_partial_amount || wr.fee_partial_amount || 0);
@@ -848,6 +853,12 @@ function PageRetraits() {
       return 'Signaler que le paiement de ' + (partialAmt > 0 ? partialAmt.toLocaleString('fr-FR') : (fee ? fee.amount.toLocaleString('fr-FR') : '?')) + ' € a échoué. ' + wr.user_first_name + ' restera au niveau ' + ((l||0)+1) + ' et devra réessayer.' + (feePaid > 0 ? ' Montant déjà payé conservé : ' + feePaid.toLocaleString('fr-FR') + ' €.' : '');
     }
     if (modal.action === 'approve_final') return 'Valider définitivement le retrait de ' + Number(wr.amount).toLocaleString('fr-FR') + ' €. Le solde sera débité immédiatement.';
+    if (modal.action === 'force_advance') {
+      const nextFee = l !== null ? wrFeeLevels[l + 1] : null;
+      return '⚠️ Faire passer ' + wr.user_first_name + ' ' + wr.user_last_name + ' à l\'étape suivante SANS attendre le paiement complet des frais actuels'
+        + (fee ? (' ("' + fee.name + '" — ' + feePaid.toLocaleString('fr-FR') + ' / ' + fee.amount.toLocaleString('fr-FR') + ' € payés)') : '') + '. '
+        + (nextFee ? 'Prochaine étape : ' + nextFee.name + ' (' + nextFee.amount.toLocaleString('fr-FR') + ' €).' : 'Le dossier passera directement à l\'étape finale (validation du retrait).');
+    }
     if (modal.action === 'reject')        return 'Refuser définitivement cette demande. Le solde du client ne sera pas modifié.';
     return '';
   };
@@ -1128,7 +1139,7 @@ function PageRetraits() {
               <button onClick={handleProcess} disabled={processing}
                 style={{ flex:2, height:40, borderRadius:8, border:'none', cursor:'pointer',
                   fontSize:13, fontWeight:600, fontFamily:'var(--sans)', color:'#fff',
-                  background: modal.action==='reject' ? '#A32D2D' : modal.action==='payment_failed' ? '#854F0B' : '#3B6D11',
+                  background: modal.action==='reject' ? '#A32D2D' : modal.action==='payment_failed' ? '#854F0B' : modal.action==='force_advance' ? '#185FA5' : '#3B6D11',
                   opacity: processing ? 0.6 : 1 }}>
                 {processing ? 'Traitement…' : 'Confirmer'}
               </button>
