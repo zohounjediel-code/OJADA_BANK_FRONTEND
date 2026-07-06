@@ -952,6 +952,9 @@ function PageRetraits() {
                     </div>
                     <div style={{ fontSize:11, color:'var(--text2)', fontFamily:'monospace' }}>{wr.account_number}</div>
                     <div style={{ fontSize:11, color:'var(--text2)', marginTop:2 }}>
+                      <i className="ti ti-phone" style={{ marginRight:4 }}/>{wr.phone || wr.user_phone || '—'}
+                    </div>
+                    <div style={{ fontSize:11, color:'var(--text2)', marginTop:2 }}>
                       <i className="ti ti-building-bank" style={{ marginRight:4 }}/>{wr.bank_name} · ···{wr.iban ? wr.iban.slice(-4) : '????'}
                     </div>
                     {wr.motif && <div style={{ fontSize:11, color:'var(--text2)' }}>Motif : {wr.motif}</div>}
