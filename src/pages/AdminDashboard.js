@@ -992,7 +992,11 @@ function PageRetraits() {
                     )}
 
                     <div style={{ fontSize:10, color:'var(--text2)', marginTop:2 }}>
-                      {new Date(wr.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+                      Créée le {new Date(wr.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+                    </div>
+                    <div style={{ fontSize:10, color:'var(--navy)', fontWeight:600, marginTop:2 }}>
+                      <i className="ti ti-clock" style={{ marginRight:3 }}/>
+                      Dernière action : {wr.updated_at ? new Date(wr.updated_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'}
                     </div>
 
                     {/* Badge pièce d'identité niveau 5 */}
