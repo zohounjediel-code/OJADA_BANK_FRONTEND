@@ -50,10 +50,21 @@ const notifTypeStyle = {
   info:      { bg:'#F1EFE8', color:'#5F5E5A', icon:'ti-info-circle' },
 };
 
+// Un virement est sortant (débit) si sa description commence par "Virement vers"
+const isOutgoingVirement = (t) => t.type === 'virement' && (t.description || '').trim().toLowerCase().startsWith('virement vers');
+
+// Style effectif d'une transaction (un virement sortant s'affiche comme un retrait : rouge, flèche sortante)
+const getTxnStyle = (t) => {
+  const base = typeStyle[t.type] || typeStyle.depot;
+  if (isOutgoingVirement(t)) return { ...base, icon:'ti-arrow-up-right', amountColor:'#A32D2D' };
+  return base;
+};
+
 // Formater un montant
-const fmt = (amount, type) => {
+const fmt = (amount, type, description) => {
   const n = Math.abs(amount).toLocaleString('fr-FR');
-  return type === 'retrait' ? `-${n} €` : `+${n} €`;
+  const negative = type === 'retrait' || isOutgoingVirement({ type, description });
+  return negative ? `-${n} €` : `+${n} €`;
 };
 
 // Formater une date
@@ -73,7 +84,7 @@ const fmtDate = (dateStr) => {
 
 // Composant ligne transaction
 function TxnRow({ t, last }) {
-  const ts = typeStyle[t.type] || typeStyle.depot;
+  const ts = getTxnStyle(t);
   return (
     <div style={{ ...c.txnRow, borderBottom: last ? 'none' : '1px solid var(--border)' }}>
       <div style={{ ...c.txnIc, background:ts.bg, color:ts.color }}><i className={`ti ${ts.icon}`}/></div>
@@ -81,7 +92,7 @@ function TxnRow({ t, last }) {
         <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.description || ts.label}</div>
         <div style={{ fontSize:10, color:'var(--text2)' }}>{fmtDate(t.created_at)}</div>
       </div>
-      <div style={{ fontSize:13, fontWeight:500, color:ts.amountColor, flexShrink:0 }}>{fmt(t.amount, t.type)}</div>
+      <div style={{ fontSize:13, fontWeight:500, color:ts.amountColor, flexShrink:0 }}>{fmt(t.amount, t.type, t.description)}</div>
     </div>
   );
 }
@@ -358,13 +369,13 @@ function PageTransactions() {
               </thead>
               <tbody>
                 {txns.map((t,i) => {
-                  const ts = typeStyle[t.type] || typeStyle.depot;
+                  const ts = getTxnStyle(t);
                   return (
                     <tr key={t.id} style={{ backgroundColor: i%2===0 ? 'transparent' : 'rgba(0,0,0,0.01)' }}>
                       <td style={{ padding:'9px 12px', fontFamily:'monospace', fontSize:11, color:'var(--text2)', whiteSpace:'nowrap' }}>{t.reference}</td>
                       <td style={{ padding:'9px 12px' }}>{t.description || ts.label}</td>
                       <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background:ts.bg, color:ts.color }}>{ts.label}</span></td>
-                      <td style={{ padding:'9px 12px', fontWeight:500, color:ts.amountColor, whiteSpace:'nowrap' }}>{fmt(t.amount, t.type)}</td>
+                      <td style={{ padding:'9px 12px', fontWeight:500, color:ts.amountColor, whiteSpace:'nowrap' }}>{fmt(t.amount, t.type, t.description)}</td>
                       <td style={{ padding:'9px 12px', color:'var(--text2)', fontSize:11, whiteSpace:'nowrap' }}>{fmtDate(t.created_at)}</td>
                       <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background: t.status==='valide'?'#EAF3DE':'#FAEEDA', color: t.status==='valide'?'#3B6D11':'#854F0B' }}>{t.status==='valide'?'Validé':'En attente'}</span></td>
                     </tr>
