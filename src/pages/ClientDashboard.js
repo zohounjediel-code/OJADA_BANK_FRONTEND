@@ -73,12 +73,16 @@ const fmtDate = (dateStr) => {
   const now = new Date();
   const diffMs = now - d;
   const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
   if (diffMins < 1) return "À l'instant";
   if (diffMins < 60) return `Il y a ${diffMins} min`;
-  if (diffHours < 24) return `Aujourd'hui, ${d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })}`;
-  if (diffDays === 1) return `Hier, ${d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })}`;
+
+  // Comparaison sur le jour calendaire réel (et non sur le nombre d'heures écoulées),
+  // pour qu'une transaction d'hier 23h ne s'affiche pas "Aujourd'hui" à 10h le lendemain.
+  const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dayDiff = Math.round((startOfDay(now) - startOfDay(d)) / 86400000);
+
+  if (dayDiff === 0) return `Aujourd'hui, ${d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })}`;
+  if (dayDiff === 1) return `Hier, ${d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })}`;
   return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
 };
 
