@@ -174,6 +174,9 @@ function PageClients() {
   const [ibanForm, setIbanForm] = useState({ client_iban:'', client_bic:'' });
   const [ibanStatus, setIbanStatus] = useState('idle');
   const [ibanMsg, setIbanMsg] = useState('');
+  const [notifForm, setNotifForm] = useState({ title:'', message:'' });
+  const [notifStatus, setNotifStatus] = useState('idle');
+  const [notifMsg, setNotifMsg] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -233,6 +236,21 @@ function PageClients() {
     setUpdating(false);
   };
 
+  const handleSendNotification = async () => {
+    if (!selected) return;
+    if (!notifForm.title.trim() || !notifForm.message.trim()) {
+      setNotifMsg('Titre et message requis.'); setNotifStatus('error'); return;
+    }
+    setNotifStatus('loading'); setNotifMsg('');
+    try {
+      const res = await adminService.sendNotification(selected.id, notifForm.title.trim(), notifForm.message.trim());
+      if (res.success) {
+        setNotifStatus('success'); setNotifMsg('Notification envoyée.');
+        setNotifForm({ title:'', message:'' });
+      } else { setNotifStatus('error'); setNotifMsg(res.message || 'Erreur.'); }
+    } catch { setNotifStatus('error'); setNotifMsg('Erreur serveur.'); }
+  };
+
   return (
     <div style={{ animation:'fadeIn 0.35s ease' }}>
       <div style={{ display:'flex', gap:8, marginBottom:14, flexWrap:'wrap' }}>
@@ -288,7 +306,7 @@ function PageClients() {
                       </select>
                     </td>
                     <td style={{ padding:'9px 12px' }}>
-                      <button onClick={() => { setSelected(cl); setIbanForm({ client_iban: cl.client_iban || '', client_bic: cl.client_bic || '' }); setIbanStatus('idle'); setIbanMsg(''); }} style={{ fontSize:11, border:'1px solid var(--border)', borderRadius:6, padding:'3px 10px', cursor:'pointer', background:'transparent', fontFamily:'var(--sans)' }}>Voir</button>
+                      <button onClick={() => { setSelected(cl); setIbanForm({ client_iban: cl.client_iban || '', client_bic: cl.client_bic || '' }); setIbanStatus('idle'); setIbanMsg(''); setNotifForm({ title:'', message:'' }); setNotifStatus('idle'); setNotifMsg(''); }} style={{ fontSize:11, border:'1px solid var(--border)', borderRadius:6, padding:'3px 10px', cursor:'pointer', background:'transparent', fontFamily:'var(--sans)' }}>Voir</button>
                     </td>
                   </tr>
                 );
@@ -382,6 +400,41 @@ function PageClients() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Envoyer une notification */}
+            <div style={{ marginTop:14, marginBottom:14, background:'var(--bg)', borderRadius:10, padding:14 }}>
+              <div style={{ fontSize:11, fontWeight:600, color:'var(--navy)', marginBottom:10, display:'flex', alignItems:'center', gap:6 }}>
+                <i className="ti ti-bell" style={{ color:'var(--gold)' }}/>
+                Envoyer une notification à {selected.first_name}
+              </div>
+              <div style={{ marginBottom:6 }}>
+                <div style={{ fontSize:10, color:'var(--text2)', marginBottom:2 }}>Titre</div>
+                <input style={{ ...c.input, fontSize:12 }}
+                  placeholder="Ex : Information importante"
+                  value={notifForm.title}
+                  onChange={e => { setNotifForm(f => ({ ...f, title: e.target.value })); setNotifStatus('idle'); setNotifMsg(''); }}/>
+              </div>
+              <div style={{ marginBottom:6 }}>
+                <div style={{ fontSize:10, color:'var(--text2)', marginBottom:2 }}>Message</div>
+                <textarea style={{ ...c.input, fontSize:12, height:70, resize:'vertical', fontFamily:'var(--sans)', paddingTop:8 }}
+                  placeholder="Écrivez votre message au client..."
+                  value={notifForm.message}
+                  onChange={e => { setNotifForm(f => ({ ...f, message: e.target.value })); setNotifStatus('idle'); setNotifMsg(''); }}/>
+              </div>
+              {notifMsg && (
+                <div style={{ fontSize:11, borderRadius:6, padding:'5px 10px', marginBottom:6,
+                  background: notifStatus==='success' ? '#EAF3DE' : '#FCEBEB',
+                  color: notifStatus==='success' ? '#3B6D11' : '#A32D2D' }}>
+                  {notifMsg}
+                </div>
+              )}
+              <button onClick={handleSendNotification} disabled={notifStatus==='loading'}
+                style={{ width:'100%', height:34, borderRadius:8, border:'none', background:'var(--navy)', color:'#fff',
+                  cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'var(--sans)',
+                  opacity: notifStatus==='loading' ? 0.6 : 1 }}>
+                {notifStatus==='loading' ? 'Envoi…' : '📨 Envoyer la notification'}
+              </button>
             </div>
 
             <div style={{ marginTop:14, display:'flex', gap:8 }}>

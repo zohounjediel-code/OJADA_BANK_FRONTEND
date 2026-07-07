@@ -47,6 +47,7 @@ const notifTypeStyle = {
   retrait:   { bg:'#FCEBEB', color:'#A32D2D', icon:'ti-arrow-up-right' },
   virement:  { bg:'#FAEEDA', color:'#854F0B', icon:'ti-arrows-exchange' },
   alerte:    { bg:'#FCEBEB', color:'#A32D2D', icon:'ti-alert-triangle' },
+  admin:     { bg:'#EFF3FA', color:'#1B3A6B', icon:'ti-mail' },
   info:      { bg:'#F1EFE8', color:'#5F5E5A', icon:'ti-info-circle' },
 };
 
