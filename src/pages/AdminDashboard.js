@@ -1854,6 +1854,7 @@ function PageParametres() {
 const pageMeta = {
   dashboard:    ['Tableau de bord', 'Vue d\'ensemble en temps réel'],
   clients:      ['Clients', 'Gestion des comptes clients'],
+  messages:     ['Messages', 'Messages envoyés par les clients'],
   comptes:      ['Comptes', 'Tous les comptes bancaires'],
   transactions: ['Transactions', 'Historique complet'],
   virement:     ['Virement', 'Envoyer des fonds à un client'],
