@@ -1904,9 +1904,26 @@ export default function AdminDashboard() {
     return () => clearInterval(iv);
   }, []);
 
+  // Compter les fils de messages clients sans réponse de l'admin
+  const [pendingMessages, setPendingMessages] = useState(0);
+
+  useEffect(() => {
+    const fetchPendingMessages = async () => {
+      try {
+        const res = await adminService.getClientMessages();
+        const count = (res.data || []).filter(t => Number(t.admin_reply_count) === 0).length;
+        setPendingMessages(count);
+      } catch {}
+    };
+    fetchPendingMessages();
+    const iv = setInterval(fetchPendingMessages, 30000);
+    return () => clearInterval(iv);
+  }, []);
+
   const navItemsWithBadge = navItems.map(item => {
     if (item.id === 'retraits' && pendingWithdrawals > 0) return { ...item, badge: pendingWithdrawals };
     if (item.id === 'fonds' && pendingVerifications > 0) return { ...item, badge: pendingVerifications };
+    if (item.id === 'messages' && pendingMessages > 0) return { ...item, badge: pendingMessages };
     return item;
   });
 
