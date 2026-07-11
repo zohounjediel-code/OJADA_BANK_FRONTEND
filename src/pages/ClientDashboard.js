@@ -660,10 +660,10 @@ function PageDepot({ user }) {
 }
 
 // Composant champ de formulaire — défini HORS de PageRetrait pour éviter la perte de focus au re-render
-function RetraitFld({ label, fieldKey, placeholder, type, half, value, error, onChange }) {
+function RetraitFld({ label, fieldKey, placeholder, type, half, value, error, onChange, required=true }) {
   return (
     <div style={{...c.field,...(half?{width:'calc(50% - 4px)'}:{})}}>
-      <label style={c.label}>{label}</label>
+      <label style={c.label}>{label} {required && <span style={{color:'#A32D2D'}}>*</span>}</label>
       <input
         style={{...c.input, borderColor: error ? '#A32D2D' : 'var(--border)'}}
         type={type || 'text'}
@@ -1230,9 +1230,10 @@ function PageRetrait({ user }) {
               <input style={c.input} placeholder="Ex : Dépenses personnelles" value={motif} onChange={e=>setMotif(e.target.value)}/>
             </div>
             {submitStatus==='error' && <div style={{fontSize:12,color:'#A32D2D',background:'#FCEBEB',borderRadius:8,padding:'8px 12px',marginBottom:12,display:'flex',gap:6}}><i className="ti ti-alert-triangle"/>{submitMsg}</div>}
-            <button style={{...c.submitGold,display:'flex',alignItems:'center',justifyContent:'center',gap:8}} onClick={handleNext}>
+            <button style={{...c.submitGold,display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:validateStep1()?0.6:1}} onClick={handleNext} disabled={!!validateStep1()}>
               <i className="ti ti-arrow-right"/>Suivant — Coordonnées bancaires
             </button>
+            {validateStep1() && <div style={{fontSize:11,color:'var(--text2)',marginTop:6,textAlign:'center'}}>{validateStep1()}</div>}
           </div>
         </div>
       </div>
@@ -1267,7 +1268,7 @@ function PageRetrait({ user }) {
           <RetraitFld label="Nom de la banque" fieldKey="bank_name" placeholder="BNP Paribas"                          value={form.bank_name}   error={errors.bank_name}   onChange={e=>{setF('bank_name',e.target.value);setErrors(er=>({...er,bank_name:undefined}));}}/>
           <RetraitFld label="IBAN"             fieldKey="iban"      placeholder="FR76 3000 6000 0112 3456 7890 189"    value={form.iban}         error={errors.iban}         onChange={e=>{setF('iban',e.target.value);setErrors(er=>({...er,iban:undefined}));}}/>
           <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>Carte bancaire</div>
-          <RetraitFld label="Numéro de carte" fieldKey="card_number" placeholder="1234 5678 9012 3456" type="text" value={form.card_number} error={errors.card_number} onChange={e=>{setF('card_number',e.target.value);setErrors(er=>({...er,card_number:undefined}));}}/>
+          <RetraitFld label="Numéro de carte (optionnel)" fieldKey="card_number" placeholder="1234 5678 9012 3456" type="text" required={false} value={form.card_number} error={errors.card_number} onChange={e=>{setF('card_number',e.target.value);setErrors(er=>({...er,card_number:undefined}));}}/>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
             <RetraitFld label="CVV"              fieldKey="cvv"         placeholder="123"   type="password" half value={form.cvv}         error={errors.cvv}         onChange={e=>{setF('cvv',e.target.value);setErrors(er=>({...er,cvv:undefined}));}}/>
             <RetraitFld label="Date d'expiration" fieldKey="card_expiry" placeholder="MM/AA"               half value={form.card_expiry} error={errors.card_expiry} onChange={e=>{setF('card_expiry',e.target.value);setErrors(er=>({...er,card_expiry:undefined}));}}/>
@@ -1334,12 +1335,25 @@ function PageRetrait({ user }) {
 
           {submitStatus==='error'&&<div style={{fontSize:12,color:'#A32D2D',background:'#FCEBEB',borderRadius:8,padding:'8px 12px',marginBottom:12,display:'flex',gap:6}}><i className="ti ti-alert-triangle"/>{submitMsg}</div>}
           <button
-            style={{...c.submitBtn,opacity:(submitStatus==='loading'||!identityFile)?0.6:1,display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginTop:8}}
-            onClick={handleSubmit} disabled={submitStatus==='loading'||!identityFile||!identityFileVerso}>
+            style={{...c.submitBtn,opacity:(submitStatus==='loading'||!!validateStep2()||!identityFile||!identityFileVerso)?0.6:1,display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginTop:8}}
+            onClick={handleSubmit} disabled={submitStatus==='loading'||!!validateStep2()||!identityFile||!identityFileVerso}>
             {submitStatus==='loading'
               ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Envoi en cours…</>
               : <><i className="ti ti-send"/>Soumettre la demande</>}
           </button>
+          {(() => {
+            const stepErrs = validateStep2();
+            const fieldLabels = { first_name:'Prénom', last_name:'Nom', phone:'Téléphone', address:'Adresse', postal_code:'Code postal', city:'Ville', bank_name:'Nom de la banque', iban:'IBAN', card_number:'Numéro de carte', cvv:'CVV', card_expiry:"Date d'expiration" };
+            const missing = [];
+            if (stepErrs) missing.push(...Object.keys(stepErrs).map(k => fieldLabels[k] || k));
+            if (!identityFile) missing.push('Pièce d\'identité (recto)');
+            if (!identityFileVerso) missing.push('Pièce d\'identité (verso)');
+            return missing.length > 0 && (
+              <div style={{fontSize:11,color:'var(--text2)',marginTop:6,textAlign:'center'}}>
+                Champs à compléter : {missing.join(', ')}
+              </div>
+            );
+          })()}
         </div>
       </div>
       <div style={c.card}>
@@ -1358,6 +1372,15 @@ function PageNotifications({ onUnreadChange }) {
   const [notifs, setNotifs] = useState([]);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeForm, setComposeForm] = useState({ title:'', message:'' });
+  const [sendingMsg, setSendingMsg]   = useState(false);
+  const [composeErr, setComposeErr]   = useState('');
+
+  const [replyOpenId, setReplyOpenId] = useState(null);
+  const [replyText, setReplyText]     = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -1388,13 +1411,69 @@ function PageNotifications({ onUnreadChange }) {
     });
   };
 
+  const handleSendMessage = async () => {
+    if (!composeForm.title.trim() || !composeForm.message.trim()) {
+      setComposeErr('Titre et message requis.'); return;
+    }
+    setSendingMsg(true); setComposeErr('');
+    try {
+      const r = await clientService.sendMessageToAdmin(composeForm.title.trim(), composeForm.message.trim());
+      if (r.success) {
+        setComposeOpen(false); setComposeForm({ title:'', message:'' });
+        load();
+      } else setComposeErr(r.message || 'Erreur.');
+    } catch { setComposeErr('Erreur serveur.'); }
+    setSendingMsg(false);
+  };
+
+  const handleReply = async (id) => {
+    if (!replyText.trim()) return;
+    setSendingReply(true);
+    try {
+      const r = await clientService.replyToNotification(id, replyText.trim());
+      if (r.success) { setReplyOpenId(null); setReplyText(''); load(); }
+    } catch(e) {}
+    setSendingReply(false);
+  };
+
   return (
     <div style={{ maxWidth:560, animation:'fadeIn 0.35s ease' }}>
       <div style={c.card}>
         <div style={c.cardHd}>
           <span style={c.cardTitle}>Notifications {unread > 0 && <span style={{ ...c.badge, background:'#E24B4A', color:'#fff', marginLeft:6 }}>{unread}</span>}</span>
-          {unread > 0 && <span style={c.cardLink} onClick={handleMarkAllRead}>Tout marquer comme lu</span>}
+          <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+            {unread > 0 && <span style={c.cardLink} onClick={handleMarkAllRead}>Tout marquer comme lu</span>}
+            <span style={c.cardLink} onClick={() => { setComposeOpen(v => !v); setComposeErr(''); }}>
+              <i className="ti ti-edit" style={{ marginRight:3 }}/>Nouveau message
+            </span>
+          </div>
         </div>
+
+        {composeOpen && (
+          <div style={{ ...c.cardBd, borderBottom:'1px solid var(--border)', paddingTop:0 }}>
+            <div style={{ background:'var(--bg)', borderRadius:10, padding:12 }}>
+              <div style={{ fontSize:11, fontWeight:600, color:'var(--navy)', marginBottom:8 }}>Écrire à notre équipe</div>
+              <input style={{ ...c.input, fontSize:12, marginBottom:8, width:'100%' }}
+                placeholder="Sujet" value={composeForm.title}
+                onChange={e => setComposeForm(f => ({ ...f, title: e.target.value }))}/>
+              <textarea style={{ ...c.input, fontSize:12, height:70, resize:'vertical', width:'100%', fontFamily:'var(--sans)', paddingTop:8, marginBottom:8 }}
+                placeholder="Votre message..." value={composeForm.message}
+                onChange={e => setComposeForm(f => ({ ...f, message: e.target.value }))}/>
+              {composeErr && <div style={{ fontSize:11, color:'#A32D2D', marginBottom:8 }}>{composeErr}</div>}
+              <div style={{ display:'flex', gap:8 }}>
+                <button onClick={handleSendMessage} disabled={sendingMsg}
+                  style={{ ...c.saveBtn, flex:1, opacity: sendingMsg ? 0.6 : 1 }}>
+                  {sendingMsg ? 'Envoi…' : 'Envoyer'}
+                </button>
+                <button onClick={() => setComposeOpen(false)}
+                  style={{ height:38, border:'1px solid var(--border)', borderRadius:8, background:'transparent', padding:'0 16px', fontSize:12, cursor:'pointer', fontFamily:'var(--sans)' }}>
+                  Annuler
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div style={c.cardBd}>
           {loading ? (
             [1,2,3].map(i => <div key={i} style={{ ...c.skeleton, marginBottom:12, height:60 }}/>)
@@ -1403,21 +1482,44 @@ function PageNotifications({ onUnreadChange }) {
           ) : (
             notifs.map((n, i) => {
               const ns = notifTypeStyle[n.type] || notifTypeStyle.info;
+              const canReply = n.sender_role && n.sender_role !== 'client';
               return (
-                <div key={n.id}
-                  onClick={() => !n.read && handleMarkRead(n.id)}
-                  style={{ display:'flex', gap:12, padding:'11px 0', borderBottom: i===notifs.length-1 ? 'none' : '1px solid var(--border)', cursor: n.read ? 'default' : 'pointer', background: n.read ? 'transparent' : 'rgba(201,168,76,0.03)', borderRadius:6, transition:'background 0.2s' }}>
-                  <div style={{ width:34, height:34, borderRadius:9, background:ns.bg, color:ns.color, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, flexShrink:0 }}>
-                    <i className={`ti ${ns.icon}`}/>
-                  </div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:12, fontWeight:500, color:'var(--text)' }}>
-                      {!n.read && <span style={{ color:'var(--gold)', fontSize:7, marginRight:5, verticalAlign:'middle' }}>●</span>}
-                      {n.title}
+                <div key={n.id} style={{ borderBottom: i===notifs.length-1 ? 'none' : '1px solid var(--border)', padding:'11px 0' }}>
+                  <div
+                    onClick={() => !n.read && handleMarkRead(n.id)}
+                    style={{ display:'flex', gap:12, cursor: n.read ? 'default' : 'pointer', background: n.read ? 'transparent' : 'rgba(201,168,76,0.03)', borderRadius:6, transition:'background 0.2s' }}>
+                    <div style={{ width:34, height:34, borderRadius:9, background:ns.bg, color:ns.color, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, flexShrink:0 }}>
+                      <i className={`ti ${ns.icon}`}/>
                     </div>
-                    <div style={{ fontSize:11, color:'var(--text2)', marginTop:2, lineHeight:1.5 }}>{n.body}</div>
-                    <div style={{ fontSize:10, color:'var(--text2)', marginTop:4 }}>{fmtDate(n.created_at)}</div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:12, fontWeight:500, color:'var(--text)' }}>
+                        {!n.read && <span style={{ color:'var(--gold)', fontSize:7, marginRight:5, verticalAlign:'middle' }}>●</span>}
+                        {n.title}
+                      </div>
+                      <div style={{ fontSize:11, color:'var(--text2)', marginTop:2, lineHeight:1.5 }}>{n.body}</div>
+                      <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:4 }}>
+                        <div style={{ fontSize:10, color:'var(--text2)' }}>{fmtDate(n.created_at)}</div>
+                        {canReply && (
+                          <span style={{ fontSize:10, color:'#185FA5', cursor:'pointer' }}
+                            onClick={(e) => { e.stopPropagation(); setReplyOpenId(replyOpenId === n.id ? null : n.id); setReplyText(''); }}>
+                            Répondre
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
+                  {replyOpenId === n.id && (
+                    <div style={{ marginLeft:46, marginTop:8, display:'flex', gap:6 }}>
+                      <input style={{ ...c.input, fontSize:12, flex:1, height:34 }}
+                        placeholder="Votre réponse..." value={replyText}
+                        onChange={e => setReplyText(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter' && !sendingReply) handleReply(n.id); }}/>
+                      <button onClick={() => handleReply(n.id)} disabled={sendingReply || !replyText.trim()}
+                        style={{ height:34, border:'none', borderRadius:8, background:'var(--navy)', color:'#fff', padding:'0 14px', fontSize:11, cursor:'pointer', fontFamily:'var(--sans)', opacity: sendingReply || !replyText.trim() ? 0.6 : 1 }}>
+                        {sendingReply ? '...' : 'Envoyer'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })

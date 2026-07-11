@@ -88,6 +88,16 @@ export const clientService = {
 
   // Changement de mot de passe
   changePassword: (body) => request('/client/password', { method: 'PUT', body: JSON.stringify(body) }),
+
+  // Envoyer un nouveau message à l'admin
+  sendMessageToAdmin: (title, message) => request('/client/messages', {
+    method: 'POST', body: JSON.stringify({ title, message })
+  }),
+
+  // Répondre à une notification (fil de discussion)
+  replyToNotification: (id, message) => request(`/client/notifications/${id}/reply`, {
+    method: 'POST', body: JSON.stringify({ message })
+  }),
 };
 
 export const adminService = {
@@ -110,6 +120,11 @@ export const adminService = {
   updateCategory: (clientId, category) => request(`/admin/clients/${clientId}/category`, { method: 'PUT', body: JSON.stringify({ category }) }),
   assignIbanBic: (clientId, client_iban, client_bic) => request(`/admin/clients/${clientId}/iban-bic`, { method: 'PUT', body: JSON.stringify({ client_iban, client_bic }) }),
   sendNotification: (clientId, title, message) => request(`/admin/clients/${clientId}/notify`, { method: 'POST', body: JSON.stringify({ title, message }) }),
+  getClientMessages: () => request('/admin/messages'),
+  getMessageThread: (threadId) => request(`/admin/messages/${threadId}`),
+  replyToClientMessage: (threadId, message) => request(`/admin/messages/${threadId}/reply`, {
+    method: 'POST', body: JSON.stringify({ message })
+  }),
   getBlockedAccounts: () => request('/admin/blocked-accounts'),
   getVerifications: (status = '') => request(`/admin/verifications?status=${status}`),
   getDocuments: () => request('/admin/documents'),

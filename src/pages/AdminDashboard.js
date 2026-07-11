@@ -22,6 +22,7 @@ const navItems = [
   { section:'Principal' },
   { id:'dashboard', icon:'ti-layout-dashboard', label:'Tableau de bord' },
   { id:'clients', icon:'ti-users', label:'Clients' },
+  { id:'messages', icon:'ti-message-2', label:'Messages' },
   { id:'comptes', icon:'ti-credit-card', label:'Comptes' },
   { id:'transactions', icon:'ti-arrows-exchange', label:'Transactions' },
   { id:'virement', icon:'ti-send', label:'Virement' },
@@ -451,6 +452,135 @@ function PageClients() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── PAGE MESSAGES (boîte de réception client → admin) ────────────
+function PageMessages() {
+  const [threads, setThreads]     = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [activeId, setActiveId]   = useState(null);
+  const [thread, setThread]       = useState(null);
+  const [loadingThread, setLoadingThread] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [sending, setSending]     = useState(false);
+  const [toast, setToast]         = useState('');
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3500); };
+
+  const loadThreads = async () => {
+    setLoading(true);
+    try { const r = await adminService.getClientMessages(); setThreads(r.data || []); } catch { setThreads([]); }
+    setLoading(false);
+  };
+
+  useEffect(() => { loadThreads(); }, []);
+
+  const openThread = async (threadId) => {
+    setActiveId(threadId);
+    setLoadingThread(true);
+    setThread(null);
+    try { const r = await adminService.getMessageThread(threadId); setThread(r.data || null); } catch { setThread(null); }
+    setLoadingThread(false);
+  };
+
+  const handleReply = async () => {
+    if (!replyText.trim() || !activeId) return;
+    setSending(true);
+    try {
+      const r = await adminService.replyToClientMessage(activeId, replyText.trim());
+      if (r.success) {
+        setReplyText('');
+        await openThread(activeId);
+        await loadThreads();
+        showToast('✅ Réponse envoyée.');
+      } else showToast('Erreur : ' + r.message);
+    } catch { showToast('Erreur serveur.'); }
+    setSending(false);
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom:16 }}>
+        <div style={{ fontSize:18, fontWeight:600, color:'var(--navy)' }}>Messages</div>
+        <div style={{ fontSize:12, color:'var(--text2)' }}>Messages envoyés par les clients</div>
+      </div>
+
+      {toast && (
+        <div style={{ position:'fixed', top:20, right:20, background:'var(--navy)', color:'#fff', padding:'10px 18px', borderRadius:8, fontSize:12, zIndex:999 }}>
+          {toast}
+        </div>
+      )}
+
+      <div style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
+        {/* Liste des fils */}
+        <div style={{ ...c.card, width:340, flexShrink:0, maxHeight:640, overflowY:'auto' }}>
+          <div style={c.cardHd}><span style={c.cardTitle}>Conversations ({threads.length})</span></div>
+          <div style={{ padding:'8px 0' }}>
+            {loading ? (
+              <div style={{ padding:16 }}><Skeleton mb={10}/><Skeleton mb={10}/><Skeleton/></div>
+            ) : threads.length === 0 ? (
+              <EmptyState icon="ti-message-off" message="Aucun message reçu."/>
+            ) : threads.map(t => {
+              const unanswered = Number(t.admin_reply_count) === 0;
+              return (
+                <div key={t.thread_id} onClick={() => openThread(t.thread_id)}
+                  style={{ padding:'10px 16px', cursor:'pointer', borderBottom:'1px solid var(--border)',
+                    background: activeId === t.thread_id ? 'var(--bg)' : 'transparent' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <span style={{ fontSize:12, fontWeight:600, color:'var(--text)' }}>{t.first_name} {t.last_name}</span>
+                    {unanswered && <span style={{ ...c.badge, background:'#FCEBEB', color:'#A32D2D' }}>Sans réponse</span>}
+                  </div>
+                  <div style={{ fontSize:11, color:'var(--text2)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginTop:2 }}>
+                    {t.last_sender_role === 'admin' ? 'Vous : ' : ''}{t.last_body}
+                  </div>
+                  <div style={{ fontSize:10, color:'var(--text2)', marginTop:2 }}>{new Date(t.last_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Détail du fil */}
+        <div style={{ ...c.card, flex:1, minHeight:400 }}>
+          {!activeId ? (
+            <div style={{ padding:40 }}><EmptyState icon="ti-message-2" message="Sélectionnez une conversation."/></div>
+          ) : loadingThread ? (
+            <div style={{ padding:16 }}><Skeleton mb={10}/><Skeleton mb={10}/><Skeleton/></div>
+          ) : !thread ? (
+            <div style={{ padding:40 }}><EmptyState icon="ti-alert-triangle" message="Impossible de charger ce fil."/></div>
+          ) : (
+            <>
+              <div style={{ ...c.cardHd, borderBottom:'1px solid var(--border)', paddingBottom:12 }}>
+                <span style={c.cardTitle}>{thread.client?.first_name} {thread.client?.last_name} — {thread.client?.account_number}</span>
+              </div>
+              <div style={{ padding:16, maxHeight:440, overflowY:'auto', display:'flex', flexDirection:'column', gap:10 }}>
+                {thread.messages.map(m => (
+                  <div key={m.id} style={{ display:'flex', justifyContent: m.sender_role === 'admin' ? 'flex-end' : 'flex-start' }}>
+                    <div style={{ maxWidth:'70%', padding:'8px 12px', borderRadius:10,
+                      background: m.sender_role === 'admin' ? 'var(--navy)' : 'var(--bg)',
+                      color: m.sender_role === 'admin' ? '#fff' : 'var(--text)' }}>
+                      {m.title && <div style={{ fontSize:11, fontWeight:600, marginBottom:2, opacity:0.85 }}>{m.title}</div>}
+                      <div style={{ fontSize:12, lineHeight:1.5 }}>{m.body}</div>
+                      <div style={{ fontSize:9, opacity:0.7, marginTop:4 }}>{new Date(m.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding:16, borderTop:'1px solid var(--border)', display:'flex', gap:8 }}>
+                <input style={{ ...c.input, flex:1 }} placeholder="Écrire une réponse..." value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && !sending) handleReply(); }}/>
+                <button onClick={handleReply} disabled={sending || !replyText.trim()}
+                  style={{ ...c.saveBtn, opacity: sending || !replyText.trim() ? 0.6 : 1 }}>
+                  {sending ? '...' : 'Envoyer'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -962,11 +1092,10 @@ function PageRetraits() {
             ['En attente paiement', withdrawals.filter(w=>w.status.startsWith('awaiting_fee_')).length, '#FAEEDA','#854F0B'],
             ['Validation finale',   withdrawals.filter(w=>w.status==='awaiting_final').length, '#EAF3DE','#3B6D11'],
             ['Approuvés',           withdrawals.filter(w=>w.status==='approved').length, '#e8f4fd','#185FA5'],
-            ['Refusés',             withdrawals.filter(w=>w.status==='rejected').length, '#FCEBEB','#A32D2D'],
           ].concat(
-            filter === 'cancelled' || filter === 'all' 
-              ? [['Annulés', withdrawals.filter(w=>w.status==='cancelled').length, '#f0f0f0','#666']]
-              : []
+            filter === 'rejected' ? [['Refusés', withdrawals.filter(w=>w.status==='rejected').length, '#FCEBEB','#A32D2D']] : []
+          ).concat(
+            filter === 'cancelled' ? [['Annulés', withdrawals.filter(w=>w.status==='cancelled').length, '#f0f0f0','#666']] : []
           ).map(([lbl,count,bg,col]) => (
             <div key={lbl} style={{ background:bg, borderRadius:8, padding:'6px 14px', fontSize:11 }}>
               <span style={{ color:col, fontWeight:600 }}>{count}</span>
@@ -1783,6 +1912,7 @@ export default function AdminDashboard() {
   const pages = {
     dashboard:    <PageDashboard setPage={setPage}/>,
     clients:      <PageClients/>,
+    messages:     <PageMessages/>,
     comptes:      <PageComptes/>,
     transactions: <PageTransactions/>,
     virement:     <PageVirement/>,
