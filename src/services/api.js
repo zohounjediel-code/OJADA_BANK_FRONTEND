@@ -108,6 +108,7 @@ export const adminService = {
   updateClientStatus: (id, status) => request(`/admin/clients/${id}/status`, {
     method: 'PUT', body: JSON.stringify({ status })
   }),
+  deleteClient: (id) => request(`/admin/clients/${id}`, { method: 'DELETE' }),
   getTransactions: (type = '', status = '') =>
     request(`/admin/transactions?type=${type}&status=${status}`),
   getStats: () => request('/admin/stats'),

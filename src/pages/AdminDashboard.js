@@ -44,6 +44,8 @@ const statusStyle = {
   active:   { bg:'#EAF3DE', color:'#3B6D11', label:'Actif' },
   pending:  { bg:'#FAEEDA', color:'#854F0B', label:'En attente' },
   inactive: { bg:'#F1EFE8', color:'#5F5E5A', label:'Inactif' },
+  rejected: { bg:'#FCEBEB', color:'#A32D2D', label:'Refusé' },
+  deleted:  { bg:'#F1EFE8', color:'#A32D2D', label:'Supprimé' },
   valide:   { bg:'#EAF3DE', color:'#3B6D11', label:'Validé' },
 };
 
@@ -211,6 +213,25 @@ function PageClients() {
     setUpdating(false);
   };
 
+  const [deleteMsg, setDeleteMsg] = useState('');
+
+  const handleDeleteClient = async (id, name) => {
+    if (!window.confirm(`Supprimer définitivement le compte de ${name} ?\n\nLe client ne pourra plus se connecter. Cette action est irréversible.`)) return;
+    setUpdating(true); setDeleteMsg('');
+    try {
+      const res = await adminService.deleteClient(id);
+      if (res.success) {
+        setClients(prev => prev.filter(cl => cl.id !== id));
+        if (selected?.id === id) setSelected(null);
+      } else {
+        setDeleteMsg(res.message || 'Erreur lors de la suppression.');
+      }
+    } catch (e) {
+      setDeleteMsg(e?.message || 'Erreur serveur.');
+    }
+    setUpdating(false);
+  };
+
   const handleAssignIbanBic = async () => {
     if (!selected) return;
     if (!ibanForm.client_iban.trim() || !ibanForm.client_bic.trim()) {
@@ -264,6 +285,8 @@ function PageClients() {
           <option value="active">Actifs</option>
           <option value="pending">En attente</option>
           <option value="inactive">Inactifs</option>
+          <option value="rejected">Refusés</option>
+          <option value="deleted">Supprimés</option>
         </select>
       </div>
 
@@ -449,6 +472,27 @@ function PageClients() {
                 );
               })}
             </div>
+
+            {/* Actions sensibles */}
+            <div style={{ marginTop:10, display:'flex', gap:8 }}>
+              {selected.status === 'pending' && (
+                <button onClick={() => handleStatusChange(selected.id, 'rejected')} disabled={updating}
+                  style={{ flex:1, height:34, border:'1px solid #FCEBEB', borderRadius:7, fontSize:11, cursor:'pointer', background:'transparent', color:'#A32D2D', fontFamily:'var(--sans)' }}>
+                  🚫 Refuser l'inscription
+                </button>
+              )}
+              {selected.status !== 'deleted' && (
+                <button onClick={() => handleDeleteClient(selected.id, `${selected.first_name} ${selected.last_name}`)} disabled={updating}
+                  style={{ flex:1, height:34, border:'1px solid #A32D2D', borderRadius:7, fontSize:11, cursor:'pointer', background:'#A32D2D', color:'#fff', fontFamily:'var(--sans)', fontWeight:600 }}>
+                  🗑️ Supprimer le compte
+                </button>
+              )}
+            </div>
+            {deleteMsg && (
+              <div style={{ fontSize:11, color:'#A32D2D', background:'#FCEBEB', borderRadius:6, padding:'6px 10px', marginTop:8 }}>
+                {deleteMsg}
+              </div>
+            )}
           </div>
         </div>
       )}
