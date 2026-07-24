@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const s = {
   app: { display:'flex', height:'100vh', overflow:'hidden' },
@@ -112,6 +113,7 @@ export default function DashboardLayout({ title, subtitle, navItems, children, a
             </div>
           </div>
           <div style={s.topbarRight}>
+            <LanguageSwitcher style={{ marginRight: 4 }}/>
             <button style={s.iconBtn}><i className="ti ti-bell"/><span style={s.notifDot}/></button>
             <button style={s.iconBtn}><i className="ti ti-user-circle"/></button>
           </div>

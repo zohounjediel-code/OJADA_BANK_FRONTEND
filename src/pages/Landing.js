@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/api';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const s = {
   nav: { position:'fixed', top:0, left:0, right:0, zIndex:100, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 clamp(16px,4vw,60px)', height:68, background:'rgba(10,22,40,0.96)', backdropFilter:'blur(12px)', borderBottom:'1px solid rgba(201,168,76,0.2)' },
@@ -100,6 +102,7 @@ const testimonials = [
 
 // ─── MODAL CONTENT ────────────────────────────────────────────────
 function LoginForm({ onSuccess, onForgot, onRegister }) {
+  const { t } = useTranslation();
   const { loginClient } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -113,36 +116,37 @@ function LoginForm({ onSuccess, onForgot, onRegister }) {
       const user = await loginClient(email, password);
       onSuccess(user);
     } catch (err) {
-      setError(err.message || 'Email ou mot de passe incorrect.');
+      setError(err.message || t('auth.err_login_invalid'));
     } finally { setLoading(false); }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>Connexion client</h3>
-      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:18 }}>Accédez à votre espace bancaire.</p>
+      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>{t('auth.clientLoginTitle')}</h3>
+      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:18 }}>{t('auth.clientLoginSubtitle')}</p>
       {error && <div style={s.errBox}>{error}</div>}
       <div style={s.formGroup}>
-        <label style={s.formLabel}>Email Gmail</label>
+        <label style={s.formLabel}>{t('auth.emailGmail')}</label>
         <input style={s.formInput} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@gmail.com" required autoFocus/>
       </div>
       <div style={s.formGroup}>
-        <label style={s.formLabel}>Mot de passe</label>
+        <label style={s.formLabel}>{t('auth.password')}</label>
         <input style={s.formInput} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required/>
       </div>
       <button style={{ ...s.formSubmit, opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
-        {loading ? 'Connexion...' : 'Se connecter'}
+        {loading ? t('auth.loggingIn') : t('auth.loginButton')}
       </button>
       <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'var(--text2)' }}>
-        <span style={s.tabLink} onClick={onForgot}>Mot de passe oublié ?</span>
+        <span style={s.tabLink} onClick={onForgot}>{t('auth.forgotPassword')}</span>
         {' · '}
-        <span style={s.tabLink} onClick={onRegister}>Créer un compte</span>
+        <span style={s.tabLink} onClick={onRegister}>{t('auth.register')}</span>
       </div>
     </form>
   );
 }
 
 function AdminLoginForm({ onSuccess }) {
+  const { t } = useTranslation();
   const { loginAdmin } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -156,31 +160,32 @@ function AdminLoginForm({ onSuccess }) {
       const user = await loginAdmin(username, password);
       onSuccess(user);
     } catch (err) {
-      setError(err.message || 'Identifiants incorrects.');
+      setError(err.message || t('auth.err_admin_invalid'));
     } finally { setLoading(false); }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>Accès administration</h3>
-      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:18 }}>Réservé au personnel OJADA BANK.</p>
+      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>{t('auth.adminLoginTitle')}</h3>
+      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:18 }}>{t('auth.adminLoginSubtitle')}</p>
       {error && <div style={s.errBox}>{error}</div>}
       <div style={s.formGroup}>
-        <label style={s.formLabel}>Nom d'utilisateur</label>
+        <label style={s.formLabel}>{t('auth.username')}</label>
         <input style={s.formInput} type="text" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Username" required autoFocus/>
       </div>
       <div style={s.formGroup}>
-        <label style={s.formLabel}>Mot de passe</label>
+        <label style={s.formLabel}>{t('auth.password')}</label>
         <input style={s.formInput} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required/>
       </div>
       <button style={{ ...s.formSubmit, opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
-        {loading ? 'Connexion...' : 'Se connecter'}
+        {loading ? t('auth.loggingIn') : t('auth.loginButton')}
       </button>
     </form>
   );
 }
 
 function RegisterForm({ onSuccess, onLogin }) {
+  const { t, i18n } = useTranslation();
   const { register } = useAuth();
   const [form, setForm] = useState({ email:'', password:'', confirm:'', first_name:'', last_name:'', phone:'', address:'', city:'', postal_code:'' });
   const [loading, setLoading] = useState(false);
@@ -190,7 +195,7 @@ function RegisterForm({ onSuccess, onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (form.password !== form.confirm) return setError('Les mots de passe ne correspondent pas.');
+    if (form.password !== form.confirm) return setError(t('auth.passwordMismatch'));
     setLoading(true);
     try {
       const user = await register({
@@ -198,10 +203,11 @@ function RegisterForm({ onSuccess, onLogin }) {
         first_name: form.first_name, last_name: form.last_name,
         phone: form.phone, address: form.address,
         city: form.city, postal_code: form.postal_code,
+        lang: i18n.language,
       });
       onSuccess(user);
     } catch (err) {
-      setError(err.message || 'Erreur lors de la création du compte.');
+      setError(err.message || t('auth.registerError'));
     } finally { setLoading(false); }
   };
 
@@ -211,49 +217,50 @@ function RegisterForm({ onSuccess, onLogin }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>Créer un compte</h3>
-      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:16 }}>Rejoignez OJADA BANK en quelques minutes.</p>
+      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>{t('auth.registerTitle')}</h3>
+      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:16 }}>{t('auth.registerSubtitle')}</p>
       {error && <div style={s.errBox}>{error}</div>}
 
       <div style={s.formRow}>
-        <div style={s.formGroup}><label style={s.formLabel}>Prénom *</label>{inp('first_name','text','Ex: Kofi')}</div>
-        <div style={s.formGroup}><label style={s.formLabel}>Nom *</label>{inp('last_name','text','Ex: Mensah')}</div>
+        <div style={s.formGroup}><label style={s.formLabel}>{t('auth.firstName')} *</label>{inp('first_name','text','Ex: Kofi')}</div>
+        <div style={s.formGroup}><label style={s.formLabel}>{t('auth.lastName')} *</label>{inp('last_name','text','Ex: Mensah')}</div>
       </div>
-      <div style={s.formGroup}><label style={s.formLabel}>Email Gmail *</label>{inp('email','email','votre@gmail.com')}</div>
+      <div style={s.formGroup}><label style={s.formLabel}>{t('auth.emailGmail')} *</label>{inp('email','email','votre@gmail.com')}</div>
       <div style={s.formGroup}>
-        <label style={s.formLabel}>Téléphone <span style={{ color:'var(--text2)', fontWeight:300 }}>(facultatif)</span></label>
+        <label style={s.formLabel}>{t('auth.phoneOptional')} <span style={{ color:'var(--text2)', fontWeight:300 }}>{t('auth.optionalTag')}</span></label>
         {inp('phone','tel','Ex: 0612345678', false)}
       </div>
       <div style={s.formGroup}>
-        <label style={s.formLabel}>Adresse de résidence <span style={{ color:'var(--text2)', fontWeight:300 }}>(facultatif)</span></label>
+        <label style={s.formLabel}>{t('auth.addressOptional')} <span style={{ color:'var(--text2)', fontWeight:300 }}>{t('auth.optionalTag')}</span></label>
         {inp('address','text','Ex: 12 rue de la Paix', false)}
       </div>
       <div style={s.formRow}>
         <div style={s.formGroup}>
-          <label style={s.formLabel}>Ville <span style={{ color:'var(--text2)', fontWeight:300 }}>(facultatif)</span></label>
+          <label style={s.formLabel}>{t('auth.cityOptional')} <span style={{ color:'var(--text2)', fontWeight:300 }}>{t('auth.optionalTag')}</span></label>
           {inp('city','text','Ex: Villejuif', false)}
         </div>
         <div style={s.formGroup}>
-          <label style={s.formLabel}>Code postal <span style={{ color:'var(--text2)', fontWeight:300 }}>(facultatif)</span></label>
+          <label style={s.formLabel}>{t('auth.postalCodeOptional')} <span style={{ color:'var(--text2)', fontWeight:300 }}>{t('auth.optionalTag')}</span></label>
           {inp('postal_code','text','Ex: 94800', false)}
         </div>
       </div>
       <div style={s.formRow}>
-        <div style={s.formGroup}><label style={s.formLabel}>Mot de passe *</label>{inp('password','password','Min. 8 car.')}</div>
-        <div style={s.formGroup}><label style={s.formLabel}>Confirmer *</label>{inp('confirm','password','Répéter')}</div>
+        <div style={s.formGroup}><label style={s.formLabel}>{t('auth.password')} *</label>{inp('password','password',t('auth.passwordMin'))}</div>
+        <div style={s.formGroup}><label style={s.formLabel}>{t('auth.confirmPasswordLabel')} *</label>{inp('confirm','password',t('auth.confirmRepeat'))}</div>
       </div>
-      <p style={{ fontSize:10, color:'var(--text2)', marginBottom:10 }}>* Champs obligatoires · Min. 8 caractères, 1 majuscule, 1 chiffre.</p>
+      <p style={{ fontSize:10, color:'var(--text2)', marginBottom:10 }}>{t('auth.requiredNote')}</p>
       <button style={{ ...s.formSubmit, opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
-        {loading ? 'Création en cours...' : 'Créer mon compte'}
+        {loading ? t('auth.creatingAccount') : t('auth.createAccountButton')}
       </button>
       <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'var(--text2)' }}>
-        Déjà un compte ? <span style={s.tabLink} onClick={onLogin}>Se connecter</span>
+        {t('auth.alreadyAccount')} <span style={s.tabLink} onClick={onLogin}>{t('auth.loginButton')}</span>
       </div>
     </form>
   );
 }
 
 function ForgotForm({ onBack }) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -266,33 +273,33 @@ function ForgotForm({ onBack }) {
       await authService.forgotPassword(email);
       setSent(true);
     } catch (err) {
-      setError(err.message || 'Erreur. Veuillez réessayer.');
+      setError(err.message || t('auth.genericError'));
     } finally { setLoading(false); }
   };
 
   return (
     <div>
-      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>Mot de passe oublié</h3>
-      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:18 }}>Entrez votre email pour recevoir un lien de réinitialisation.</p>
+      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>{t('auth.forgotTitle')}</h3>
+      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:18 }}>{t('auth.forgotSubtitle')}</p>
       {error && <div style={s.errBox}>{error}</div>}
       {sent ? (
         <div style={s.successBox}>
           <i className="ti ti-circle-check" style={{ marginRight:6 }}/>
-          Un email a été envoyé si ce compte existe. Vérifiez votre boîte Gmail.
+          {t('auth.forgotSent')}
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
           <div style={s.formGroup}>
-            <label style={s.formLabel}>Votre adresse Gmail</label>
+            <label style={s.formLabel}>{t('auth.yourGmailAddress')}</label>
             <input style={s.formInput} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@gmail.com" required autoFocus/>
           </div>
           <button style={{ ...s.formSubmit, opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
-            {loading ? 'Envoi...' : 'Envoyer le lien'}
+            {loading ? t('auth.sendingLink') : t('auth.sendLinkButton')}
           </button>
         </form>
       )}
       <div style={{ textAlign:'center', marginTop:14 }}>
-        <span style={s.tabLink} onClick={onBack}>← Retour à la connexion</span>
+        <span style={s.tabLink} onClick={onBack}>{t('auth.backToLogin')}</span>
       </div>
     </div>
   );
@@ -300,6 +307,7 @@ function ForgotForm({ onBack }) {
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────
 export default function Landing() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [modal, setModal] = useState(false);
@@ -345,9 +353,10 @@ export default function Landing() {
           </div>
         )}
         <div style={s.navCta}>
-          {!isMobile && <button style={s.btnOutline} onClick={() => openModal('client')}>Espace client</button>}
+          <LanguageSwitcher dark style={{ marginRight: 4 }}/>
+          {!isMobile && <button style={s.btnOutline} onClick={() => openModal('client')}>{t('auth.clientSpace')}</button>}
           <button style={s.btnPrimary} onClick={() => openModal('admin')}>
-            {isMobile ? 'Connexion' : 'Administration'}
+            {isMobile ? t('auth.connexionShort') : t('auth.administration')}
           </button>
           {isMobile && (
             <button onClick={() => setMenuOpen(!menuOpen)} style={{ background:'transparent', border:'none', color:'#fff', fontSize:22, cursor:'pointer', marginLeft:4 }}>
