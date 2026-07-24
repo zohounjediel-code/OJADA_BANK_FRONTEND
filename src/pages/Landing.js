@@ -373,7 +373,7 @@ export default function Landing() {
               {id==='services'?'Services':id==='comment'?'Comment ça marche':id==='temoignages'?'Témoignages':'Contact'}
             </div>
           ))}
-          <button style={{ ...s.btnOutline, width:'100%', marginTop:14, padding:'11px 0' }} onClick={() => { openModal('client'); setMenuOpen(false); }}>Espace client</button>
+          <button style={{ ...s.btnOutline, width:'100%', marginTop:14, padding:'11px 0' }} onClick={() => { openModal('client'); setMenuOpen(false); }}>{t('auth.clientSpace')}</button>
         </div>
       )}
 
@@ -526,7 +526,7 @@ export default function Landing() {
               <div style={s.roleSwitch}>
                 {['client','admin'].map(r => (
                   <button key={r} style={{ ...s.roleBtn, ...(role===r ? s.roleBtnActive : {}) }} onClick={() => setRole(r)}>
-                    {r==='client' ? 'Espace client' : 'Administration'}
+                    {r==='client' ? t('auth.clientSpace') : t('auth.administration')}
                   </button>
                 ))}
               </div>
