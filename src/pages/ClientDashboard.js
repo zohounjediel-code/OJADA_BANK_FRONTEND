@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { clientService } from '../services/api';
@@ -112,6 +113,7 @@ function EmptyState({ icon, message }) {
   );
 }
 function PageAccueil({ setPage, dashData, loading }) {
+  const { t } = useTranslation();
   const user = dashData?.user;
   const recentTxns = dashData?.recent_transactions || [];
   const monthStats = dashData?.month_stats || {};
@@ -124,19 +126,19 @@ function PageAccueil({ setPage, dashData, loading }) {
       <div style={{ background:'linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%)', borderRadius:16, padding:'24px 20px', marginBottom:16, position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', right:-30, top:-30, width:160, height:160, borderRadius:'50%', background:'radial-gradient(rgba(201,168,76,0.15),transparent 70%)' }}/>
         <div style={{ textAlign:'right', marginBottom:16, position:'relative' }}>
-          <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1 }}>{user?.account_type || 'Épargne'} · {accountNum.slice(-4)}</div>
+          <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1 }}>{user?.account_type || t('dashboard.savings')} · {accountNum.slice(-4)}</div>
         </div>
-        <div style={{ fontSize:11, color:'rgba(255,255,255,0.45)', marginBottom:4, position:'relative' }}>Solde disponible</div>
+        <div style={{ fontSize:11, color:'rgba(255,255,255,0.45)', marginBottom:4, position:'relative' }}>{t('dashboard.availableBalance')}</div>
         <div style={{ fontFamily:'var(--serif)', fontSize:'clamp(30px,5vw,42px)', color:'#fff', fontWeight:600, marginBottom:4, position:'relative' }}>
           {loading ? <span style={{ opacity:0.4 }}>—</span> : balance.toLocaleString('fr-FR')}
           <span style={{ fontSize:'clamp(16px,2.5vw,20px)', color:'rgba(255,255,255,0.4)' }}> €</span>
         </div>
         <div style={{ fontSize:12, color:'rgba(255,255,255,0.35)', marginBottom:22, position:'relative' }}>
-          Ce mois : <span style={{ color:'#7BC67A' }}>+{(monthStats.total_depot || 0).toLocaleString('fr-FR')} € reçus</span>
+          {t('dashboard.thisMonth')} : <span style={{ color:'#7BC67A' }}>+{(monthStats.total_depot || 0).toLocaleString('fr-FR')} € {t('dashboard.received')}</span>
         </div>
         <div style={{ display:'flex', gap:10, flexWrap:'wrap', position:'relative' }}>
-          {[['ti-send','Virement','virement'],['ti-arrow-down-circle','Dépôt','depot'],['ti-arrow-up-circle','Retrait','retrait']].map(([ic,lb,pg]) => (
-            <button key={lb} onClick={() => setPage(pg)} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:7, fontSize:12, fontWeight:500, cursor:'pointer', fontFamily:'var(--sans)', background: lb==='Virement' ? 'var(--gold)' : 'rgba(255,255,255,0.08)', color: lb==='Virement' ? 'var(--navy)' : 'rgba(255,255,255,0.75)', border: lb==='Virement' ? 'none' : '1px solid rgba(255,255,255,0.15)', transition:'all 0.2s' }}>
+          {[['ti-send',t('nav.transfer'),'virement'],['ti-arrow-down-circle',t('nav.deposit'),'depot'],['ti-arrow-up-circle',t('nav.withdrawal'),'retrait']].map(([ic,lb,pg]) => (
+            <button key={pg} onClick={() => setPage(pg)} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:7, fontSize:12, fontWeight:500, cursor:'pointer', fontFamily:'var(--sans)', background: pg==='virement' ? 'var(--gold)' : 'rgba(255,255,255,0.08)', color: pg==='virement' ? 'var(--navy)' : 'rgba(255,255,255,0.75)', border: pg==='virement' ? 'none' : '1px solid rgba(255,255,255,0.15)', transition:'all 0.2s' }}>
               <i className={`ti ${ic}`}/>{lb}
             </button>
           ))}
@@ -145,8 +147,8 @@ function PageAccueil({ setPage, dashData, loading }) {
 
       {/* Quick Actions */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:16 }}>
-        {[['ti-send','Virement','#E6F1FB','#185FA5','virement'],['ti-arrow-down-circle','Dépôt','#EAF3DE','#3B6D11','depot'],['ti-arrow-up-circle','Retrait','#FCEBEB','#A32D2D','retrait'],['ti-receipt','Relevé','#FDF6E3','#854F0B','transactions']].map(([ic,lb,bg,col,pg]) => (
-          <div key={lb} onClick={() => setPage(pg)} style={{ background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:12, padding:'14px 10px', textAlign:'center', cursor:'pointer', transition:'all 0.2s' }}
+        {[['ti-send',t('nav.transfer'),'#E6F1FB','#185FA5','virement'],['ti-arrow-down-circle',t('nav.deposit'),'#EAF3DE','#3B6D11','depot'],['ti-arrow-up-circle',t('nav.withdrawal'),'#FCEBEB','#A32D2D','retrait'],['ti-receipt',t('nav.statement'),'#FDF6E3','#854F0B','transactions']].map(([ic,lb,bg,col,pg]) => (
+          <div key={pg} onClick={() => setPage(pg)} style={{ background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:12, padding:'14px 10px', textAlign:'center', cursor:'pointer', transition:'all 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 20px rgba(10,22,40,0.08)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}>
             <div style={{ width:40, height:40, borderRadius:11, background:bg, color:col, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, margin:'0 auto 8px' }}><i className={`ti ${ic}`}/></div>
@@ -158,12 +160,12 @@ function PageAccueil({ setPage, dashData, loading }) {
       {/* 2-col grid */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:14 }}>
         <div style={c.card}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Dernières transactions</span><span style={c.cardLink} onClick={() => setPage('transactions')}>Voir tout →</span></div>
+          <div style={c.cardHd}><span style={c.cardTitle}>{t('dashboard.recentTransactions')}</span><span style={c.cardLink} onClick={() => setPage('transactions')}>{t('common.seeAll')} →</span></div>
           <div style={c.cardBd}>
             {loading ? (
               [1,2,3].map(i => <div key={i} style={{ ...c.skeleton, marginBottom:12, height:40 }}/>)
             ) : recentTxns.length === 0 ? (
-              <EmptyState icon="ti-arrows-exchange" message="Aucune transaction pour l'instant"/>
+              <EmptyState icon="ti-arrows-exchange" message={t('dashboard.noTransactionsYet')}/>
             ) : (
               recentTxns.map((t,i) => <TxnRow key={t.id} t={t} last={i===recentTxns.length-1}/>)
             )}
@@ -171,19 +173,19 @@ function PageAccueil({ setPage, dashData, loading }) {
         </div>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           <div style={c.card}>
-            <div style={c.cardHd}><span style={c.cardTitle}>Infos du compte</span></div>
+            <div style={c.cardHd}><span style={c.cardTitle}>{t('dashboard.accountInfo')}</span></div>
             <div style={c.cardBd}>
               {[
-                ['Type', user?.account_type || 'Épargne'],
-                ['Numéro', user?.account_number || '—'],
-                ['Ouverture', user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—'],
-                ['Statut', user?.status === 'active' ? 'Actif' : 'En attente']
+                [t('dashboard.type'), user?.account_type || t('dashboard.savings')],
+                [t('dashboard.number'), user?.account_number || '—'],
+                [t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—'],
+                [t('dashboard.status'), user?.status === 'active' ? t('dashboard.active') : t('dashboard.pendingStatus')]
               ].map(([k,v]) => (
                 <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid var(--border)', fontSize:12 }}>
                   <span style={{ color:'var(--text2)' }}>{k}</span>
-                  {k==='Statut'
+                  {k===t('dashboard.status')
                     ? <span style={{ ...c.badge, background: user?.status==='active' ? '#EAF3DE' : '#FAEEDA', color: user?.status==='active' ? '#3B6D11' : '#854F0B' }}>{v}</span>
-                    : <span style={{ fontFamily: k==='Numéro' ? 'monospace' : undefined, fontSize: k==='Numéro' ? 11 : undefined }}>{v}</span>}
+                    : <span style={{ fontFamily: k===t('dashboard.number') ? 'monospace' : undefined, fontSize: k===t('dashboard.number') ? 11 : undefined }}>{v}</span>}
                 </div>
               ))}
             </div>
@@ -196,6 +198,7 @@ function PageAccueil({ setPage, dashData, loading }) {
 
 // ─── COMPOSANT GRAPHIQUE ACTIVITÉ MENSUELLE ───────────────────────
 function MonthlyActivityChart() {
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -213,8 +216,8 @@ function MonthlyActivityChart() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{fontSize:12,color:'var(--text2)'}}>Chargement…</div>;
-  if (data.length === 0) return <div style={{fontSize:12,color:'var(--text2)'}}>Aucune activité</div>;
+  if (loading) return <div style={{fontSize:12,color:'var(--text2)'}}>{t('dashboard.loadingChart')}</div>;
+  if (data.length === 0) return <div style={{fontSize:12,color:'var(--text2)'}}>{t('dashboard.noActivity')}</div>;
 
   // Trouver le max pour échelonner les barres
   const maxTotal = Math.max(...data.map(d => d.total || 0), 1);
@@ -250,15 +253,16 @@ function MonthlyActivityChart() {
 
 
 function PageComptes({ user }) {
+  const { t } = useTranslation();
   return (
     <div style={{ animation:'fadeIn 0.35s ease' }}>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:14, marginBottom:16 }}>
         <div style={{ background:'linear-gradient(135deg,var(--navy),var(--navy3))', borderRadius:16, padding:22, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', right:-20, top:-20, width:100, height:100, borderRadius:'50%', background:'radial-gradient(rgba(201,168,76,0.15),transparent 70%)' }}/>
-          <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1, marginBottom:3 }}>Compte épargne</div>
+          <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1, marginBottom:3 }}>{t('dashboard.savingsAccount')}</div>
           <div style={{ fontFamily:'monospace', fontSize:12, color:'rgba(255,255,255,0.35)', letterSpacing:2, marginBottom:14 }}>OJ •••• •••• 4421</div>
           <div style={{ fontFamily:'var(--serif)', fontSize:'clamp(24px,4vw,30px)', color:'#fff', marginBottom:3 }}>{(user?.balance ?? 0).toLocaleString('fr-FR')} <span style={{ fontSize:14, color:'rgba(255,255,255,0.35)' }}>€</span></div>
-          <div style={{ fontSize:11, color:'rgba(255,255,255,0.3)', marginBottom:16 }}>Solde disponible</div>
+          <div style={{ fontSize:11, color:'rgba(255,255,255,0.3)', marginBottom:16 }}>{t('dashboard.availableBalance')}</div>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
             <span style={{ fontSize:12, color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:1 }}>
               {user?.first_name?.[0] || ''}. {user?.last_name?.toUpperCase() || ''}
@@ -266,27 +270,27 @@ function PageComptes({ user }) {
             <span style={{ ...c.badge,
               background: user?.status==='active' ? '#EAF3DE' : '#FAEEDA',
               color:      user?.status==='active' ? '#3B6D11' : '#854F0B' }}>
-              {user?.status==='active' ? 'Actif' : 'En attente'}
+              {user?.status==='active' ? t('dashboard.active') : t('dashboard.pendingStatus')}
             </span>
           </div>
         </div>
         <div style={c.card}>
           <div style={c.cardBd}>
-            <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', marginBottom:14 }}>Détails du compte</div>
-            {[['Type', user?.account_type || 'Épargne'],['Numéro', user?.account_number || '—'],['Ouverture', user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'],['Taux d\'intérêt','3,5% / an'],['Prochains intérêts', (() => {
+            <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', marginBottom:14 }}>{t('dashboard.accountDetails')}</div>
+            {[[t('dashboard.type'), user?.account_type || t('dashboard.savings')],[t('dashboard.number'), user?.account_number || '—'],[t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'],[t('dashboard.interestRate'),'3,5% / an'],[t('dashboard.nextInterest'), (() => {
                 const d = new Date(); d.setMonth(d.getMonth() + 1); d.setDate(1);
                 return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
-              })()],['Statut', user?.status === 'active' ? 'Actif' : 'En attente']].map(([k,v]) => (
+              })()],[t('dashboard.status'), user?.status === 'active' ? t('dashboard.active') : t('dashboard.pendingStatus')]].map(([k,v]) => (
               <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom:'1px solid var(--border)', fontSize:12 }}>
                 <span style={{ color:'var(--text2)' }}>{k}</span>
-                {k==='Taux d\'intérêt' ? <span style={{ color:'#3B6D11', fontWeight:500 }}>{v}</span> : k==='Statut' ? <span style={{ ...c.badge, background:'#EAF3DE', color:'#3B6D11' }}>{v}</span> : <span style={{ fontFamily: k==='Numéro'?'monospace':undefined, fontSize: k==='Numéro'?11:undefined }}>{v}</span>}
+                {k===t('dashboard.interestRate') ? <span style={{ color:'#3B6D11', fontWeight:500 }}>{v}</span> : k===t('dashboard.status') ? <span style={{ ...c.badge, background:'#EAF3DE', color:'#3B6D11' }}>{v}</span> : <span style={{ fontFamily: k===t('dashboard.number')?'monospace':undefined, fontSize: k===t('dashboard.number')?11:undefined }}>{v}</span>}
               </div>
             ))}
           </div>
         </div>
       </div>
       <div style={c.card}>
-        <div style={c.cardHd}><span style={c.cardTitle}>Activité — 5 derniers mois</span></div>
+        <div style={c.cardHd}><span style={c.cardTitle}>{t('dashboard.activityLastMonths')}</span></div>
         <div style={c.cardBd}>
           <MonthlyActivityChart/>
         </div>
@@ -294,7 +298,7 @@ function PageComptes({ user }) {
 
       {/* ── Informations bancaires IBAN / BIC ── */}
       <div style={{ ...c.card, marginTop:14 }}>
-        <div style={c.cardHd}><span style={c.cardTitle}>Informations bancaires</span></div>
+        <div style={c.cardHd}><span style={c.cardTitle}>{t('dashboard.bankInfo')}</span></div>
         <div style={c.cardBd}>
           {user?.client_iban ? (
             <>
@@ -309,22 +313,22 @@ function PageComptes({ user }) {
                 <span style={{ fontSize:12, fontFamily:'monospace', fontWeight:600, color:'var(--navy)' }}>{user.client_bic}</span>
               </div>
               <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
-                <span style={{ fontSize:12, color:'var(--text2)' }}>Titulaire</span>
+                <span style={{ fontSize:12, color:'var(--text2)' }}>{t('dashboard.holder')}</span>
                 <span style={{ fontSize:12, fontWeight:500 }}>{user.first_name} {user.last_name}</span>
               </div>
               <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0' }}>
-                <span style={{ fontSize:12, color:'var(--text2)' }}>Banque</span>
+                <span style={{ fontSize:12, color:'var(--text2)' }}>{t('dashboard.bank')}</span>
                 <span style={{ fontSize:12, fontWeight:500 }}>OJADA BANK</span>
               </div>
               <div style={{ marginTop:10, background:'#EAF3DE', borderRadius:8, padding:'8px 12px', fontSize:11, color:'#3B6D11', display:'flex', gap:6 }}>
                 <i className="ti ti-info-circle" style={{ flexShrink:0, marginTop:1 }}/>
-                <span>Utilisez ces coordonnées pour recevoir des virements SEPA depuis une banque externe.</span>
+                <span>{t('dashboard.bankInfoNote')}</span>
               </div>
             </>
           ) : (
             <div style={{ textAlign:'center', padding:20 }}>
               <i className="ti ti-building-bank" style={{ fontSize:32, color:'var(--text2)', opacity:0.3, display:'block', marginBottom:8 }}/>
-              <div style={{ fontSize:12, color:'var(--text2)' }}>Vos coordonnées bancaires seront disponibles après activation de votre compte par notre équipe.</div>
+              <div style={{ fontSize:12, color:'var(--text2)' }}>{t('dashboard.bankInfoPending')}</div>
             </div>
           )}
         </div>
@@ -334,6 +338,7 @@ function PageComptes({ user }) {
 }
 
 function PageTransactions() {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState('tous');
   const [txns, setTxns] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -350,12 +355,14 @@ function PageTransactions() {
     load();
   }, [filter]);
 
+  const filterLabels = { tous: t('dashboard.filterAll'), depot: t('dashboard.filterDeposits'), retrait: t('dashboard.filterWithdrawals'), virement: t('dashboard.filterTransfers') };
+
   return (
     <div style={{ animation:'fadeIn 0.35s ease' }}>
       <div style={{ display:'flex', gap:6, marginBottom:14, flexWrap:'wrap' }}>
         {['tous','depot','retrait','virement'].map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{ fontSize:11, padding:'5px 14px', borderRadius:20, cursor:'pointer', border:'1px solid var(--border)', background: filter===f ? 'var(--navy)' : 'transparent', color: filter===f ? '#fff' : 'var(--text2)', transition:'all 0.15s', fontFamily:'var(--sans)' }}>
-            {f==='tous'?'Toutes':f==='depot'?'Dépôts':f==='retrait'?'Retraits':'Virements'}
+            {filterLabels[f]}
           </button>
         ))}
       </div>
@@ -363,26 +370,26 @@ function PageTransactions() {
         {loading ? (
           <div style={{ padding:16 }}>{[1,2,3,4].map(i => <div key={i} style={{ ...c.skeleton, marginBottom:12, height:36 }}/>)}</div>
         ) : txns.length === 0 ? (
-          <EmptyState icon="ti-receipt" message="Aucune transaction pour l'instant"/>
+          <EmptyState icon="ti-receipt" message={t('dashboard.noTransactionsYet')}/>
         ) : (
           <div style={{ overflowX:'auto' }}>
             <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
               <thead>
-                <tr>{['Référence','Description','Type','Montant','Date','Statut'].map(h => (
+                <tr>{[t('dashboard.colReference'),t('dashboard.colDescription'),t('dashboard.colType'),t('dashboard.colAmount'),t('dashboard.colDate'),t('dashboard.colStatus')].map(h => (
                   <th key={h} style={{ textAlign:'left', fontSize:10, color:'var(--text2)', fontWeight:500, padding:'7px 12px', borderBottom:'1px solid var(--border)', textTransform:'uppercase', letterSpacing:0.5, whiteSpace:'nowrap' }}>{h}</th>
                 ))}</tr>
               </thead>
               <tbody>
-                {txns.map((t,i) => {
-                  const ts = getTxnStyle(t);
+                {txns.map((tx,i) => {
+                  const ts = getTxnStyle(tx);
                   return (
-                    <tr key={t.id} style={{ backgroundColor: i%2===0 ? 'transparent' : 'rgba(0,0,0,0.01)' }}>
-                      <td style={{ padding:'9px 12px', fontFamily:'monospace', fontSize:11, color:'var(--text2)', whiteSpace:'nowrap' }}>{t.reference}</td>
-                      <td style={{ padding:'9px 12px' }}>{t.description || ts.label}</td>
+                    <tr key={tx.id} style={{ backgroundColor: i%2===0 ? 'transparent' : 'rgba(0,0,0,0.01)' }}>
+                      <td style={{ padding:'9px 12px', fontFamily:'monospace', fontSize:11, color:'var(--text2)', whiteSpace:'nowrap' }}>{tx.reference}</td>
+                      <td style={{ padding:'9px 12px' }}>{tx.description || ts.label}</td>
                       <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background:ts.bg, color:ts.color }}>{ts.label}</span></td>
-                      <td style={{ padding:'9px 12px', fontWeight:500, color:ts.amountColor, whiteSpace:'nowrap' }}>{fmt(t.amount, t.type, t.description)}</td>
-                      <td style={{ padding:'9px 12px', color:'var(--text2)', fontSize:11, whiteSpace:'nowrap' }}>{fmtDate(t.created_at)}</td>
-                      <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background: t.status==='valide'?'#EAF3DE':'#FAEEDA', color: t.status==='valide'?'#3B6D11':'#854F0B' }}>{t.status==='valide'?'Validé':'En attente'}</span></td>
+                      <td style={{ padding:'9px 12px', fontWeight:500, color:ts.amountColor, whiteSpace:'nowrap' }}>{fmt(tx.amount, tx.type, tx.description)}</td>
+                      <td style={{ padding:'9px 12px', color:'var(--text2)', fontSize:11, whiteSpace:'nowrap' }}>{fmtDate(tx.created_at)}</td>
+                      <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background: tx.status==='valide'?'#EAF3DE':'#FAEEDA', color: tx.status==='valide'?'#3B6D11':'#854F0B' }}>{tx.status==='valide'?t('dashboard.validated'):t('dashboard.pendingStatus')}</span></td>
                     </tr>
                   );
                 })}
