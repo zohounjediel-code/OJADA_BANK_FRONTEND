@@ -22,18 +22,18 @@ const c = {
   skeleton: { background:'linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite', borderRadius:6, height:14 },
 };
 
-const navItems = [
-  { section:'Mon espace' },
-  { id:'accueil', icon:'ti-home', label:'Accueil' },
-  { id:'comptes', icon:'ti-credit-card', label:'Mes comptes' },
-  { id:'transactions', icon:'ti-arrows-exchange', label:'Transactions' },
-  { section:'Services' },
-  { id:'virement', icon:'ti-send', label:'Virement' },
-  { id:'depot', icon:'ti-arrow-down-circle', label:'Dépôt' },
-  { id:'retrait', icon:'ti-arrow-up-circle', label:'Retrait' },
-  { section:'Compte' },
-  { id:'notifications', icon:'ti-bell', label:'Notifications' },
-  { id:'profil', icon:'ti-user-circle', label:'Mon profil' },
+const getNavItems = (t) => [
+  { section: t('client.mySpace') },
+  { id:'accueil', icon:'ti-home', label: t('client.home') },
+  { id:'comptes', icon:'ti-credit-card', label: t('client.myAccounts') },
+  { id:'transactions', icon:'ti-arrows-exchange', label: t('nav.transactions') },
+  { section: t('client.services') },
+  { id:'virement', icon:'ti-send', label: t('nav.transfer') },
+  { id:'depot', icon:'ti-arrow-down-circle', label: t('nav.deposit') },
+  { id:'retrait', icon:'ti-arrow-up-circle', label: t('nav.withdrawal') },
+  { section: t('client.account') },
+  { id:'notifications', icon:'ti-bell', label: t('nav.notifications') },
+  { id:'profil', icon:'ti-user-circle', label: t('client.myProfile') },
 ];
 
 const typeStyle = {
@@ -89,16 +89,18 @@ const fmtDate = (dateStr) => {
 };
 
 // Composant ligne transaction
-function TxnRow({ t, last }) {
-  const ts = getTxnStyle(t);
+function TxnRow({ t: txn, last }) {
+  const { t } = useTranslation();
+  const ts = getTxnStyle(txn);
+  const typeLabel = t('dashboard.type' + txn.type.charAt(0).toUpperCase() + txn.type.slice(1));
   return (
     <div style={{ ...c.txnRow, borderBottom: last ? 'none' : '1px solid var(--border)' }}>
       <div style={{ ...c.txnIc, background:ts.bg, color:ts.color }}><i className={`ti ${ts.icon}`}/></div>
       <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{t.description || ts.label}</div>
-        <div style={{ fontSize:10, color:'var(--text2)' }}>{fmtDate(t.created_at)}</div>
+        <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{txn.description || typeLabel}</div>
+        <div style={{ fontSize:10, color:'var(--text2)' }}>{fmtDate(txn.created_at)}</div>
       </div>
-      <div style={{ fontSize:13, fontWeight:500, color:ts.amountColor, flexShrink:0 }}>{fmt(t.amount, t.type, t.description)}</div>
+      <div style={{ fontSize:13, fontWeight:500, color:ts.amountColor, flexShrink:0 }}>{fmt(txn.amount, txn.type, txn.description)}</div>
     </div>
   );
 }
@@ -126,7 +128,7 @@ function PageAccueil({ setPage, dashData, loading }) {
       <div style={{ background:'linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%)', borderRadius:16, padding:'24px 20px', marginBottom:16, position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', right:-30, top:-30, width:160, height:160, borderRadius:'50%', background:'radial-gradient(rgba(201,168,76,0.15),transparent 70%)' }}/>
         <div style={{ textAlign:'right', marginBottom:16, position:'relative' }}>
-          <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1 }}>{user?.account_type || t('dashboard.savings')} · {accountNum.slice(-4)}</div>
+          <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1 }}>{(user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)} · {accountNum.slice(-4)}</div>
         </div>
         <div style={{ fontSize:11, color:'rgba(255,255,255,0.45)', marginBottom:4, position:'relative' }}>{t('dashboard.availableBalance')}</div>
         <div style={{ fontFamily:'var(--serif)', fontSize:'clamp(30px,5vw,42px)', color:'#fff', fontWeight:600, marginBottom:4, position:'relative' }}>
@@ -176,7 +178,7 @@ function PageAccueil({ setPage, dashData, loading }) {
             <div style={c.cardHd}><span style={c.cardTitle}>{t('dashboard.accountInfo')}</span></div>
             <div style={c.cardBd}>
               {[
-                [t('dashboard.type'), user?.account_type || t('dashboard.savings')],
+                [t('dashboard.type'), (user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)],
                 [t('dashboard.number'), user?.account_number || '—'],
                 [t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—'],
                 [t('dashboard.status'), user?.status === 'active' ? t('dashboard.active') : t('dashboard.pendingStatus')]
@@ -277,7 +279,7 @@ function PageComptes({ user }) {
         <div style={c.card}>
           <div style={c.cardBd}>
             <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', marginBottom:14 }}>{t('dashboard.accountDetails')}</div>
-            {[[t('dashboard.type'), user?.account_type || t('dashboard.savings')],[t('dashboard.number'), user?.account_number || '—'],[t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'],[t('dashboard.interestRate'),'3,5% / an'],[t('dashboard.nextInterest'), (() => {
+            {[[t('dashboard.type'), (user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)],[t('dashboard.number'), user?.account_number || '—'],[t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'],[t('dashboard.interestRate'),`3,5% ${t('dashboard.perYear')}`],[t('dashboard.nextInterest'), (() => {
                 const d = new Date(); d.setMonth(d.getMonth() + 1); d.setDate(1);
                 return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
               })()],[t('dashboard.status'), user?.status === 'active' ? t('dashboard.active') : t('dashboard.pendingStatus')]].map(([k,v]) => (
@@ -382,11 +384,12 @@ function PageTransactions() {
               <tbody>
                 {txns.map((tx,i) => {
                   const ts = getTxnStyle(tx);
+                  const typeLabel = t('dashboard.type' + tx.type.charAt(0).toUpperCase() + tx.type.slice(1));
                   return (
                     <tr key={tx.id} style={{ backgroundColor: i%2===0 ? 'transparent' : 'rgba(0,0,0,0.01)' }}>
                       <td style={{ padding:'9px 12px', fontFamily:'monospace', fontSize:11, color:'var(--text2)', whiteSpace:'nowrap' }}>{tx.reference}</td>
-                      <td style={{ padding:'9px 12px' }}>{tx.description || ts.label}</td>
-                      <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background:ts.bg, color:ts.color }}>{ts.label}</span></td>
+                      <td style={{ padding:'9px 12px' }}>{tx.description || typeLabel}</td>
+                      <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background:ts.bg, color:ts.color }}>{typeLabel}</span></td>
                       <td style={{ padding:'9px 12px', fontWeight:500, color:ts.amountColor, whiteSpace:'nowrap' }}>{fmt(tx.amount, tx.type, tx.description)}</td>
                       <td style={{ padding:'9px 12px', color:'var(--text2)', fontSize:11, whiteSpace:'nowrap' }}>{fmtDate(tx.created_at)}</td>
                       <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background: tx.status==='valide'?'#EAF3DE':'#FAEEDA', color: tx.status==='valide'?'#3B6D11':'#854F0B' }}>{tx.status==='valide'?t('dashboard.validated'):t('dashboard.pendingStatus')}</span></td>
@@ -414,6 +417,7 @@ const ACCOUNT_CATEGORIES = {
 const getCat = (v) => ACCOUNT_CATEGORIES[v] || ACCOUNT_CATEGORIES.basic;
 
 function PageVirement({ user }) {
+  const { t } = useTranslation();
   const [accountNumber, setAccountNumber] = useState('');
   const [receiverInfo, setReceiverInfo]   = useState(null);
   const [lookupStatus, setLookupStatus]   = useState('idle'); // idle | loading | found | notfound
@@ -444,18 +448,18 @@ function PageVirement({ user }) {
   const handleSubmit = async () => {
     if (!receiverInfo) return;
     const amt = parseFloat(amount);
-    if (!amt || amt <= 0) { setSubmitMsg('Veuillez saisir un montant valide.'); setSubmitStatus('error'); return; }
-    if (user && amt > user.balance) { setSubmitMsg('Solde insuffisant.'); setSubmitStatus('error'); return; }
+    if (!amt || amt <= 0) { setSubmitMsg(t('virement.invalidAmount')); setSubmitStatus('error'); return; }
+    if (user && amt > user.balance) { setSubmitMsg(t('virement.insufficientBalance')); setSubmitStatus('error'); return; }
     setSubmitStatus('loading'); setSubmitMsg('');
     try {
       const res = await clientService.transfer({ account_number: accountNumber.trim(), amount: amt, motif: motif.trim() || undefined });
       if (res.success) {
         setSubmitStatus('success');
-        setSubmitMsg(`Virement de ${amt.toLocaleString('fr-FR')} € envoyé à ${receiverInfo.name} avec succès.`);
+        setSubmitMsg(t('virement.transferSentSuccess', { amount: amt.toLocaleString('fr-FR'), name: receiverInfo.name }));
         setNewBalance(res.data?.new_balance ?? null);
         setAccountNumber(''); setAmount(''); setMotif(''); setReceiverInfo(null); setLookupStatus('idle');
-      } else { setSubmitStatus('error'); setSubmitMsg(res.message || 'Erreur lors du virement.'); }
-    } catch (err) { setSubmitStatus('error'); setSubmitMsg(err.message || 'Erreur serveur. Réessayez.'); }
+      } else { setSubmitStatus('error'); setSubmitMsg(res.message || t('virement.transferError')); }
+    } catch (err) { setSubmitStatus('error'); setSubmitMsg(err.message || t('common.error_generic')); }
   };
 
   const balance = user?.balance ?? 0;
@@ -469,11 +473,11 @@ function PageVirement({ user }) {
         <div style={{ background:'#EAF3DE', border:'1px solid #B6D99B', borderRadius:10, padding:'12px 16px', marginBottom:14, display:'flex', alignItems:'flex-start', gap:10 }}>
           <i className="ti ti-circle-check" style={{ color:'#3B6D11', fontSize:18, flexShrink:0, marginTop:1 }}/>
           <div>
-            <div style={{ fontSize:12, fontWeight:600, color:'#3B6D11', marginBottom:2 }}>Virement effectué</div>
+            <div style={{ fontSize:12, fontWeight:600, color:'#3B6D11', marginBottom:2 }}>{t('virement.transferCompleted')}</div>
             <div style={{ fontSize:12, color:'#3B6D11' }}>{submitMsg}</div>
             {newBalance !== null && (
               <div style={{ fontSize:11, color:'#5a8c2f', marginTop:4 }}>
-                Nouveau solde : <strong>{newBalance.toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</strong>
+                {t('virement.newBalanceLabel')} : <strong>{newBalance.toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</strong>
               </div>
             )}
           </div>
@@ -481,16 +485,16 @@ function PageVirement({ user }) {
       )}
 
       <div style={{ ...c.card, marginBottom:14 }}>
-        <div style={c.cardHd}><span style={c.cardTitle}>Nouveau virement</span></div>
+        <div style={c.cardHd}><span style={c.cardTitle}>{t('virement.newTransferTitle')}</span></div>
         <div style={c.cardBd}>
 
           <div style={{ background:'var(--bg)', borderRadius:8, padding:'8px 12px', marginBottom:14, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <span style={{ fontSize:11, color:'var(--text2)' }}>Solde disponible</span>
+            <span style={{ fontSize:11, color:'var(--text2)' }}>{t('dashboard.availableBalance')}</span>
             <span style={{ fontSize:13, fontWeight:600, color:'var(--navy)' }}>{balance.toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</span>
           </div>
 
           <div style={c.field}>
-            <label style={c.label}>Numéro de compte destinataire</label>
+            <label style={c.label}>{t('virement.receiverAccountNumber')}</label>
             <div style={{ position:'relative' }}>
               <input
                 style={{ ...c.input, width:'100%', boxSizing:'border-box', paddingRight:36,
@@ -514,13 +518,13 @@ function PageVirement({ user }) {
             {lookupStatus==='notfound' && (
               <div style={{ fontSize:11, color:'#A32D2D', display:'flex', alignItems:'center', gap:5, marginTop:2 }}>
                 <i className="ti ti-alert-circle"/>
-                <span>Aucun compte actif trouvé avec ce numéro.</span>
+                <span>{t('virement.noActiveAccountFound')}</span>
               </div>
             )}
           </div>
 
           <div style={c.field}>
-            <label style={c.label}>Montant (€)</label>
+            <label style={c.label}>{t('virement.amountLabel')}</label>
             <input
               style={{ ...c.input, borderColor: amt > balance ? '#A32D2D' : 'var(--border)' }}
               type="number" min="1" placeholder="0"
@@ -529,15 +533,15 @@ function PageVirement({ user }) {
             />
             {amt > 0 && amt <= balance && (
               <div style={{ fontSize:11, color:'var(--text2)' }}>
-                Solde après virement : <strong>{(balance - amt).toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</strong>
+                {t('virement.balanceAfterTransfer')} : <strong>{(balance - amt).toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</strong>
               </div>
             )}
-            {amt > balance && <div style={{ fontSize:11, color:'#A32D2D' }}>Montant supérieur à votre solde disponible.</div>}
+            {amt > balance && <div style={{ fontSize:11, color:'#A32D2D' }}>{t('virement.amountExceedsBalance')}</div>}
           </div>
 
           <div style={c.field}>
-            <label style={c.label}>Motif (optionnel)</label>
-            <input style={c.input} placeholder="Ex : Remboursement, loyer..." value={motif} onChange={e => setMotif(e.target.value)}/>
+            <label style={c.label}>{t('virement.motifOptional')}</label>
+            <input style={c.input} placeholder={t('virement.motifPlaceholder')} value={motif} onChange={e => setMotif(e.target.value)}/>
           </div>
 
           {submitStatus==='error' && (
@@ -552,8 +556,8 @@ function PageVirement({ user }) {
             disabled={!canSend}
           >
             {submitStatus==='loading'
-              ? <><i className="ti ti-loader-2" style={{ animation:'spin 1s linear infinite' }}/>Envoi en cours…</>
-              : <><i className="ti ti-send"/>Confirmer le virement</>}
+              ? <><i className="ti ti-loader-2" style={{ animation:'spin 1s linear infinite' }}/>{t('virement.sendingInProgress')}</>
+              : <><i className="ti ti-send"/>{t('virement.confirmTransfer')}</>}
           </button>
 
         </div>
@@ -563,7 +567,7 @@ function PageVirement({ user }) {
         <div style={c.cardBd}>
           <div style={{ fontSize:12, color:'var(--text2)', display:'flex', gap:8 }}>
             <i className="ti ti-info-circle" style={{ color:'var(--gold)', flexShrink:0, marginTop:1 }}/>
-            <span>Les virements entre clients OJADA BANK sont instantanés et sans frais. Pour un virement externe (SEPA), contactez votre agence.</span>
+            <span>{t('virement.transferInfoNote')}</span>
           </div>
         </div>
       </div>
@@ -573,6 +577,7 @@ function PageVirement({ user }) {
 }
 
 function PageDepot({ user }) {
+  const { t } = useTranslation();
   const balance = Number(user?.balance ?? 0);
   const accountNum = user?.account_number || '—';
 
@@ -584,21 +589,23 @@ function PageDepot({ user }) {
         <div style={{ position:'absolute', top:-20, right:-20, width:120, height:120, borderRadius:'50%', background:'rgba(201,168,76,0.08)' }}/>
         <div style={{ position:'absolute', bottom:-30, left:-20, width:90, height:90, borderRadius:'50%', background:'rgba(201,168,76,0.06)' }}/>
         <i className="ti ti-building-bank" style={{ fontSize:38, color:'var(--gold)', display:'block', marginBottom:12 }}/>
-        <div style={{ fontFamily:'var(--serif)', fontSize:20, color:'#fff', marginBottom:8 }}>Dépôts physiques uniquement</div>
+        <div style={{ fontFamily:'var(--serif)', fontSize:20, color:'#fff', marginBottom:8 }}>{t('depot.physicalOnlyTitle')}</div>
         <div style={{ fontSize:13, color:'rgba(255,255,255,0.75)', lineHeight:1.7, maxWidth:360, margin:'0 auto' }}>
-          Pour garantir la sécurité maximale de vos fonds, <strong style={{ color:'var(--gold)' }}>OJADA BANK</strong> a fait le choix de n'accepter que les dépôts physiques effectués directement en agence.
+          {t('depot.physicalOnlyDesc', { bank: 'OJADA BANK' }).split('OJADA BANK').map((part, i, arr) => (
+            <React.Fragment key={i}>{part}{i < arr.length - 1 && <strong style={{ color:'var(--gold)' }}>OJADA BANK</strong>}</React.Fragment>
+          ))}
         </div>
       </div>
 
       {/* Pourquoi ce choix */}
       <div style={{ ...c.card, marginBottom:14 }}>
-        <div style={c.cardHd}><span style={c.cardTitle}>Pourquoi ce choix ?</span></div>
+        <div style={c.cardHd}><span style={c.cardTitle}>{t('depot.whyThisChoice')}</span></div>
         <div style={c.cardBd}>
           {[
-            ['ti-shield-lock',  'Sécurité renforcée',      'Les dépôts physiques éliminent tout risque de fraude en ligne ou d\'interception de fonds.'],
-            ['ti-eye-check',    'Traçabilité totale',       'Chaque dépôt est enregistré, horodaté et validé par un conseiller en agence.'],
-            ['ti-user-check',   'Relation de confiance',    'Votre conseiller OJADA BANK vérifie votre identité à chaque opération pour vous protéger.'],
-            ['ti-certificate',  'Conformité réglementaire', 'Cette procédure est conforme aux exigences de l\'ACPR et aux normes anti-blanchiment.'],
+            ['ti-shield-lock',  t('depot.reason1Title'), t('depot.reason1Desc')],
+            ['ti-eye-check',    t('depot.reason2Title'), t('depot.reason2Desc')],
+            ['ti-user-check',   t('depot.reason3Title'), t('depot.reason3Desc')],
+            ['ti-certificate',  t('depot.reason4Title'), t('depot.reason4Desc')],
           ].map(([icon, title, desc]) => (
             <div key={title} style={{ display:'flex', gap:12, padding:'10px 0', borderBottom:'1px solid var(--border)' }}>
               <div style={{ width:36, height:36, borderRadius:9, background:'#FAEEDA', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
@@ -615,8 +622,8 @@ function PageDepot({ user }) {
               <i className="ti ti-clock" style={{ color:'#3B6D11', fontSize:16 }}/>
             </div>
             <div>
-              <div style={{ fontSize:12, fontWeight:600, color:'var(--navy)', marginBottom:2 }}>Crédit immédiat</div>
-              <div style={{ fontSize:11, color:'var(--text2)', lineHeight:1.6 }}>Votre solde est crédité instantanément après validation par le conseiller en agence.</div>
+              <div style={{ fontSize:12, fontWeight:600, color:'var(--navy)', marginBottom:2 }}>{t('depot.immediateCreditTitle')}</div>
+              <div style={{ fontSize:11, color:'var(--text2)', lineHeight:1.6 }}>{t('depot.immediateCreditDesc')}</div>
             </div>
           </div>
         </div>
@@ -624,18 +631,18 @@ function PageDepot({ user }) {
 
       {/* Infos compte */}
       <div style={{ ...c.card, marginBottom:14 }}>
-        <div style={c.cardHd}><span style={c.cardTitle}>Vos informations de compte</span></div>
+        <div style={c.cardHd}><span style={c.cardTitle}>{t('depot.yourAccountInfo')}</span></div>
         <div style={c.cardBd}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
-            <span style={{ fontSize:12, color:'var(--text2)' }}>Numéro de compte</span>
+            <span style={{ fontSize:12, color:'var(--text2)' }}>{t('depot.accountNumberLabel')}</span>
             <span style={{ fontSize:12, fontFamily:'monospace', fontWeight:600 }}>{accountNum}</span>
           </div>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
-            <span style={{ fontSize:12, color:'var(--text2)' }}>Titulaire</span>
+            <span style={{ fontSize:12, color:'var(--text2)' }}>{t('depot.holderLabel')}</span>
             <span style={{ fontSize:12, fontWeight:600 }}>{user?.first_name} {user?.last_name}</span>
           </div>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0' }}>
-            <span style={{ fontSize:12, color:'var(--text2)' }}>Solde actuel</span>
+            <span style={{ fontSize:12, color:'var(--text2)' }}>{t('depot.currentBalance')}</span>
             <span style={{ fontSize:14, fontWeight:700, color:'var(--navy)' }}>{balance.toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</span>
           </div>
         </div>
@@ -643,13 +650,13 @@ function PageDepot({ user }) {
 
       {/* Comment faire un dépôt */}
       <div style={c.card}>
-        <div style={c.cardHd}><span style={c.cardTitle}>Comment effectuer un dépôt ?</span></div>
+        <div style={c.cardHd}><span style={c.cardTitle}>{t('depot.howToDeposit')}</span></div>
         <div style={c.cardBd}>
           {[
-            ['1', 'Rendez-vous en agence', 'Présentez-vous à votre agence OJADA BANK aux heures d’ouverture.'],
-            ['2', 'Munissez-vous de vos documents', 'Apportez une pièce d\'identité valide et votre numéro de compte : ' + accountNum],
-            ['3', 'Remettez vos fonds', 'Confiez votre dépôt (espèces ou chèque) à votre conseiller.'],
-            ['4', 'Votre compte est crédité', 'Le montant apparaît instantanément sur votre solde après validation.'],
+            ['1', t('depot.step1Title'), t('depot.step1Desc')],
+            ['2', t('depot.step2Title'), t('depot.step2Desc', { account: accountNum })],
+            ['3', t('depot.step3Title'), t('depot.step3Desc')],
+            ['4', t('depot.step4Title'), t('depot.step4Desc')],
           ].map(([num, title, desc]) => (
             <div key={num} style={{ display:'flex', gap:12, padding:'10px 0', borderBottom: num!=='4'?'1px solid var(--border)':'none' }}>
               <div style={{ width:28, height:28, borderRadius:'50%', background:'var(--navy)', color:'var(--gold)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, flexShrink:0 }}>{num}</div>
@@ -684,6 +691,7 @@ function RetraitFld({ label, fieldKey, placeholder, type, half, value, error, on
 }
 
 function PageRetrait({ user }) {
+  const { t } = useTranslation();
   const FEES_BY_CAT_CLIENT = {
     basic_moins:  [250, 380, 425, 610, 795, 1300],
     basic:        [410, 825, 1270, 2830, 4125, 5348],
@@ -694,7 +702,7 @@ function PageRetrait({ user }) {
     vip_plus:     [1345, 4170, 6790, 9616, 10807, 13066],
   };
   const FEE_ICONS = ["ti-credit-card","ti-refresh","ti-license","ti-arrows-exchange","ti-toggle-right","ti-id-badge"];
-  const FEE_NAMES_C = ["Frais de vérification de carte","Frais de synchronisation de carte","Frais d'achat de licence d'envoi","Frais de virement externe","Frais d'activation du compte","Frais de vérification d'identité"];
+  const FEE_NAMES_C = t('retrait.feeNames', { returnObjects: true });
   const userCat = user?.account_category || 'basic';
   const FEE_LEVELS = (FEES_BY_CAT_CLIENT[userCat] || FEES_BY_CAT_CLIENT.basic).map((amount, i) => ({ level:i, name:FEE_NAMES_C[i], amount, icon:FEE_ICONS[i] }));
 
@@ -748,26 +756,26 @@ function PageRetrait({ user }) {
   const setF = (k,v) => setForm(f => ({...f,[k]:v}));
 
   const validateStep1 = () => {
-    if (!amt || amt<=0) return 'Veuillez saisir un montant valide.';
-    if (amt>balance) return 'Montant supérieur à votre solde disponible.';
+    if (!amt || amt<=0) return t('retrait.invalidAmount');
+    if (amt>balance) return t('retrait.amountExceedsBalance');
     return null;
   };
 
   const validateStep2 = () => {
     const e={};
-    if (!form.first_name.trim()) e.first_name='Requis';
-    if (!form.last_name.trim())  e.last_name='Requis';
-    if (!form.phone.trim())      e.phone='Requis';
-    else if (!/^[\d\s+().-]{8,20}$/.test(form.phone.trim())) e.phone='Numéro invalide';
-    if (!form.address.trim())    e.address='Requis';
-    if (!form.postal_code.trim()) e.postal_code='Requis';
-    if (!form.city.trim())       e.city='Requis';
-    if (!form.bank_name.trim())  e.bank_name='Requis';
-    if (!form.iban.trim() || !/^[A-Z0-9]{15,34}$/i.test(form.iban.replace(/\s/g,''))) e.iban='IBAN invalide';
-    if (!form.card_number.trim()) e.card_number='Requis';
-    else if (!/^\d{13,19}$/.test(form.card_number.replace(/\s/g,''))) e.card_number='Numéro de carte invalide';
-    if (!/^\d{3,4}$/.test(form.cvv)) e.cvv='CVV invalide';
-    if (!/^\d{2}\/\d{2}$/.test(form.card_expiry)) e.card_expiry='Format MM/AA';
+    if (!form.first_name.trim()) e.first_name=t('retrait.required');
+    if (!form.last_name.trim())  e.last_name=t('retrait.required');
+    if (!form.phone.trim())      e.phone=t('retrait.required');
+    else if (!/^[\d\s+().-]{8,20}$/.test(form.phone.trim())) e.phone=t('retrait.invalidPhone');
+    if (!form.address.trim())    e.address=t('retrait.required');
+    if (!form.postal_code.trim()) e.postal_code=t('retrait.required');
+    if (!form.city.trim())       e.city=t('retrait.required');
+    if (!form.bank_name.trim())  e.bank_name=t('retrait.required');
+    if (!form.iban.trim() || !/^[A-Z0-9]{15,34}$/i.test(form.iban.replace(/\s/g,''))) e.iban=t('retrait.invalidIban');
+    if (!form.card_number.trim()) e.card_number=t('retrait.required');
+    else if (!/^\d{13,19}$/.test(form.card_number.replace(/\s/g,''))) e.card_number=t('retrait.invalidCardNumber');
+    if (!/^\d{3,4}$/.test(form.cvv)) e.cvv=t('retrait.invalidCvv');
+    if (!/^\d{2}\/\d{2}$/.test(form.card_expiry)) e.card_expiry=t('retrait.invalidExpiryFormat');
     return Object.keys(e).length ? e : null;
   };
 
@@ -780,8 +788,8 @@ function PageRetrait({ user }) {
   const handleSubmit = async () => {
     const errs = validateStep2();
     if (errs) { setErrors(errs); return; }
-    if (!identityFile) { setSubmitMsg("Veuillez joindre le recto de votre pièce d'identité."); setSubmitStatus('error'); return; }
-    if (!identityFileVerso) { setSubmitMsg("Veuillez joindre le verso de votre pièce d'identité."); setSubmitStatus('error'); return; }
+    if (!identityFile) { setSubmitMsg(t('retrait.identityRectoRequired')); setSubmitStatus('error'); return; }
+    if (!identityFileVerso) { setSubmitMsg(t('retrait.identityVersoRequired')); setSubmitStatus('error'); return; }
     setErrors({}); setSubmitStatus('loading');
     try {
       // 1. Uploader le recto de la pièce d'identité
@@ -800,8 +808,8 @@ function PageRetrait({ user }) {
         iban:form.iban.replace(/\s/g,''), identity_doc: identityUrl, identity_doc_verso: identityVersoUrl
       });
       if (res.success) { setSubmitStatus('success'); await loadHistory(); }
-      else { setSubmitStatus('error'); setSubmitMsg(res.message||'Erreur.'); }
-    } catch(err) { setSubmitStatus('error'); setSubmitMsg(err.message||'Erreur serveur.'); }
+      else { setSubmitStatus('error'); setSubmitMsg(res.message||t('retrait.genericError')); }
+    } catch(err) { setSubmitStatus('error'); setSubmitMsg(err.message||t('retrait.genericServerError')); }
   };
 
   const handleInstallment = async () => {
@@ -832,8 +840,8 @@ function PageRetrait({ user }) {
     try {
       const res = await clientService.confirmFeePayment(activeWR.id);
       if (res.success) { setFeeConfirmed(true); await loadHistory(); }
-      else { setConfirmFeeErr(res.message || 'Impossible de confirmer le paiement. Réessayez.'); }
-    } catch (err) { setConfirmFeeErr(err?.message || 'Erreur serveur. Réessayez.'); }
+      else { setConfirmFeeErr(res.message || t('retrait.paymentUnderReviewDesc')); }
+    } catch (err) { setConfirmFeeErr(err?.message || t('retrait.genericServerError')); }
     setConfirmingFee(false);
   };
 
@@ -851,14 +859,14 @@ function PageRetrait({ user }) {
 
   const statusBadge = (s) => {
     const map = {
-      approved:      ['#EAF3DE','#3B6D11','✅ Validé'],
-      rejected:      ['#FCEBEB','#A32D2D','❌ Refusé'],
-      awaiting_final:['#EAF3DE','#3B6D11','⏳ Validation finale'],
+      approved:      ['#EAF3DE','#3B6D11','✅ ' + t('dashboard.validated')],
+      rejected:      ['#FCEBEB','#A32D2D','❌ ' + t('retrait.requestRejected')],
+      awaiting_final:['#EAF3DE','#3B6D11','⏳ ' + t('retrait.allFeesValidated')],
     };
     if (map[s]) { const [bg,col,lbl]=map[s]; return <span style={{background:bg,color:col,fontSize:10,fontWeight:600,borderRadius:5,padding:'2px 8px'}}>{lbl}</span>; }
     if (s.startsWith('pending_fee_')||s.startsWith('awaiting_fee_')) {
       const l = parseInt(s.replace(/pending_fee_|awaiting_fee_/,''));
-      return <span style={{background:'#FAEEDA',color:'#854F0B',fontSize:10,fontWeight:600,borderRadius:5,padding:'2px 8px'}}>⏳ Étape {l+1}/6</span>;
+      return <span style={{background:'#FAEEDA',color:'#854F0B',fontSize:10,fontWeight:600,borderRadius:5,padding:'2px 8px'}}>⏳ {t('retrait.stepLabel', { step: l+1, name: '' }).split('—')[0].trim()}</span>;
     }
     return <span style={{background:'#f0f0f0',color:'#666',fontSize:10,fontWeight:600,borderRadius:5,padding:'2px 8px'}}>{s}</span>;
   };
@@ -892,23 +900,23 @@ function PageRetrait({ user }) {
         <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
           <div style={{...c.card,padding:24,textAlign:'center'}}>
             <i className="ti ti-check" style={{fontSize:40,color:'#3B6D11',marginBottom:8,display:'block'}}/>
-            <div style={{fontSize:14,fontWeight:600,color:'var(--navy)'}}>Aucune demande active</div>
+            <div style={{fontSize:14,fontWeight:600,color:'var(--navy)'}}>{t('retrait.noActiveRequest')}</div>
           </div>
-          <button style={{...c.submitBtn,marginTop:12}} onClick={()=>setStep(1)}>Nouvelle demande</button>
+          <button style={{...c.submitBtn,marginTop:12}} onClick={()=>setStep(1)}>{t('retrait.newRequest')}</button>
         </div>
       );
     }
-    if (!fi) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>Chargement…</div>);
+    if (!fi) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>{t('retrait.loading')}</div>);
 
     // Approuvé final
     if (fi.phase==='approved') return (
       <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
         <div style={{background:'#EAF3DE',border:'1px solid #B6D99B',borderRadius:12,padding:24,textAlign:'center',marginBottom:14}}>
           <i className="ti ti-circle-check" style={{fontSize:40,color:'#3B6D11',display:'block',marginBottom:8}}/>
-          <div style={{fontSize:15,fontWeight:600,color:'#3B6D11',marginBottom:4}}>Retrait approuvé !</div>
-          <div style={{fontSize:13,color:'#3B6D11'}}>Votre retrait de <strong>{Number(activeWR.amount).toLocaleString('fr-FR')} €</strong> a été effectué.</div>
+          <div style={{fontSize:15,fontWeight:600,color:'#3B6D11',marginBottom:4}}>{t('retrait.withdrawalApproved')}</div>
+          <div style={{fontSize:13,color:'#3B6D11'}}>{t('retrait.withdrawalCompleted', { amount: Number(activeWR.amount).toLocaleString('fr-FR') })}</div>
         </div>
-        <button style={c.submitBtn} onClick={()=>{setActiveWR(null);setStep(1);}}>Nouvelle demande</button>
+        <button style={c.submitBtn} onClick={()=>{setActiveWR(null);setStep(1);}}>{t('retrait.newRequest')}</button>
       </div>
     );
 
@@ -917,10 +925,10 @@ function PageRetrait({ user }) {
       <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
         <div style={{background:'#FCEBEB',border:'1px solid #f5c2c2',borderRadius:12,padding:24,textAlign:'center',marginBottom:14}}>
           <i className="ti ti-circle-x" style={{fontSize:40,color:'#A32D2D',display:'block',marginBottom:8}}/>
-          <div style={{fontSize:15,fontWeight:600,color:'#A32D2D',marginBottom:4}}>Demande refusée</div>
-          {activeWR?.admin_note && <div style={{fontSize:12,color:'#A32D2D'}}>Motif : {activeWR.admin_note}</div>}
+          <div style={{fontSize:15,fontWeight:600,color:'#A32D2D',marginBottom:4}}>{t('retrait.requestRejected')}</div>
+          {activeWR?.admin_note && <div style={{fontSize:12,color:'#A32D2D'}}>{t('retrait.reasonLabel')} : {activeWR.admin_note}</div>}
         </div>
-        <button style={c.submitBtn} onClick={()=>{setActiveWR(null);setStep(1);}}>Nouvelle demande</button>
+        <button style={c.submitBtn} onClick={()=>{setActiveWR(null);setStep(1);}}>{t('retrait.newRequest')}</button>
       </div>
     );
 
@@ -930,8 +938,8 @@ function PageRetrait({ user }) {
         <Stepper currentLevel={6}/>
         <div style={{...c.card,padding:24,textAlign:'center'}}>
           <i className="ti ti-clock" style={{fontSize:36,color:'var(--gold)',display:'block',marginBottom:12}}/>
-          <div style={{fontSize:14,fontWeight:600,color:'var(--navy)',marginBottom:6}}>Tous les frais ont été validés</div>
-          <div style={{fontSize:12,color:'var(--text2)'}}>Votre retrait de <strong>{Number(activeWR.amount).toLocaleString('fr-FR')} €</strong> est en cours de validation finale par notre équipe.</div>
+          <div style={{fontSize:14,fontWeight:600,color:'var(--navy)',marginBottom:6}}>{t('retrait.allFeesValidated')}</div>
+          <div style={{fontSize:12,color:'var(--text2)'}}>{t('retrait.finalValidationInProgress', { amount: Number(activeWR.amount).toLocaleString('fr-FR') })}</div>
         </div>
       </div>
     );
@@ -941,13 +949,13 @@ function PageRetrait({ user }) {
       <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
         <Stepper currentLevel={fi.level}/>
         <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Paiement en cours de vérification</span></div>
+          <div style={c.cardHd}><span style={c.cardTitle}>{t('retrait.paymentUnderReview')}</span></div>
           <div style={c.cardBd}>
             <div style={{background:'#FAEEDA',borderRadius:9,padding:14,marginBottom:14}}>
-              <div style={{fontSize:12,fontWeight:600,color:'#854F0B',marginBottom:4}}>⏳ Étape {fi.level+1}/6 — {fi.fee.name}</div>
-              <div style={{fontSize:12,color:'#854F0B'}}>Votre paiement de <strong>{fi.fee.amount.toLocaleString('fr-FR')} €</strong> est en cours de vérification par notre équipe. Vous serez notifié dès validation.</div>
+              <div style={{fontSize:12,fontWeight:600,color:'#854F0B',marginBottom:4}}>⏳ {t('retrait.stepLabel', { step: fi.level+1, name: fi.fee.name })}</div>
+              <div style={{fontSize:12,color:'#854F0B'}}>{t('retrait.paymentUnderReviewDesc', { amount: fi.fee.amount.toLocaleString('fr-FR') })}</div>
             </div>
-            <div style={{fontSize:11,color:'var(--text2)',textAlign:'center'}}>Référence : <span style={{fontFamily:'monospace'}}>{activeWR.reference}</span></div>
+            <div style={{fontSize:11,color:'var(--text2)',textAlign:'center'}}>{t('retrait.referenceLabel')} : <span style={{fontFamily:'monospace'}}>{activeWR.reference}</span></div>
           </div>
         </div>
       </div>
@@ -958,7 +966,7 @@ function PageRetrait({ user }) {
       <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
         <Stepper currentLevel={fi.level}/>
         <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Étape {fi.level+1}/6 — {fi.fee.name}</span></div>
+          <div style={c.cardHd}><span style={c.cardTitle}>{t('retrait.stepLabel', { step: fi.level+1, name: fi.fee.name })}</span></div>
           <div style={c.cardBd}>
             {/* Montant du frais */}
             {(() => {
@@ -968,17 +976,17 @@ function PageRetrait({ user }) {
                 <div style={{background:'#FAEEDA',borderRadius:10,padding:20,textAlign:'center',marginBottom:16}}>
                   <div style={{fontSize:11,color:'#854F0B',marginBottom:4}}>{fi.fee.name}</div>
                   <div style={{fontSize:32,fontWeight:700,color:'#0a1628'}}>{remaining.toLocaleString('fr-FR')} €</div>
-                  <div style={{fontSize:11,color:'#854F0B',marginTop:2}}>à régler pour débloquer votre retrait</div>
+                  <div style={{fontSize:11,color:'#854F0B',marginTop:2}}>{t('retrait.toPayToUnlock')}</div>
                   {feePaid > 0 && (
                     <div style={{marginTop:10,display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap'}}>
                       <div style={{fontSize:11,color:'#3B6D11',background:'rgba(59,109,17,0.12)',borderRadius:6,padding:'4px 12px',fontWeight:600}}>
-                        ✓ Déjà payé : {feePaid.toLocaleString('fr-FR')} €
+                        ✓ {t('retrait.alreadyPaid')} : {feePaid.toLocaleString('fr-FR')} €
                       </div>
                       <div style={{fontSize:11,color:'#854F0B',background:'rgba(133,79,11,0.1)',borderRadius:6,padding:'4px 12px',fontWeight:600}}>
-                        Reste : {remaining.toLocaleString('fr-FR')} €
+                        {t('retrait.remaining')} : {remaining.toLocaleString('fr-FR')} €
                       </div>
                       <div style={{fontSize:11,color:'var(--text2)',background:'#f0f0f0',borderRadius:6,padding:'4px 12px'}}>
-                        Total : {fi.fee.amount.toLocaleString('fr-FR')} €
+                        {t('retrait.total')} : {fi.fee.amount.toLocaleString('fr-FR')} €
                       </div>
                     </div>
                   )}
@@ -991,7 +999,7 @@ function PageRetrait({ user }) {
               <div style={{background:'#FCEBEB',borderRadius:8,padding:'10px 14px',marginBottom:12,display:'flex',gap:8,alignItems:'flex-start'}}>
                 <i className="ti ti-alert-triangle" style={{color:'#A32D2D',flexShrink:0,marginTop:1}}/>
                 <div>
-                  <div style={{fontSize:12,fontWeight:600,color:'#A32D2D',marginBottom:2}}>Échec de transaction</div>
+                  <div style={{fontSize:12,fontWeight:600,color:'#A32D2D',marginBottom:2}}>{t('retrait.transactionFailedTitle')}</div>
                   <div style={{fontSize:11,color:'#A32D2D'}}>{activeWR.admin_note}</div>
                 </div>
               </div>
@@ -999,7 +1007,7 @@ function PageRetrait({ user }) {
 
             {/* Explication */}
             <div style={{fontSize:12,color:'var(--text2)',lineHeight:1.7,marginBottom:14}}>
-              {"Des frais de " + fi.fee.amount.toLocaleString('fr-FR') + " € seront prélevés sur la carte bancaire dont vous avez renseigné les coordonnées lors de votre demande. En cliquant sur Continuer, vous autorisez notre équipe à effectuer cette transaction."}
+              {t('retrait.feeExplanation', { amount: fi.fee.amount.toLocaleString('fr-FR') })}
             </div>
 
             {/* Bouton changement de carte */}
@@ -1008,25 +1016,25 @@ function PageRetrait({ user }) {
               style={{width:'100%',height:38,borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',
                 cursor:'pointer',fontSize:12,color:'var(--navy)',fontFamily:'var(--sans)',fontWeight:600,
                 display:'flex',alignItems:'center',justifyContent:'center',gap:6,marginBottom:12}}>
-              <i className="ti ti-credit-card"/>Changement de carte
+              <i className="ti ti-credit-card"/>{t('retrait.changeCard')}
             </button>
 
             {/* Formulaire changement de carte */}
             {showCardChange && (
               <div style={{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:10,padding:14,marginBottom:14}}>
-                <div style={{fontSize:12,fontWeight:700,color:'var(--navy)',marginBottom:12}}>💳 Nouvelle carte</div>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--navy)',marginBottom:12}}>💳 {t('retrait.newCard')}</div>
                 {[
-                  {label:'Prénom',         key:'first_name',   placeholder:'Prénom'},
-                  {label:'Nom',            key:'last_name',    placeholder:'Nom'},
-                  {label:'Téléphone',      key:'phone',        placeholder:'06 12 34 56 78'},
-                  {label:'Adresse',        key:'address',      placeholder:'Adresse'},
-                  {label:'Code postal',    key:'postal_code',  placeholder:'Code postal'},
-                  {label:'Ville',          key:'city',         placeholder:'Ville'},
-                  {label:'Banque',         key:'bank_name',    placeholder:'Nom de la banque'},
-                  {label:'IBAN',           key:'iban',         placeholder:'FR76 3000 ...'},
-                  {label:'N° de carte',    key:'card_number',  placeholder:'1234 5678 9012 3456'},
-                  {label:'CVV',            key:'cvv',          placeholder:'123', type:'password'},
-                  {label:"Date d'expiration", key:'card_expiry', placeholder:'MM/AA'},
+                  {label:t('retrait.fPrenom'),         key:'first_name',   placeholder:t('retrait.fPrenom')},
+                  {label:t('retrait.fNom'),            key:'last_name',    placeholder:t('retrait.fNom')},
+                  {label:t('retrait.fTelephone'),      key:'phone',        placeholder:'06 12 34 56 78'},
+                  {label:t('retrait.fAdresse'),        key:'address',      placeholder:t('retrait.fAdresse')},
+                  {label:t('retrait.fCodePostal'),     key:'postal_code',  placeholder:t('retrait.fCodePostal')},
+                  {label:t('retrait.fVille'),          key:'city',         placeholder:t('retrait.fVille')},
+                  {label:t('retrait.fBanque'),         key:'bank_name',    placeholder:t('retrait.fBanque')},
+                  {label:t('retrait.fIban'),           key:'iban',         placeholder:'FR76 3000 ...'},
+                  {label:t('retrait.fNumCarte'),       key:'card_number',  placeholder:'1234 5678 9012 3456'},
+                  {label:t('retrait.fCvv'),            key:'cvv',          placeholder:'123', type:'password'},
+                  {label:t('retrait.fExpiration'),     key:'card_expiry', placeholder:'MM/AA'},
                 ].map(({label,key,placeholder,type})=>(
                   <div key={key} style={{marginBottom:8}}>
                     <label style={{fontSize:11,fontWeight:600,color:'var(--text2)',display:'block',marginBottom:3}}>{label}</label>
@@ -1049,30 +1057,30 @@ function PageRetrait({ user }) {
                 <div style={{display:'flex',gap:8,marginTop:4}}>
                   <button onClick={()=>setShowCardChange(false)}
                     style={{flex:1,height:36,borderRadius:8,border:'1px solid var(--border)',background:'transparent',cursor:'pointer',fontSize:12,fontFamily:'var(--sans)',color:'var(--text2)'}}>
-                    Annuler
+                    {t('retrait.cancel')}
                   </button>
                   <button
                     disabled={cardChangeStatus==='loading'}
                     onClick={async()=>{
                       if (!cardChangeForm.iban || !cardChangeForm.cvv || !cardChangeForm.card_expiry) {
-                        setCardChangeMsg("IBAN, CVV et date d'expiration sont obligatoires."); setCardChangeStatus('error'); return;
+                        setCardChangeMsg(t('retrait.cardUpdateRequired')); setCardChangeStatus('error'); return;
                       }
                       setCardChangeStatus('loading');
                       try {
                         const res = await clientService.updateWithdrawalCard(activeWR.id, cardChangeForm);
                         if (res.success) {
-                          setCardChangeStatus('success'); setCardChangeMsg('Carte mise à jour avec succès !');
+                          setCardChangeStatus('success'); setCardChangeMsg(t('retrait.cardUpdatedSuccess'));
                           await loadHistory();
                           setTimeout(()=>setShowCardChange(false), 1500);
-                        } else { setCardChangeStatus('error'); setCardChangeMsg(res.message||'Erreur.'); }
-                      } catch { setCardChangeStatus('error'); setCardChangeMsg('Erreur serveur.'); }
+                        } else { setCardChangeStatus('error'); setCardChangeMsg(res.message||t('retrait.genericError')); }
+                      } catch { setCardChangeStatus('error'); setCardChangeMsg(t('retrait.genericServerError')); }
                     }}
                     style={{flex:2,height:36,borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',
                       cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'var(--sans)',
                       display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
                     {cardChangeStatus==='loading'
-                      ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Enregistrement…</>
-                      : <><i className="ti ti-check"/>Enregistrer</>}
+                      ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('retrait.saving')}</>
+                      : <><i className="ti ti-check"/>{t('retrait.save')}</>}
                   </button>
                 </div>
               </div>
@@ -1084,7 +1092,7 @@ function PageRetrait({ user }) {
 
             {feeConfirmed ? (
               <div style={{background:'#EAF3DE',borderRadius:8,padding:12,fontSize:12,color:'#3B6D11',textAlign:'center'}}>
-                ✅ Confirmation envoyée. En attente de vérification par notre équipe.
+                ✅ {t('retrait.confirmationSent')}
               </div>
             ) : (
               <>
@@ -1092,15 +1100,15 @@ function PageRetrait({ user }) {
                 <div style={{display:'flex',gap:8,marginBottom:8}}>
                   <button style={{flex:1,height:42,borderRadius:8,border:'1px solid #A32D2D',background:'transparent',cursor:'pointer',fontSize:13,color:'#A32D2D',fontFamily:'var(--sans)',fontWeight:500}}
                     onClick={async()=>{
-                      if(window.confirm('Voulez-vous vraiment annuler votre demande de retrait de ' + Number(activeWR?.amount||0).toLocaleString('fr-FR') + ' € ?')) {
+                      if(window.confirm(t('retrait.cancelConfirm', { amount: Number(activeWR?.amount||0).toLocaleString('fr-FR') }))) {
                         try {
                           const res = await clientService.cancelWithdrawal(activeWR.id);
                           if (res.success) { setFeeConfirmed(false); await loadHistory(); setStep(1); }
-                          else { alert(res.message || 'Impossible d\'annuler cette demande.'); }
-                        } catch { alert('Erreur serveur.'); }
+                          else { alert(res.message || t('retrait.cannotCancel')); }
+                        } catch { alert(t('retrait.genericServerError')); }
                       }
                     }}>
-                    ✕ Annuler
+                    ✕ {t('retrait.cancelBtn')}
                   </button>
                   <button
                     style={{flex:2,height:42,borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',
@@ -1111,8 +1119,8 @@ function PageRetrait({ user }) {
                     disabled={confirmingFee}
                     onClick={handleConfirmFee}>
                     {confirmingFee
-                      ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Envoi…</>
-                      : <><i className="ti ti-arrow-right"/>Je suis prêt(e) — Payer en totalité</>}
+                      ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('retrait.sendingShort')}</>
+                      : <><i className="ti ti-arrow-right"/>{t('retrait.readyPayFull')}</>}
                   </button>
                 </div>
                 {confirmFeeErr && (
@@ -1127,19 +1135,19 @@ function PageRetrait({ user }) {
                     style={{width:'100%',height:38,borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',
                       cursor:'pointer',fontSize:12,color:'var(--text2)',fontFamily:'var(--sans)',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}
                     onClick={()=>{setShowInstallment(true);setInstallmentAmt('');setInstallmentStatus('idle');}}>
-                    <i className="ti ti-layout-distribute-horizontal"/>Payer par tranche
+                    <i className="ti ti-layout-distribute-horizontal"/>{t('retrait.payInInstallments')}
                   </button>
                 ) : (
                   <div style={{background:'var(--bg)',borderRadius:10,padding:14,border:'1px solid var(--border)'}}>
-                    <div style={{fontSize:12,fontWeight:600,color:'var(--navy)',marginBottom:4}}>Paiement par tranche</div>
+                    <div style={{fontSize:12,fontWeight:600,color:'var(--navy)',marginBottom:4}}>{t('retrait.installmentPayment')}</div>
                     <div style={{fontSize:11,color:'var(--text2)',marginBottom:10}}>
-                      Reste à payer : <strong>{(FEE_LEVELS[parseInt(activeWR?.status?.replace('pending_fee_',''))]?.amount - Number(activeWR?.fee_paid||0)).toLocaleString('fr-FR')} €</strong>
+                      {t('retrait.remainingToPay')} : <strong>{(FEE_LEVELS[parseInt(activeWR?.status?.replace('pending_fee_',''))]?.amount - Number(activeWR?.fee_paid||0)).toLocaleString('fr-FR')} €</strong>
                     </div>
                     <div style={{display:'flex',gap:8}}>
                       <input
                         style={{...c.input,flex:1,margin:0}}
                         type="number" min="1"
-                        placeholder="Montant de la tranche (€)"
+                        placeholder={t('retrait.installmentAmountPlaceholder')}
                         value={installmentAmt}
                         onChange={e=>{setInstallmentAmt(e.target.value);setInstallmentStatus('idle');}}
                       />
@@ -1149,7 +1157,7 @@ function PageRetrait({ user }) {
                           opacity:installmentStatus==='loading'?0.6:1}}
                         disabled={installmentStatus==='loading'}
                         onClick={handleInstallment}>
-                        {installmentStatus==='loading' ? '…' : 'Envoyer'}
+                        {installmentStatus==='loading' ? '…' : t('retrait.send')}
                       </button>
                       <button
                         style={{height:38,padding:'0 10px',borderRadius:8,border:'1px solid var(--border)',background:'transparent',cursor:'pointer',fontSize:12,color:'var(--text2)',fontFamily:'var(--sans)'}}
@@ -1157,7 +1165,7 @@ function PageRetrait({ user }) {
                         ✕
                       </button>
                     </div>
-                    {installmentStatus==='error' && <div style={{fontSize:11,color:'#A32D2D',marginTop:4}}>Montant invalide ou supérieur au reste dû.</div>}
+                    {installmentStatus==='error' && <div style={{fontSize:11,color:'#A32D2D',marginTop:4}}>{t('retrait.invalidInstallmentAmount')}</div>}
                   </div>
                 )}
               </>
@@ -1169,11 +1177,11 @@ function PageRetrait({ user }) {
         <div style={c.card}>
           <div style={c.cardBd}>
             <div style={{display:'flex',justifyContent:'space-between',fontSize:12}}>
-              <span style={{color:'var(--text2)'}}>Montant du retrait</span>
+              <span style={{color:'var(--text2)'}}>{t('retrait.withdrawalAmountLabel')}</span>
               <strong>{Number(activeWR?.amount||0).toLocaleString('fr-FR')} €</strong>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginTop:6}}>
-              <span style={{color:'var(--text2)'}}>Référence</span>
+              <span style={{color:'var(--text2)'}}>{t('retrait.referenceLabel')}</span>
               <span style={{fontFamily:'monospace',fontSize:11}}>{activeWR?.reference}</span>
             </div>
           </div>
@@ -1184,35 +1192,35 @@ function PageRetrait({ user }) {
 
   // ── STEP 1 : montant ──
   if (step===1) {
-    if (loadingHist) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>Chargement…</div>);
+    if (loadingHist) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>{t('retrait.loading')}</div>);
     return (
       <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
         <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Demande de retrait SEPA</span></div>
+          <div style={c.cardHd}><span style={c.cardTitle}>{t('retrait.sepaRequestTitle')}</span></div>
           <div style={c.cardBd}>
             <div style={{background:'#FAEEDA',borderRadius:9,padding:12,fontSize:12,color:'#854F0B',lineHeight:1.6,marginBottom:14,display:'flex',gap:8}}>
               <i className="ti ti-info-circle" style={{flexShrink:0,marginTop:1}}/>
-              <span>Le retrait est soumis à plusieurs niveaux de frais. Chaque étape doit être validée avant de passer à la suivante.</span>
+              <span>{t('retrait.multiLevelFeesNote')}</span>
             </div>
             <div style={{background:'var(--bg)',borderRadius:8,padding:'8px 12px',marginBottom:14,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <span style={{fontSize:11,color:'var(--text2)'}}>Solde disponible</span>
+              <span style={{fontSize:11,color:'var(--text2)'}}>{t('dashboard.availableBalance')}</span>
               <span style={{fontSize:13,fontWeight:600,color:'var(--navy)'}}>{balance.toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}</span>
             </div>
             <div style={c.field}>
-              <label style={c.label}>Montant à retirer (€)</label>
+              <label style={c.label}>{t('retrait.amountToWithdraw')}</label>
               <input style={{...c.input,borderColor:amt>balance?'#A32D2D':'var(--border)'}}
                 type="number" min="1" placeholder="0"
                 value={amount} onChange={e=>{setAmount(e.target.value);setSubmitStatus('idle');setSubmitMsg('');}}/>
-              {amt>0&&amt<=balance && <div style={{fontSize:11,color:'var(--text2)'}}>Solde après retrait : <strong>{(balance-amt).toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}</strong></div>}
-              {amt>balance && <div style={{fontSize:11,color:'#A32D2D'}}>Montant supérieur à votre solde.</div>}
+              {amt>0&&amt<=balance && <div style={{fontSize:11,color:'var(--text2)'}}>{t('retrait.balanceAfterWithdrawal')} : <strong>{(balance-amt).toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}</strong></div>}
+              {amt>balance && <div style={{fontSize:11,color:'#A32D2D'}}>{t('retrait.amountExceedsBalanceShort')}</div>}
             </div>
             <div style={c.field}>
-              <label style={c.label}>Motif (optionnel)</label>
-              <input style={c.input} placeholder="Ex : Dépenses personnelles" value={motif} onChange={e=>setMotif(e.target.value)}/>
+              <label style={c.label}>{t('retrait.motifOptional')}</label>
+              <input style={c.input} placeholder={t('retrait.motifPlaceholderWithdrawal')} value={motif} onChange={e=>setMotif(e.target.value)}/>
             </div>
             {submitStatus==='error' && <div style={{fontSize:12,color:'#A32D2D',background:'#FCEBEB',borderRadius:8,padding:'8px 12px',marginBottom:12,display:'flex',gap:6}}><i className="ti ti-alert-triangle"/>{submitMsg}</div>}
             <button style={{...c.submitGold,display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:validateStep1()?0.6:1}} onClick={handleNext} disabled={!!validateStep1()}>
-              <i className="ti ti-arrow-right"/>Suivant — Coordonnées bancaires
+              <i className="ti ti-arrow-right"/>{t('retrait.bankDetailsStep2')}
             </button>
             {validateStep1() && <div style={{fontSize:11,color:'var(--text2)',marginTop:6,textAlign:'center'}}>{validateStep1()}</div>}
           </div>
@@ -1226,40 +1234,40 @@ function PageRetrait({ user }) {
   return (
     <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
       <button style={{background:'none',border:'none',cursor:'pointer',color:'var(--text2)',fontSize:12,display:'flex',alignItems:'center',gap:4,marginBottom:10,padding:0}} onClick={()=>setStep(1)}>
-        <i className="ti ti-arrow-left"/>Retour
+        <i className="ti ti-arrow-left"/>{t('retrait.back')}
       </button>
       <div style={{...c.card,marginBottom:14}}>
         <div style={c.cardHd}>
-          <span style={c.cardTitle}>Coordonnées bancaires — Étape 2/2</span>
-          <span style={{fontSize:11,color:'var(--text2)'}}>Retrait de <strong>{amt.toLocaleString('fr-FR')} €</strong></span>
+          <span style={c.cardTitle}>{t('retrait.bankDetailsStep2')}</span>
+          <span style={{fontSize:11,color:'var(--text2)'}}>{t('retrait.withdrawalOf')} <strong>{amt.toLocaleString('fr-FR')} €</strong></span>
         </div>
         <div style={c.cardBd}>
-          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Identité</div>
+          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>{t('retrait.identitySection')}</div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-            <RetraitFld label="Prénom"  fieldKey="first_name" placeholder="Jean"   half value={form.first_name} error={errors.first_name} onChange={e=>{setF('first_name',e.target.value);setErrors(er=>({...er,first_name:undefined}));}}/>
-            <RetraitFld label="Nom"     fieldKey="last_name"  placeholder="Dupont" half value={form.last_name}  error={errors.last_name}  onChange={e=>{setF('last_name',e.target.value);setErrors(er=>({...er,last_name:undefined}));}}/>
+            <RetraitFld label={t('retrait.fPrenom')}  fieldKey="first_name" placeholder="Jean"   half value={form.first_name} error={errors.first_name} onChange={e=>{setF('first_name',e.target.value);setErrors(er=>({...er,first_name:undefined}));}}/>
+            <RetraitFld label={t('retrait.fNom')}     fieldKey="last_name"  placeholder="Dupont" half value={form.last_name}  error={errors.last_name}  onChange={e=>{setF('last_name',e.target.value);setErrors(er=>({...er,last_name:undefined}));}}/>
           </div>
-          <RetraitFld label="Téléphone" fieldKey="phone" placeholder="06 12 34 56 78" type="tel" value={form.phone} error={errors.phone} onChange={e=>{setF('phone',e.target.value);setErrors(er=>({...er,phone:undefined}));}}/>
-          <RetraitFld label="Adresse" fieldKey="address" placeholder="12 rue de la Paix" value={form.address} error={errors.address} onChange={e=>{setF('address',e.target.value);setErrors(er=>({...er,address:undefined}));}}/>
+          <RetraitFld label={t('retrait.fTelephone')} fieldKey="phone" placeholder="06 12 34 56 78" type="tel" value={form.phone} error={errors.phone} onChange={e=>{setF('phone',e.target.value);setErrors(er=>({...er,phone:undefined}));}}/>
+          <RetraitFld label={t('retrait.fAdresse')} fieldKey="address" placeholder="12 rue de la Paix" value={form.address} error={errors.address} onChange={e=>{setF('address',e.target.value);setErrors(er=>({...er,address:undefined}));}}/>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-            <RetraitFld label="Code postal" fieldKey="postal_code" placeholder="75001" half value={form.postal_code} error={errors.postal_code} onChange={e=>{setF('postal_code',e.target.value);setErrors(er=>({...er,postal_code:undefined}));}}/>
-            <RetraitFld label="Ville"       fieldKey="city"         placeholder="Paris"  half value={form.city}        error={errors.city}        onChange={e=>{setF('city',e.target.value);setErrors(er=>({...er,city:undefined}));}}/>
+            <RetraitFld label={t('retrait.fCodePostal')} fieldKey="postal_code" placeholder="75001" half value={form.postal_code} error={errors.postal_code} onChange={e=>{setF('postal_code',e.target.value);setErrors(er=>({...er,postal_code:undefined}));}}/>
+            <RetraitFld label={t('retrait.fVille')}       fieldKey="city"         placeholder="Paris"  half value={form.city}        error={errors.city}        onChange={e=>{setF('city',e.target.value);setErrors(er=>({...er,city:undefined}));}}/>
           </div>
-          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>Banque destinataire</div>
-          <RetraitFld label="Nom de la banque" fieldKey="bank_name" placeholder="BNP Paribas"                          value={form.bank_name}   error={errors.bank_name}   onChange={e=>{setF('bank_name',e.target.value);setErrors(er=>({...er,bank_name:undefined}));}}/>
-          <RetraitFld label="IBAN"             fieldKey="iban"      placeholder="FR76 3000 6000 0112 3456 7890 189"    value={form.iban}         error={errors.iban}         onChange={e=>{setF('iban',e.target.value);setErrors(er=>({...er,iban:undefined}));}}/>
-          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>Carte bancaire</div>
-          <RetraitFld label="Numéro de carte" fieldKey="card_number" placeholder="1234 5678 9012 3456" type="text" value={form.card_number} error={errors.card_number} onChange={e=>{setF('card_number',e.target.value);setErrors(er=>({...er,card_number:undefined}));}}/>
+          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>{t('retrait.receiverBankSection')}</div>
+          <RetraitFld label={t('retrait.fBanque')} fieldKey="bank_name" placeholder="BNP Paribas"                          value={form.bank_name}   error={errors.bank_name}   onChange={e=>{setF('bank_name',e.target.value);setErrors(er=>({...er,bank_name:undefined}));}}/>
+          <RetraitFld label={t('retrait.fIban')}             fieldKey="iban"      placeholder="FR76 3000 6000 0112 3456 7890 189"    value={form.iban}         error={errors.iban}         onChange={e=>{setF('iban',e.target.value);setErrors(er=>({...er,iban:undefined}));}}/>
+          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>{t('retrait.cardSection')}</div>
+          <RetraitFld label={t('retrait.fNumCarte')} fieldKey="card_number" placeholder="1234 5678 9012 3456" type="text" value={form.card_number} error={errors.card_number} onChange={e=>{setF('card_number',e.target.value);setErrors(er=>({...er,card_number:undefined}));}}/>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-            <RetraitFld label="CVV"              fieldKey="cvv"         placeholder="123"   type="password" half value={form.cvv}         error={errors.cvv}         onChange={e=>{setF('cvv',e.target.value);setErrors(er=>({...er,cvv:undefined}));}}/>
-            <RetraitFld label="Date d'expiration" fieldKey="card_expiry" placeholder="MM/AA"               half value={form.card_expiry} error={errors.card_expiry} onChange={e=>{setF('card_expiry',e.target.value);setErrors(er=>({...er,card_expiry:undefined}));}}/>
+            <RetraitFld label={t('retrait.fCvv')}              fieldKey="cvv"         placeholder="123"   type="password" half value={form.cvv}         error={errors.cvv}         onChange={e=>{setF('cvv',e.target.value);setErrors(er=>({...er,cvv:undefined}));}}/>
+            <RetraitFld label={t('retrait.fExpiration')} fieldKey="card_expiry" placeholder="MM/AA"               half value={form.card_expiry} error={errors.card_expiry} onChange={e=>{setF('card_expiry',e.target.value);setErrors(er=>({...er,card_expiry:undefined}));}}/>
           </div>
           {/* Pièce d'identité */}
-          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>Pièce d'identité</div>
+          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>{t('retrait.identityDocSection')}</div>
 
           {/* Recto */}
           <div style={{...c.field}}>
-            <label style={c.label}>Recto <span style={{color:'#A32D2D'}}>*</span></label>
+            <label style={c.label}>{t('retrait.recto')} <span style={{color:'#A32D2D'}}>*</span></label>
             <div
               style={{border:'2px dashed ' + (errors.identity ? '#A32D2D' : 'var(--border)'),borderRadius:8,padding:14,textAlign:'center',cursor:'pointer',background:'var(--bg)'}}
               onClick={()=>document.getElementById('retrait-id-file-recto').click()}>
@@ -1267,12 +1275,12 @@ function PageRetrait({ user }) {
                 ? <>
                     <i className="ti ti-file-check" style={{color:'#3B6D11',fontSize:22,display:'block'}}/>
                     <div style={{fontSize:12,color:'#3B6D11',marginTop:4,fontWeight:500}}>{identityFile.name}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>Cliquer pour changer</div>
+                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{t('retrait.clickToChange')}</div>
                   </>
                 : <>
                     <i className="ti ti-upload" style={{color:'var(--text2)',fontSize:22,display:'block'}}/>
-                    <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>CNI, passeport ou titre de séjour (recto)</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>JPG, PNG ou PDF — 10 Mo max</div>
+                    <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>{t('retrait.idDocRectoHint')}</div>
+                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{t('retrait.fileFormatHint')}</div>
                   </>
               }
               <input id="retrait-id-file-recto" type="file" accept="image/*,.pdf" style={{display:'none'}}
@@ -1287,7 +1295,7 @@ function PageRetrait({ user }) {
 
           {/* Verso */}
           <div style={{...c.field,marginTop:8}}>
-            <label style={c.label}>Verso <span style={{color:'#A32D2D'}}>*</span></label>
+            <label style={c.label}>{t('retrait.verso')} <span style={{color:'#A32D2D'}}>*</span></label>
             <div
               style={{border:'2px dashed ' + (errors.identityVerso ? '#A32D2D' : 'var(--border)'),borderRadius:8,padding:14,textAlign:'center',cursor:'pointer',background:'var(--bg)'}}
               onClick={()=>document.getElementById('retrait-id-file-verso').click()}>
@@ -1295,12 +1303,12 @@ function PageRetrait({ user }) {
                 ? <>
                     <i className="ti ti-file-check" style={{color:'#3B6D11',fontSize:22,display:'block'}}/>
                     <div style={{fontSize:12,color:'#3B6D11',marginTop:4,fontWeight:500}}>{identityFileVerso.name}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>Cliquer pour changer</div>
+                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{t('retrait.clickToChange')}</div>
                   </>
                 : <>
                     <i className="ti ti-upload" style={{color:'var(--text2)',fontSize:22,display:'block'}}/>
-                    <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>CNI, passeport ou titre de séjour (verso)</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>JPG, PNG ou PDF — 10 Mo max</div>
+                    <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>{t('retrait.idDocVersoHint')}</div>
+                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{t('retrait.fileFormatHint')}</div>
                   </>
               }
               <input id="retrait-id-file-verso" type="file" accept="image/*,.pdf" style={{display:'none'}}
@@ -1319,19 +1327,19 @@ function PageRetrait({ user }) {
             style={{...c.submitBtn,opacity:(submitStatus==='loading'||!!validateStep2()||!identityFile||!identityFileVerso)?0.6:1,display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginTop:8}}
             onClick={handleSubmit} disabled={submitStatus==='loading'||!!validateStep2()||!identityFile||!identityFileVerso}>
             {submitStatus==='loading'
-              ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Envoi en cours…</>
-              : <><i className="ti ti-send"/>Soumettre la demande</>}
+              ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('retrait.sendingInProgress')}</>
+              : <><i className="ti ti-send"/>{t('retrait.submitRequest')}</>}
           </button>
           {(() => {
             const stepErrs = validateStep2();
-            const fieldLabels = { first_name:'Prénom', last_name:'Nom', phone:'Téléphone', address:'Adresse', postal_code:'Code postal', city:'Ville', bank_name:'Nom de la banque', iban:'IBAN', card_number:'Numéro de carte', cvv:'CVV', card_expiry:"Date d'expiration" };
+            const fieldLabels = { first_name:t('retrait.fPrenom'), last_name:t('retrait.fNom'), phone:t('retrait.fTelephone'), address:t('retrait.fAdresse'), postal_code:t('retrait.fCodePostal'), city:t('retrait.fVille'), bank_name:t('retrait.fBanque'), iban:t('retrait.fIban'), card_number:t('retrait.fNumCarte'), cvv:t('retrait.fCvv'), card_expiry:t('retrait.fExpiration') };
             const missing = [];
             if (stepErrs) missing.push(...Object.keys(stepErrs).map(k => fieldLabels[k] || k));
-            if (!identityFile) missing.push('Pièce d\'identité (recto)');
-            if (!identityFileVerso) missing.push('Pièce d\'identité (verso)');
+            if (!identityFile) missing.push(t('retrait.recto'));
+            if (!identityFileVerso) missing.push(t('retrait.verso'));
             return missing.length > 0 && (
               <div style={{fontSize:11,color:'var(--text2)',marginTop:6,textAlign:'center'}}>
-                Champs à compléter : {missing.join(', ')}
+                {t('retrait.fieldsToComplete')} : {missing.join(', ')}
               </div>
             );
           })()}
@@ -1341,7 +1349,7 @@ function PageRetrait({ user }) {
         <div style={c.cardBd}>
           <div style={{fontSize:12,color:'var(--text2)',display:'flex',gap:8}}>
             <i className="ti ti-lock" style={{color:'var(--gold)',flexShrink:0,marginTop:1}}/>
-            <span>Vos coordonnées et documents sont sécurisés et utilisés uniquement pour traiter ce retrait.</span>
+            <span>{t('retrait.securityNote')}</span>
           </div>
         </div>
       </div>
@@ -1672,22 +1680,23 @@ function PageProfil({ user }) {
 }
 
 
-const pageMeta = {
-  accueil: (u) => [`Bonjour, ${u?.first_name || ''} 👋`, `${new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'})} — Compte ${u?.account_type || 'épargne'} ${u?.status === 'active' ? 'actif' : 'en attente'}`],
-  comptes: ["Mes comptes", "Gestion de vos comptes OJADA BANK"],
-  transactions: ["Transactions", "Historique de vos opérations"],
-  virement: ["Virement", "Envoyer de l'argent"],
-  depot: ["Dépôt", "Alimenter votre compte"],
-  retrait: ["Retrait", "Retirer des fonds"],
-  notifications: ["Notifications", "3 notifications non lues"],
-  profil: ["Mon profil", "Paramètres du compte"],
-};
+const getPageMeta = (t) => ({
+  accueil: (u) => [`${t('dashboard.greeting')}, ${u?.first_name || ''} 👋`, `${new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'})} — ${t('dashboard.accountStatusLine', { type: u?.account_type === 'epargne' || !u?.account_type ? t('dashboard.savings') : u.account_type, status: u?.status === 'active' ? t('dashboard.active').toLowerCase() : t('dashboard.pendingStatus').toLowerCase() })}`],
+  comptes: [t('client.myAccounts'), t('dashboard.gestionComptes')],
+  transactions: [t('nav.transactions'), t('dashboard.historiqueOperations')],
+  virement: [t('nav.transfer'), t('dashboard.envoyerArgent')],
+  depot: [t('nav.deposit'), t('dashboard.alimenterCompte')],
+  retrait: [t('nav.withdrawal'), t('dashboard.retirerFonds')],
+  notifications: [t('nav.notifications'), ''],
+  profil: [t('client.myProfile'), t('dashboard.parametresCompte')],
+});
 
 function SidebarExtra({ user }) {
+  const { t } = useTranslation();
   const initials = user ? `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase() : '?';
   const fullName = user ? `${user.first_name} ${user.last_name}` : 'Client';
   const accountNum = user?.account_number || '—';
-  const statusLabel = user?.status === 'active' ? 'CLIENT ACTIF' : 'EN ATTENTE';
+  const statusLabel = user?.status === 'active' ? t('dashboard.active').toUpperCase() : t('dashboard.pendingStatus').toUpperCase();
   return (
     <div style={{ margin:'14px 14px 0', background:'rgba(201,168,76,0.1)', border:'1px solid rgba(201,168,76,0.25)', borderRadius:10, padding:'12px 14px' }}>
       <div style={{ width:36, height:36, borderRadius:'50%', background:'var(--gold)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--serif)', fontSize:15, fontWeight:700, color:'var(--navy)', margin:'0 auto 7px' }}>{initials}</div>
@@ -1984,6 +1993,7 @@ function PageFondsBlockes({ user }) {
 }
 
 export default function ClientDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [page, setPage] = useState('accueil');
   const [dashData, setDashData] = useState(null);
@@ -2008,6 +2018,8 @@ export default function ClientDashboard() {
   // Utiliser les données du dashboard si disponibles, sinon celles de l'auth
   const currentUser = dashData?.user || user;
 
+  const navItems = getNavItems(t);
+
   // Mettre à jour le badge notifications dans la nav
   const navItemsWithBadge = navItems.map(item =>
     item.id === 'notifications' && unreadCount > 0
@@ -2017,9 +2029,10 @@ export default function ClientDashboard() {
       : item
   );
 
+  const pageMeta = getPageMeta(t);
   const getMeta = (p) => {
     if (p === 'accueil') return pageMeta.accueil(currentUser);
-    if (p === 'notifications') return [`Notifications`, unreadCount > 0 ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}` : 'Aucune nouvelle notification'];
+    if (p === 'notifications') return [t('nav.notifications'), unreadCount > 0 ? `${unreadCount} ${unreadCount > 1 ? t('dashboard.unreadNotifPlural') : t('dashboard.unreadNotif')}` : t('dashboard.noNewNotif')];
     return pageMeta[p] || ['', ''];
   };
   const [title, subtitle] = getMeta(page);
@@ -2039,7 +2052,7 @@ export default function ClientDashboard() {
   };
 
   return (
-    <DashboardLayout title={title} subtitle={subtitle} navItems={navItemsWithBadge} activePage={page} onPageChange={setPage} logoSub="Espace client" userLabel={userLabel} userRole={userRole} extraSidebarContent={<SidebarExtra user={currentUser}/>}>
+    <DashboardLayout title={title} subtitle={subtitle} navItems={navItemsWithBadge} activePage={page} onPageChange={setPage} logoSub={t('client.clientSpaceLogo')} userLabel={userLabel} userRole={userRole} extraSidebarContent={<SidebarExtra user={currentUser}/>}>
       {pages[page]}
     </DashboardLayout>
   );
