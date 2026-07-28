@@ -326,5 +326,11 @@
       "Frais d'activation du compte",
       "Frais de vérification d'identité"
     ]
+  },
+  "txnDesc": {
+    "virementVers": "Virement vers {{name}}",
+    "virementDe": "Virement de {{name}}",
+    "adminDeposit": "Virement de l'administration OJADA BANK",
+    "retraitSepa": "Retrait SEPA — {{bank}} (···{{last4}})"
   }
 }

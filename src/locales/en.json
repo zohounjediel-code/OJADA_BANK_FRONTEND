@@ -326,5 +326,11 @@
       "Account activation fee",
       "Identity verification fee"
     ]
+  },
+  "txnDesc": {
+    "virementVers": "Transfer to {{name}}",
+    "virementDe": "Transfer from {{name}}",
+    "adminDeposit": "Transfer from OJADA BANK administration",
+    "retraitSepa": "SEPA withdrawal — {{bank}} (···{{last4}})"
   }
 }

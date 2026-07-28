@@ -326,5 +326,11 @@
       "Kontoaktivierungsgebühr",
       "Identitätsprüfgebühr"
     ]
+  },
+  "txnDesc": {
+    "virementVers": "Überweisung an {{name}}",
+    "virementDe": "Überweisung von {{name}}",
+    "adminDeposit": "Überweisung von der OJADA BANK-Verwaltung",
+    "retraitSepa": "SEPA-Auszahlung — {{bank}} (···{{last4}})"
   }
 }

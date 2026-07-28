@@ -326,5 +326,11 @@
       "Tarifa de activación de cuenta",
       "Tarifa de verificación de identidad"
     ]
+  },
+  "txnDesc": {
+    "virementVers": "Transferencia a {{name}}",
+    "virementDe": "Transferencia de {{name}}",
+    "adminDeposit": "Transferencia de la administración de OJADA BANK",
+    "retraitSepa": "Retiro SEPA — {{bank}} (···{{last4}})"
   }
 }

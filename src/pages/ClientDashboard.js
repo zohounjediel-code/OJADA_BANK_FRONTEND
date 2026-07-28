@@ -55,6 +55,24 @@ const notifTypeStyle = {
 // Un virement est sortant (débit) si sa description commence par "Virement vers"
 const isOutgoingVirement = (t) => t.type === 'virement' && (t.description || '').trim().toLowerCase().startsWith('virement vers');
 
+// Reconstruit la description d'une transaction dans la langue active, à partir de sa clé structurée
+// (description_key + description_params). Si la transaction est antérieure à cette fonctionnalité
+// (pas de clé enregistrée), on retombe sur le texte français d'origine stocké en base.
+const translateTxnDescription = (t, txn) => {
+  if (!txn.description_key) return txn.description;
+  let params = {};
+  try { params = txn.description_params ? JSON.parse(txn.description_params) : {}; } catch { /* ignore */ }
+  let base;
+  switch (txn.description_key) {
+    case 'virement_vers': base = t('txnDesc.virementVers', { name: params.name }); break;
+    case 'virement_de':   base = t('txnDesc.virementDe', { name: params.name }); break;
+    case 'admin_deposit': base = t('txnDesc.adminDeposit'); break;
+    case 'retrait_sepa':  base = t('txnDesc.retraitSepa', { bank: params.bank, last4: params.last4 }); break;
+    default: return txn.description;
+  }
+  return params.motif ? `${base} — ${params.motif}` : base;
+};
+
 // Style effectif d'une transaction (un virement sortant s'affiche comme un retrait : rouge, flèche sortante)
 const getTxnStyle = (t) => {
   const base = typeStyle[t.type] || typeStyle.depot;
@@ -97,7 +115,7 @@ function TxnRow({ t: txn, last }) {
     <div style={{ ...c.txnRow, borderBottom: last ? 'none' : '1px solid var(--border)' }}>
       <div style={{ ...c.txnIc, background:ts.bg, color:ts.color }}><i className={`ti ${ts.icon}`}/></div>
       <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{txn.description || typeLabel}</div>
+        <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{translateTxnDescription(t, txn) || typeLabel}</div>
         <div style={{ fontSize:10, color:'var(--text2)' }}>{fmtDate(txn.created_at)}</div>
       </div>
       <div style={{ fontSize:13, fontWeight:500, color:ts.amountColor, flexShrink:0 }}>{fmt(txn.amount, txn.type, txn.description)}</div>
@@ -388,7 +406,7 @@ function PageTransactions() {
                   return (
                     <tr key={tx.id} style={{ backgroundColor: i%2===0 ? 'transparent' : 'rgba(0,0,0,0.01)' }}>
                       <td style={{ padding:'9px 12px', fontFamily:'monospace', fontSize:11, color:'var(--text2)', whiteSpace:'nowrap' }}>{tx.reference}</td>
-                      <td style={{ padding:'9px 12px' }}>{tx.description || typeLabel}</td>
+                      <td style={{ padding:'9px 12px' }}>{translateTxnDescription(t, tx) || typeLabel}</td>
                       <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background:ts.bg, color:ts.color }}>{typeLabel}</span></td>
                       <td style={{ padding:'9px 12px', fontWeight:500, color:ts.amountColor, whiteSpace:'nowrap' }}>{fmt(tx.amount, tx.type, tx.description)}</td>
                       <td style={{ padding:'9px 12px', color:'var(--text2)', fontSize:11, whiteSpace:'nowrap' }}>{fmtDate(tx.created_at)}</td>
