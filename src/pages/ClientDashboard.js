@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
+import i18n from '../i18n';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { clientService } from '../services/api';
@@ -87,23 +88,28 @@ const fmt = (amount, type, description) => {
   return negative ? `-${n} €` : `+${n} €`;
 };
 
+// Locale à utiliser pour Intl/toLocaleDateString selon la langue active de l'app
+// (indépendant des hooks React : utilisable aussi dans les fonctions hors composant comme fmtDate/getPageMeta)
+const DATE_LOCALE_MAP = { fr: 'fr-FR', en: 'en-GB', es: 'es-ES', de: 'de-DE' };
+const dLocale = () => DATE_LOCALE_MAP[i18n.language] || 'fr-FR';
+
 // Formater une date
 const fmtDate = (dateStr) => {
   const d = new Date(dateStr);
   const now = new Date();
   const diffMs = now - d;
   const diffMins = Math.floor(diffMs / 60000);
-  if (diffMins < 1) return "À l'instant";
-  if (diffMins < 60) return `Il y a ${diffMins} min`;
+  if (diffMins < 1) return i18n.t('common.justNow');
+  if (diffMins < 60) return i18n.t('common.minutesAgo', { count: diffMins });
 
   // Comparaison sur le jour calendaire réel (et non sur le nombre d'heures écoulées),
   // pour qu'une transaction d'hier 23h ne s'affiche pas "Aujourd'hui" à 10h le lendemain.
   const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const dayDiff = Math.round((startOfDay(now) - startOfDay(d)) / 86400000);
 
-  if (dayDiff === 0) return `Aujourd'hui, ${d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })}`;
-  if (dayDiff === 1) return `Hier, ${d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })}`;
-  return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+  if (dayDiff === 0) return `${i18n.t('common.today')}, ${d.toLocaleTimeString(dLocale(), { hour:'2-digit', minute:'2-digit' })}`;
+  if (dayDiff === 1) return `${i18n.t('common.yesterday')}, ${d.toLocaleTimeString(dLocale(), { hour:'2-digit', minute:'2-digit' })}`;
+  return d.toLocaleDateString(dLocale(), { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
 };
 
 // Composant ligne transaction
@@ -198,7 +204,7 @@ function PageAccueil({ setPage, dashData, loading }) {
               {[
                 [t('dashboard.type'), (user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)],
                 [t('dashboard.number'), user?.account_number || '—'],
-                [t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—'],
+                [t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString(dLocale(),{day:'2-digit',month:'short',year:'numeric'}) : '—'],
                 [t('dashboard.status'), user?.status === 'active' ? t('dashboard.active') : t('dashboard.pendingStatus')]
               ].map(([k,v]) => (
                 <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid var(--border)', fontSize:12 }}>
@@ -246,7 +252,7 @@ function MonthlyActivityChart() {
     <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:90, padding:'8px 0' }}>
       {data.map((item, idx) => {
         const [year, month] = item.month.split('-');
-        const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('fr-FR', { month:'short' });
+        const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString(dLocale(), { month:'short' });
         const height = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
         const isLast = idx === data.length - 1;
         return (
@@ -297,9 +303,9 @@ function PageComptes({ user }) {
         <div style={c.card}>
           <div style={c.cardBd}>
             <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', marginBottom:14 }}>{t('dashboard.accountDetails')}</div>
-            {[[t('dashboard.type'), (user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)],[t('dashboard.number'), user?.account_number || '—'],[t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'],[t('dashboard.interestRate'),`3,5% ${t('dashboard.perYear')}`],[t('dashboard.nextInterest'), (() => {
+            {[[t('dashboard.type'), (user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)],[t('dashboard.number'), user?.account_number || '—'],[t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString(dLocale()) : '—'],[t('dashboard.interestRate'),`3,5% ${t('dashboard.perYear')}`],[t('dashboard.nextInterest'), (() => {
                 const d = new Date(); d.setMonth(d.getMonth() + 1); d.setDate(1);
-                return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+                return d.toLocaleDateString(dLocale(), { day:'2-digit', month:'long', year:'numeric' });
               })()],[t('dashboard.status'), user?.status === 'active' ? t('dashboard.active') : t('dashboard.pendingStatus')]].map(([k,v]) => (
               <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom:'1px solid var(--border)', fontSize:12 }}>
                 <span style={{ color:'var(--text2)' }}>{k}</span>
@@ -1543,7 +1549,7 @@ function PageProfil({ user }) {
   const { setUser } = useAuth();
   const initials   = user ? (user.first_name?.[0]||'') + (user.last_name?.[0]||'') : '?';
   const memberSince = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString('fr-FR', { month:'short', year:'numeric' }) : '—';
+    ? new Date(user.created_at).toLocaleDateString(dLocale(), { month:'short', year:'numeric' }) : '—';
 
   // ── Formulaire infos personnelles ──
   const [info, setInfo] = useState({
@@ -1701,7 +1707,7 @@ function PageProfil({ user }) {
 
 
 const getPageMeta = (t) => ({
-  accueil: (u) => [`${t('dashboard.greeting')}, ${u?.first_name || ''} 👋`, `${new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'})} — ${t('dashboard.accountStatusLine', { type: u?.account_type === 'epargne' || !u?.account_type ? t('dashboard.savings') : u.account_type, status: u?.status === 'active' ? t('dashboard.active').toLowerCase() : t('dashboard.pendingStatus').toLowerCase() })}`],
+  accueil: (u) => [`${t('dashboard.greeting')}, ${u?.first_name || ''} 👋`, `${new Date().toLocaleDateString(dLocale(), {weekday:'long',day:'numeric',month:'long',year:'numeric'})} — ${t('dashboard.accountStatusLine', { type: u?.account_type === 'epargne' || !u?.account_type ? t('dashboard.savings') : u.account_type, status: u?.status === 'active' ? t('dashboard.active').toLowerCase() : t('dashboard.pendingStatus').toLowerCase() })}`],
   comptes: [t('client.myAccounts'), t('dashboard.gestionComptes')],
   transactions: [t('nav.transactions'), t('dashboard.historiqueOperations')],
   virement: [t('nav.transfer'), t('dashboard.envoyerArgent')],
@@ -2020,7 +2026,7 @@ function PageFondsBlockes({ user }) {
             <div style={{fontSize:11,color:'var(--text2)',display:'flex',gap:8}}>
               <i className="ti ti-signature" style={{color:'var(--gold)',flexShrink:0}}/>
               <Trans i18nKey="verification.contractSignedInfo"
-                values={{ name: vf.contract_signature, date: new Date(vf.contract_signed_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) }}
+                values={{ name: vf.contract_signature, date: new Date(vf.contract_signed_at).toLocaleDateString(dLocale(),{day:'2-digit',month:'long',year:'numeric'}) }}
                 components={{ b: <strong/> }}/>
             </div>
           </div>

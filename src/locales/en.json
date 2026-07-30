@@ -19,7 +19,11 @@
     "edit": "Edit",
     "error_generic": "Server error. Please try again.",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} min ago",
+    "today": "Today",
+    "yesterday": "Yesterday"
   },
   "nav": {
     "dashboard": "Dashboard",

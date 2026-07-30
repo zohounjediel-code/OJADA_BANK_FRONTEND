@@ -19,7 +19,11 @@
     "edit": "Bearbeiten",
     "error_generic": "Serverfehler. Bitte versuchen Sie es erneut.",
     "yes": "Ja",
-    "no": "Nein"
+    "no": "Nein",
+    "justNow": "Gerade eben",
+    "minutesAgo": "Vor {{count}} Min.",
+    "today": "Heute",
+    "yesterday": "Gestern"
   },
   "nav": {
     "dashboard": "Übersicht",

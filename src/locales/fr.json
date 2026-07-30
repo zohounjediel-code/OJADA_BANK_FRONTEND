@@ -19,7 +19,11 @@
     "edit": "Modifier",
     "error_generic": "Erreur serveur. Veuillez réessayer.",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "justNow": "À l'instant",
+    "minutesAgo": "Il y a {{count}} min",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier"
   },
   "nav": {
     "dashboard": "Tableau de bord",

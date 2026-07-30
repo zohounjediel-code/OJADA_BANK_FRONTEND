@@ -19,7 +19,11 @@
     "edit": "Editar",
     "error_generic": "Error del servidor. Inténtelo de nuevo.",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "justNow": "Ahora mismo",
+    "minutesAgo": "Hace {{count}} min",
+    "today": "Hoy",
+    "yesterday": "Ayer"
   },
   "nav": {
     "dashboard": "Panel",
