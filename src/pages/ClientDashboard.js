@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { clientService } from '../services/api';
@@ -1376,6 +1376,7 @@ function PageRetrait({ user }) {
 }
 
 function PageNotifications({ onUnreadChange }) {
+  const { t } = useTranslation();
   const [notifs, setNotifs] = useState([]);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -1420,7 +1421,7 @@ function PageNotifications({ onUnreadChange }) {
 
   const handleSendMessage = async () => {
     if (!composeForm.title.trim() || !composeForm.message.trim()) {
-      setComposeErr('Titre et message requis.'); return;
+      setComposeErr(t('notifications.titleMessageRequired')); return;
     }
     setSendingMsg(true); setComposeErr('');
     try {
@@ -1428,8 +1429,8 @@ function PageNotifications({ onUnreadChange }) {
       if (r.success) {
         setComposeOpen(false); setComposeForm({ title:'', message:'' });
         load();
-      } else setComposeErr(r.message || 'Erreur.');
-    } catch { setComposeErr('Erreur serveur.'); }
+      } else setComposeErr(r.message || t('common.error_generic'));
+    } catch { setComposeErr(t('common.error_generic')); }
     setSendingMsg(false);
   };
 
@@ -1447,11 +1448,11 @@ function PageNotifications({ onUnreadChange }) {
     <div style={{ maxWidth:560, animation:'fadeIn 0.35s ease' }}>
       <div style={c.card}>
         <div style={c.cardHd}>
-          <span style={c.cardTitle}>Notifications {unread > 0 && <span style={{ ...c.badge, background:'#E24B4A', color:'#fff', marginLeft:6 }}>{unread}</span>}</span>
+          <span style={c.cardTitle}>{t('notifications.title')} {unread > 0 && <span style={{ ...c.badge, background:'#E24B4A', color:'#fff', marginLeft:6 }}>{unread}</span>}</span>
           <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-            {unread > 0 && <span style={c.cardLink} onClick={handleMarkAllRead}>Tout marquer comme lu</span>}
+            {unread > 0 && <span style={c.cardLink} onClick={handleMarkAllRead}>{t('notifications.markAllRead')}</span>}
             <span style={c.cardLink} onClick={() => { setComposeOpen(v => !v); setComposeErr(''); }}>
-              <i className="ti ti-edit" style={{ marginRight:3 }}/>Nouveau message
+              <i className="ti ti-edit" style={{ marginRight:3 }}/>{t('notifications.newMessage')}
             </span>
           </div>
         </div>
@@ -1459,22 +1460,22 @@ function PageNotifications({ onUnreadChange }) {
         {composeOpen && (
           <div style={{ ...c.cardBd, borderBottom:'1px solid var(--border)', paddingTop:0 }}>
             <div style={{ background:'var(--bg)', borderRadius:10, padding:12 }}>
-              <div style={{ fontSize:11, fontWeight:600, color:'var(--navy)', marginBottom:8 }}>Écrire à notre équipe</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'var(--navy)', marginBottom:8 }}>{t('notifications.composeTitle')}</div>
               <input style={{ ...c.input, fontSize:12, marginBottom:8, width:'100%' }}
-                placeholder="Sujet" value={composeForm.title}
+                placeholder={t('notifications.subject')} value={composeForm.title}
                 onChange={e => setComposeForm(f => ({ ...f, title: e.target.value }))}/>
               <textarea style={{ ...c.input, fontSize:12, height:70, resize:'vertical', width:'100%', fontFamily:'var(--sans)', paddingTop:8, marginBottom:8 }}
-                placeholder="Votre message..." value={composeForm.message}
+                placeholder={t('notifications.messagePlaceholder')} value={composeForm.message}
                 onChange={e => setComposeForm(f => ({ ...f, message: e.target.value }))}/>
               {composeErr && <div style={{ fontSize:11, color:'#A32D2D', marginBottom:8 }}>{composeErr}</div>}
               <div style={{ display:'flex', gap:8 }}>
                 <button onClick={handleSendMessage} disabled={sendingMsg}
                   style={{ ...c.saveBtn, flex:1, opacity: sendingMsg ? 0.6 : 1 }}>
-                  {sendingMsg ? 'Envoi…' : 'Envoyer'}
+                  {sendingMsg ? t('common.sending') : t('common.send')}
                 </button>
                 <button onClick={() => setComposeOpen(false)}
                   style={{ height:38, border:'1px solid var(--border)', borderRadius:8, background:'transparent', padding:'0 16px', fontSize:12, cursor:'pointer', fontFamily:'var(--sans)' }}>
-                  Annuler
+                  {t('common.cancel')}
                 </button>
               </div>
             </div>
@@ -1485,7 +1486,7 @@ function PageNotifications({ onUnreadChange }) {
           {loading ? (
             [1,2,3].map(i => <div key={i} style={{ ...c.skeleton, marginBottom:12, height:60 }}/>)
           ) : notifs.length === 0 ? (
-            <EmptyState icon="ti-bell-off" message="Aucune notification pour l'instant"/>
+            <EmptyState icon="ti-bell-off" message={t('notifications.empty')}/>
           ) : (
             notifs.map((n, i) => {
               const ns = notifTypeStyle[n.type] || notifTypeStyle.info;
@@ -1509,7 +1510,7 @@ function PageNotifications({ onUnreadChange }) {
                         {canReply && (
                           <span style={{ fontSize:10, color:'#185FA5', cursor:'pointer' }}
                             onClick={(e) => { e.stopPropagation(); setReplyOpenId(replyOpenId === n.id ? null : n.id); setReplyText(''); }}>
-                            Répondre
+                            {t('common.reply')}
                           </span>
                         )}
                       </div>
@@ -1518,12 +1519,12 @@ function PageNotifications({ onUnreadChange }) {
                   {replyOpenId === n.id && (
                     <div style={{ marginLeft:46, marginTop:8, display:'flex', gap:6 }}>
                       <input style={{ ...c.input, fontSize:12, flex:1, height:34 }}
-                        placeholder="Votre réponse..." value={replyText}
+                        placeholder={t('notifications.replyPlaceholder')} value={replyText}
                         onChange={e => setReplyText(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && !sendingReply) handleReply(n.id); }}/>
                       <button onClick={() => handleReply(n.id)} disabled={sendingReply || !replyText.trim()}
                         style={{ height:34, border:'none', borderRadius:8, background:'var(--navy)', color:'#fff', padding:'0 14px', fontSize:11, cursor:'pointer', fontFamily:'var(--sans)', opacity: sendingReply || !replyText.trim() ? 0.6 : 1 }}>
-                        {sendingReply ? '...' : 'Envoyer'}
+                        {sendingReply ? '...' : t('common.send')}
                       </button>
                     </div>
                   )}
@@ -1538,6 +1539,7 @@ function PageNotifications({ onUnreadChange }) {
 }
 
 function PageProfil({ user }) {
+  const { t } = useTranslation();
   const { setUser } = useAuth();
   const initials   = user ? (user.first_name?.[0]||'') + (user.last_name?.[0]||'') : '?';
   const memberSince = user?.created_at
@@ -1563,40 +1565,40 @@ function PageProfil({ user }) {
 
   const handleUpdateProfile = async () => {
     if (!info.first_name.trim()||!info.last_name.trim()||!info.email.trim()) {
-      setInfoMsg('Prénom, nom et email sont requis.'); setInfoStatus('error'); return;
+      setInfoMsg(t('profile.requiredFieldsError')); setInfoStatus('error'); return;
     }
     setInfoStatus('loading'); setInfoMsg('');
     try {
       const res = await clientService.updateProfile(info);
       if (res.success) {
-        setInfoStatus('success'); setInfoMsg('Profil mis à jour avec succès.');
+        setInfoStatus('success'); setInfoMsg(t('profile.updateSuccess'));
         if (setUser && res.data) setUser(prev => ({...prev, ...res.data}));
-      } else { setInfoStatus('error'); setInfoMsg(res.message||'Erreur.'); }
-    } catch(err) { setInfoStatus('error'); setInfoMsg(err.message||'Erreur serveur.'); }
+      } else { setInfoStatus('error'); setInfoMsg(res.message||t('common.error_generic')); }
+    } catch(err) { setInfoStatus('error'); setInfoMsg(err.message||t('common.error_generic')); }
   };
 
   const handleChangePassword = async () => {
     if (!pwd.current_password||!pwd.new_password||!pwd.confirm_password) {
-      setPwdMsg('Tous les champs sont requis.'); setPwdStatus('error'); return;
+      setPwdMsg(t('profile.allFieldsRequired')); setPwdStatus('error'); return;
     }
     if (pwd.new_password !== pwd.confirm_password) {
-      setPwdMsg('Les nouveaux mots de passe ne correspondent pas.'); setPwdStatus('error'); return;
+      setPwdMsg(t('profile.passwordsMismatch')); setPwdStatus('error'); return;
     }
     if (pwd.new_password.length < 6) {
-      setPwdMsg('Le mot de passe doit contenir au moins 6 caractères.'); setPwdStatus('error'); return;
+      setPwdMsg(t('profile.passwordTooShort')); setPwdStatus('error'); return;
     }
     setPwdStatus('loading'); setPwdMsg('');
     try {
       const res = await clientService.changePassword(pwd);
       if (res.success) {
-        setPwdStatus('success'); setPwdMsg('Mot de passe modifié avec succès.');
+        setPwdStatus('success'); setPwdMsg(t('profile.passwordChangeSuccess'));
         setPwd({ current_password:'', new_password:'', confirm_password:'' });
-      } else { setPwdStatus('error'); setPwdMsg(res.message||'Erreur.'); }
-    } catch(err) { setPwdStatus('error'); setPwdMsg(err.message||'Erreur serveur.'); }
+      } else { setPwdStatus('error'); setPwdMsg(res.message||t('common.error_generic')); }
+    } catch(err) { setPwdStatus('error'); setPwdMsg(err.message||t('common.error_generic')); }
   };
 
   const statusStyle = user?.status==='active' ? {background:'#EAF3DE',color:'#3B6D11'} : {background:'#FAEEDA',color:'#854F0B'};
-  const statusLabel = user?.status==='active' ? 'Compte actif' : 'En attente de validation';
+  const statusLabel = user?.status==='active' ? t('profile.accountActive') : t('profile.accountPending');
 
   const Alert = ({status, msg}) => {
     if (!msg) return null;
@@ -1640,7 +1642,7 @@ function PageProfil({ user }) {
         <div style={{flex:1}}>
           <div style={{fontFamily:'var(--serif)',fontSize:20,color:'var(--navy)'}}>{user?.first_name} {user?.last_name}</div>
           <div style={{fontSize:12,color:'var(--text2)',marginTop:3}}>
-            Client depuis {memberSince} · <span style={{fontFamily:'monospace'}}>{user?.account_number||'—'}</span>
+            {t('profile.memberSince')} {memberSince} · <span style={{fontFamily:'monospace'}}>{user?.account_number||'—'}</span>
           </div>
         </div>
         <span style={{...c.badge,...statusStyle,padding:'6px 14px',fontSize:11}}>{statusLabel}</span>
@@ -1650,12 +1652,12 @@ function PageProfil({ user }) {
 
         {/* ── Infos personnelles ── */}
         <div style={{...c.card,padding:20}}>
-          <div style={{fontFamily:'var(--serif)',fontSize:18,color:'var(--navy)',marginBottom:16}}>Informations personnelles</div>
+          <div style={{fontFamily:'var(--serif)',fontSize:18,color:'var(--navy)',marginBottom:16}}>{t('profile.personalInfo')}</div>
           <Alert status={infoStatus} msg={infoMsg}/>
           {[
-            ['Prénom','first_name','text'],['Nom','last_name','text'],
-            ['Email','email','email'],['Téléphone','phone','tel'],
-            ['Adresse','address','text'],['Ville','city','text'],['Code postal','postal_code','text'],
+            [t('profile.firstName'),'first_name','text'],[t('profile.lastName'),'last_name','text'],
+            [t('profile.email'),'email','email'],[t('profile.phone'),'phone','tel'],
+            [t('profile.address'),'address','text'],[t('profile.city'),'city','text'],[t('profile.postalCode'),'postal_code','text'],
           ].map(([label,k,type]) => (
             <div key={k} style={c.field}>
               <label style={c.label}>{label}</label>
@@ -1668,27 +1670,27 @@ function PageProfil({ user }) {
             style={{...c.submitBtn,display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:infoStatus==='loading'?0.6:1}}
             onClick={handleUpdateProfile} disabled={infoStatus==='loading'}>
             {infoStatus==='loading'
-              ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Mise à jour…</>
-              : <><i className="ti ti-device-floppy"/>Enregistrer les modifications</>}
+              ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('profile.saving')}</>
+              : <><i className="ti ti-device-floppy"/>{t('profile.saveChanges')}</>}
           </button>
         </div>
 
         {/* ── Sécurité ── */}
         <div style={{...c.card,padding:20}}>
-          <div style={{fontFamily:'var(--serif)',fontSize:18,color:'var(--navy)',marginBottom:16}}>Sécurité</div>
+          <div style={{fontFamily:'var(--serif)',fontSize:18,color:'var(--navy)',marginBottom:16}}>{t('profile.security')}</div>
           <Alert status={pwdStatus} msg={pwdMsg}/>
-          <PwdInput label="Mot de passe actuel"    k="current_password" showKey="current"/>
-          <PwdInput label="Nouveau mot de passe"   k="new_password"     showKey="new"/>
-          <PwdInput label="Confirmer le mot de passe" k="confirm_password" showKey="confirm"/>
+          <PwdInput label={t('profile.currentPassword')}    k="current_password" showKey="current"/>
+          <PwdInput label={t('profile.newPassword')}   k="new_password"     showKey="new"/>
+          <PwdInput label={t('profile.confirmPassword')} k="confirm_password" showKey="confirm"/>
           {pwd.new_password && pwd.confirm_password && pwd.new_password !== pwd.confirm_password && (
-            <div style={{fontSize:11,color:'#A32D2D',marginBottom:8}}>Les mots de passe ne correspondent pas.</div>
+            <div style={{fontSize:11,color:'#A32D2D',marginBottom:8}}>{t('profile.passwordsMismatch')}</div>
           )}
           <button
             style={{...c.submitBtn,display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:pwdStatus==='loading'?0.6:1}}
             onClick={handleChangePassword} disabled={pwdStatus==='loading'}>
             {pwdStatus==='loading'
-              ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Modification…</>
-              : <><i className="ti ti-lock"/>Changer le mot de passe</>}
+              ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('profile.changingPassword')}</>
+              : <><i className="ti ti-lock"/>{t('profile.changePassword')}</>}
           </button>
         </div>
 
@@ -1729,6 +1731,7 @@ function SidebarExtra({ user }) {
 
 // ─── PAGE FONDS BLOQUÉS ──────────────────────────────────────────
 function PageFondsBlockes({ user }) {
+  const { t } = useTranslation();
   const [vf, setVf]               = useState(null);
   const [loading, setLoading]     = useState(true);
   const [step, setStep]           = useState('init'); // init | contract | payment | waiting
@@ -1760,18 +1763,18 @@ function PageFondsBlockes({ user }) {
 
   const handleSign = async () => {
     if (!signature.trim() || signature.trim().length < 3) {
-      setSignError('Veuillez saisir votre nom complet comme signature.'); return;
+      setSignError(t('verification.signatureRequiredError')); return;
     }
     if (signature.trim().toLowerCase() !== (user?.first_name + ' ' + user?.last_name).toLowerCase()) {
-      setSignError('La signature doit correspondre exactement à votre nom complet : ' + user?.first_name + ' ' + user?.last_name);
+      setSignError(t('verification.signatureMismatchError', { name: user?.first_name + ' ' + user?.last_name }));
       return;
     }
     setSigning(true); setSignError('');
     try {
       const r = await clientService.signVerificationContract(signature.trim());
       if (r.success) { await load(); }
-      else { setSignError(r.message || 'Erreur.'); }
-    } catch { setSignError('Erreur serveur.'); }
+      else { setSignError(r.message || t('common.error_generic')); }
+    } catch { setSignError(t('common.error_generic')); }
     setSigning(false);
   };
 
@@ -1779,19 +1782,19 @@ function PageFondsBlockes({ user }) {
     const amt = parseFloat(payAmt);
     const remaining = totalFee - amtPaid;
     if (!amt || amt <= 0 || amt > remaining) {
-      setPayMsg('Montant invalide ou supérieur au reste dû (' + remaining.toLocaleString('fr-FR') + ' €).');
+      setPayMsg(t('verification.invalidAmountError', { amount: remaining.toLocaleString('fr-FR') + ' €' }));
       setPayStatus('error'); return;
     }
     setPaying(true); setPayMsg(''); setPayStatus('idle');
     try {
       const r = await clientService.submitVerificationPayment(amt);
       if (r.success) { setPayAmt(''); await load(); }
-      else { setPayMsg(r.message || 'Erreur.'); setPayStatus('error'); }
-    } catch { setPayMsg('Erreur serveur.'); setPayStatus('error'); }
+      else { setPayMsg(r.message || t('common.error_generic')); setPayStatus('error'); }
+    } catch { setPayMsg(t('common.error_generic')); setPayStatus('error'); }
     setPaying(false);
   };
 
-  if (loading) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>Chargement…</div>);
+  if (loading) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>{t('common.loading')}</div>);
 
     const DEBLOCAGE_FEES    = { basic_moins:2000, basic:8542, basic_plus:8950, premium:10785, premium_plus:15500, vip:19630, vip_plus:28630 };
     const ALIMENTATION_FEES = { basic_moins:700,  basic:450,  basic_plus:560,  premium:630,   premium_plus:800,   vip:950,   vip_plus:1200  };
@@ -1811,13 +1814,13 @@ function PageFondsBlockes({ user }) {
         <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:8}}>
           <i className="ti ti-lock" style={{fontSize:32,color:'#ffb3b3'}}/>
           <div>
-            <div style={{fontFamily:'var(--serif)',fontSize:18}}>Fonds bloqués</div>
-            <div style={{fontSize:11,color:'#ffb3b3',marginTop:2}}>Vos fonds sont temporairement inutilisables</div>
+            <div style={{fontFamily:'var(--serif)',fontSize:18}}>{t('verification.title')}</div>
+            <div style={{fontSize:11,color:'#ffb3b3',marginTop:2}}>{t('verification.subtitle')}</div>
           </div>
         </div>
         {user?.funds_block_reason && (
           <div style={{background:'rgba(0,0,0,0.2)',borderRadius:8,padding:'10px 14px',fontSize:12,lineHeight:1.6}}>
-            <strong>Motif :</strong> {user.funds_block_reason}
+            <strong>{t('verification.reasonLabel')}</strong> {user.funds_block_reason}
           </div>
         )}
       </div>
@@ -1825,15 +1828,15 @@ function PageFondsBlockes({ user }) {
       {/* Étape 1 : Pas encore de vérification → afficher le contrat */}
       {!vf && step === 'init' && (
         <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Lancer une vérification de compte</span></div>
+          <div style={c.cardHd}><span style={c.cardTitle}>{t('verification.startTitle')}</span></div>
           <div style={c.cardBd}>
             <div style={{background:'#FAEEDA',borderRadius:9,padding:14,marginBottom:14,fontSize:12,color:'#854F0B',lineHeight:1.7}}>
-              <div style={{fontWeight:600,marginBottom:4}}>💼 Frais de vérification : <span style={{fontSize:18,color:'#0a1628'}}>{totalFee.toLocaleString('fr-FR')} €</span></div>
-              Pour débloquer vos fonds, vous devez lancer une procédure de vérification de compte. Ces frais couvrent l’audit complet de votre dossier par notre équipe de conformité.
+              <div style={{fontWeight:600,marginBottom:4}}>💼 {t('verification.feeLabel')} <span style={{fontSize:18,color:'#0a1628'}}>{totalFee.toLocaleString('fr-FR')} €</span></div>
+              {t('verification.feeDesc')}
             </div>
             <button style={{...c.submitBtn,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}
               onClick={()=>setStep('contract')}>
-              <i className="ti ti-file-description"/>Lire et signer le contrat
+              <i className="ti ti-file-description"/>{t('verification.readSignContract')}
             </button>
           </div>
         </div>
@@ -1842,40 +1845,49 @@ function PageFondsBlockes({ user }) {
       {/* Étape 2 : Contrat à signer */}
       {step === 'contract' && (
         <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Contrat de vérification de compte</span></div>
+          <div style={c.cardHd}><span style={c.cardTitle}>{t('verification.contractCardTitle')}</span></div>
           <div style={c.cardBd}>
             {/* Texte du contrat */}
             <div style={{background:'var(--bg)',borderRadius:8,padding:14,fontSize:11,color:'var(--text)',lineHeight:1.8,maxHeight:220,overflowY:'auto',marginBottom:16,border:'1px solid var(--border)'}}>
-              <strong>CONTRAT DE VÉRIFICATION DE COMPTE — OJADA BANK</strong>
+              <strong>{t('verification.contractHeading')}</strong>
               <br/><br/>
-              Entre OJADA BANK (ci-après "la Banque") et <strong>{user?.first_name} {user?.last_name}</strong>, titulaire du compte n° <strong>{user?.account_number}</strong> (ci-après "le Client").
+              <Trans i18nKey="verification.contractIntro"
+                values={{ name: `${user?.first_name} ${user?.last_name}`, account: user?.account_number }}
+                components={{ b: <strong/>, b2: <strong/> }}/>
               <br/><br/>
-              <strong>Article 1 — Objet</strong><br/>
-              Le présent contrat a pour objet de définir les conditions de la procédure de vérification de compte permettant le déblocage des fonds du Client.
+              <strong>{t('verification.article1Title')}</strong><br/>
+              {t('verification.article1Body')}
               <br/><br/>
-              <strong>Article 2 — Frais de vérification</strong><br/>
-              Le Client s'engage à régler la somme de <strong>{totalFee.toLocaleString('fr-FR')} €</strong> au titre des frais de vérification de compte. Ce montant peut être réglé en une fois ou par tranches successives, selon la convenance du Client.
+              <strong>{t('verification.article2Title')}</strong><br/>
+              <Trans i18nKey="verification.article2Body"
+                values={{ fee: `${totalFee.toLocaleString('fr-FR')} €` }}
+                components={{ b: <strong/> }}/>
               <br/><br/>
-              <strong>Article 3 — Engagement du Client</strong><br/>
-              Le Client reconnaît et accepte de payer la totalité des frais de vérification, que ce soit en une fois ou par versements échelonnés, avant tout déblocage de ses fonds. Aucun remboursement ne sera effectué en cas de désistement.
+              <strong>{t('verification.article3Title')}</strong><br/>
+              {t('verification.article3Body')}
               <br/><br/>
-              <strong>Article 4 — Maintien du compte durant l&#39;audit</strong><br/>
-              Afin de préserver la validité de votre compte durant l&#39;audit, le Client s&#39;engage à effectuer un dépôt mensuel minimum de <strong>{alimFee.toLocaleString('fr-FR')} €</strong> pour maintenir son compte en activité. Tout défaut d&#39;alimentation mensuelle pourrait compromettre le processus de déblocage.<br/><br/>
-              <strong>Article 5 — Déblocage des fonds</strong><br/>
-              À l&#39;issue du paiement intégral des frais et après vérification complète du dossier, OJADA BANK procédera au déblocage des fonds dans un délai raisonnable, après confirmation manuelle par un administrateur.
+              <strong>{t('verification.article4Title')}</strong><br/>
+              <Trans i18nKey="verification.article4Body"
+                values={{ alimFee: `${alimFee.toLocaleString('fr-FR')} €` }}
+                components={{ b: <strong/> }}/><br/><br/>
+              <strong>{t('verification.article5Title')}</strong><br/>
+              {t('verification.article5Body')}
               <br/><br/>
-              <strong>Article 5 — Droit applicable</strong><br/>
-              Le présent contrat est soumis au droit français et à la réglementation bancaire en vigueur.
+              <strong>{t('verification.article6Title')}</strong><br/>
+              {t('verification.article6Body')}
             </div>
 
             {/* Signature électronique */}
             <div style={c.field}>
               <div style={{background:'#FAEEDA',borderRadius:8,padding:'10px 14px',marginBottom:10,fontSize:11,color:'#854F0B',lineHeight:1.7}}>
                 <i className="ti ti-alert-triangle" style={{marginRight:6}}/>
-                <strong>Engagement de dépôt mensuel :</strong> En signant ce contrat, vous vous engagez à effectuer un dépôt mensuel minimum de <strong>{alimFee.toLocaleString('fr-FR')} €</strong> pour maintenir votre compte actif durant l&#39;audit. Sans ce dépôt, le processus de déblocage pourrait être compromis.
+                <strong>{t('verification.monthlyDepositWarningLabel')}</strong>{' '}
+                <Trans i18nKey="verification.monthlyDepositWarningBody"
+                  values={{ alimFee: `${alimFee.toLocaleString('fr-FR')} €` }}
+                  components={{ b: <strong/> }}/>
               </div>
               <label style={c.label}>
-                Signature électronique — Saisissez votre nom complet exactement : <strong>{user?.first_name} {user?.last_name}</strong>
+                {t('verification.signatureLabel')} <strong>{user?.first_name} {user?.last_name}</strong>
               </label>
               <input
                 style={{...c.input, borderColor: signError ? '#A32D2D' : 'var(--border)', fontStyle:'italic'}}
@@ -1888,14 +1900,14 @@ function PageFondsBlockes({ user }) {
 
             <div style={{display:'flex',gap:8}}>
               <button style={{flex:1,height:40,borderRadius:8,border:'1px solid var(--border)',background:'transparent',cursor:'pointer',fontSize:12,fontFamily:'var(--sans)'}}
-                onClick={()=>setStep('init')}>Retour</button>
+                onClick={()=>setStep('init')}>{t('common.back')}</button>
               <button
                 style={{flex:2,height:40,borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',
                   cursor:'pointer',fontSize:13,fontWeight:600,fontFamily:'var(--sans)',
                   display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:signing?0.6:1}}
                 onClick={handleSign} disabled={signing}>
-                {signing ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Signature…</>
-                  : <><i className="ti ti-signature"/>Je signe et accepte</>}
+                {signing ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('verification.signing')}</>
+                  : <><i className="ti ti-signature"/>{t('verification.signAndAccept')}</>}
               </button>
             </div>
           </div>
@@ -1905,20 +1917,20 @@ function PageFondsBlockes({ user }) {
       {/* Étape 3 : Paiement */}
       {(step === 'payment' || step === 'waiting') && vf && (
         <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Paiement des frais de vérification</span></div>
+          <div style={c.cardHd}><span style={c.cardTitle}>{t('verification.paymentCardTitle')}</span></div>
           <div style={c.cardBd}>
 
             {/* Barre de progression */}
             <div style={{marginBottom:16}}>
               <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--text2)',marginBottom:6}}>
-                <span>Progression du paiement</span>
+                <span>{t('verification.paymentProgress')}</span>
                 <span><strong>{amtPaid.toLocaleString('fr-FR')} €</strong> / {totalFee.toLocaleString('fr-FR')} €</span>
               </div>
               <div style={{height:10,background:'#e8e2d6',borderRadius:10,overflow:'hidden'}}>
                 <div style={{height:'100%',width:progress+'%',background:'var(--navy)',borderRadius:10,transition:'width 0.4s ease'}}/>
               </div>
               <div style={{fontSize:11,color:'var(--text2)',marginTop:4,textAlign:'right'}}>
-                Reste à payer : <strong>{remaining.toLocaleString('fr-FR')} €</strong>
+                {t('verification.remainingToPay')} <strong>{remaining.toLocaleString('fr-FR')} €</strong>
               </div>
             </div>
 
@@ -1926,7 +1938,10 @@ function PageFondsBlockes({ user }) {
             <div style={{background:'#FAEEDA',borderRadius:8,padding:'10px 14px',marginBottom:12,display:'flex',gap:8,alignItems:'flex-start'}}>
               <i className="ti ti-calendar-stats" style={{color:'#854F0B',flexShrink:0,marginTop:1}}/>
               <div style={{fontSize:12,color:'#854F0B'}}>
-                <strong>Rappel :</strong> pour ne pas compromettre le bon déroulement de l&#39;audit, n&#39;oubliez pas d&#39;alimenter votre compte chaque mois d&#39;au moins <strong>{alimFee.toLocaleString('fr-FR')} €</strong>.
+                <strong>{t('verification.monthlyReminderLabel')}</strong>{' '}
+                <Trans i18nKey="verification.monthlyReminderPaymentStep"
+                  values={{ alimFee: `${alimFee.toLocaleString('fr-FR')} €` }}
+                  components={{ b: <strong/> }}/>
               </div>
             </div>
 
@@ -1934,30 +1949,30 @@ function PageFondsBlockes({ user }) {
             {failMsg && (
               <div style={{background:'#FCEBEB',borderRadius:8,padding:'10px 14px',marginBottom:12,display:'flex',gap:8}}>
                 <i className="ti ti-alert-triangle" style={{color:'#A32D2D',flexShrink:0}}/>
-                <div style={{fontSize:12,color:'#A32D2D'}}><strong>Échec de transaction :</strong> {failMsg}</div>
+                <div style={{fontSize:12,color:'#A32D2D'}}><strong>{t('verification.transactionFailedLabel')}</strong> {failMsg}</div>
               </div>
             )}
 
             {step === 'waiting' ? (
               <div style={{background:'#FAEEDA',borderRadius:8,padding:14,textAlign:'center',fontSize:12,color:'#854F0B'}}>
                 <i className="ti ti-clock" style={{fontSize:24,display:'block',marginBottom:6}}/>
-                <strong>Paiement en attente de vérification</strong>
-                <div style={{marginTop:4}}>Notre équipe vérifie votre transaction. Vous serez notifié dès validation.</div>
+                <strong>{t('verification.waitingTitle')}</strong>
+                <div style={{marginTop:4}}>{t('verification.waitingBody')}</div>
               </div>
             ) : (
               <>
                 <div style={c.field}>
-                  <label style={c.label}>Montant à payer (€)</label>
+                  <label style={c.label}>{t('verification.amountToPayLabel')}</label>
                   <input style={{...c.input,borderColor:payStatus==='error'?'#A32D2D':'var(--border)'}}
-                    type="number" min="1" max={remaining} placeholder={'Max : ' + remaining.toLocaleString('fr-FR') + ' €'}
+                    type="number" min="1" max={remaining} placeholder={t('verification.maxPlaceholder', { amount: remaining.toLocaleString('fr-FR') + ' €' })}
                     value={payAmt} onChange={e=>{setPayAmt(e.target.value);setPayStatus('idle');setPayMsg('');}}/>
                   {payStatus === 'error' && <div style={{fontSize:11,color:'#A32D2D'}}>{payMsg}</div>}
                 </div>
                 <button
                   style={{...c.submitBtn,display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:paying?0.6:1}}
                   onClick={handlePayment} disabled={paying}>
-                  {paying ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>Envoi…</>
-                    : <><i className="ti ti-send"/>Soumettre le paiement</>}
+                  {paying ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('common.sending')}</>
+                    : <><i className="ti ti-send"/>{t('verification.submitPayment')}</>}
                 </button>
               </>
             )}
@@ -1971,15 +1986,18 @@ function PageFondsBlockes({ user }) {
           <div style={c.cardBd}>
             <div style={{textAlign:'center',padding:20}}>
               <i className="ti ti-circle-check" style={{fontSize:40,color:'#3B6D11',display:'block',marginBottom:12}}/>
-              <div style={{fontSize:14,fontWeight:600,color:'var(--navy)',marginBottom:6}}>Paiement complet !</div>
+              <div style={{fontSize:14,fontWeight:600,color:'var(--navy)',marginBottom:6}}>{t('verification.paymentCompleteTitle')}</div>
               <div style={{fontSize:12,color:'var(--text2)',lineHeight:1.7}}>
-                Vous avez réglé la totalité des frais de vérification ({totalFee.toLocaleString('fr-FR')} €). Notre équipe procède à la vérification finale de votre dossier. Votre compte sera débloqué très prochainement.
+                {t('verification.paymentCompleteBody', { fee: `${totalFee.toLocaleString('fr-FR')} €` })}
               </div>
             </div>
             <div style={{background:'#FAEEDA',borderRadius:8,padding:'10px 14px',display:'flex',gap:8,alignItems:'flex-start'}}>
               <i className="ti ti-calendar-stats" style={{color:'#854F0B',flexShrink:0,marginTop:1}}/>
               <div style={{fontSize:12,color:'#854F0B'}}>
-                <strong>Rappel :</strong> en attendant le déblocage définitif, continuez d&#39;alimenter votre compte chaque mois d&#39;au moins <strong>{alimFee.toLocaleString('fr-FR')} €</strong> pour ne pas compromettre l&#39;audit.
+                <strong>{t('verification.monthlyReminderLabel')}</strong>{' '}
+                <Trans i18nKey="verification.monthlyReminderDoneStep"
+                  values={{ alimFee: `${alimFee.toLocaleString('fr-FR')} €` }}
+                  components={{ b: <strong/> }}/>
               </div>
             </div>
           </div>
@@ -1990,8 +2008,8 @@ function PageFondsBlockes({ user }) {
       {step === 'rejected' && (
         <div style={{background:'#FCEBEB',borderRadius:12,padding:20,marginBottom:14,textAlign:'center'}}>
           <i className="ti ti-circle-x" style={{fontSize:36,color:'#A32D2D',display:'block',marginBottom:8}}/>
-          <div style={{fontSize:13,fontWeight:600,color:'#A32D2D',marginBottom:4}}>Demande refusée</div>
-          {vf?.admin_note && <div style={{fontSize:12,color:'#A32D2D'}}>Motif : {vf.admin_note}</div>}
+          <div style={{fontSize:13,fontWeight:600,color:'#A32D2D',marginBottom:4}}>{t('verification.rejectedTitle')}</div>
+          {vf?.admin_note && <div style={{fontSize:12,color:'#A32D2D'}}>{t('verification.reasonLabel')} {vf.admin_note}</div>}
         </div>
       )}
 
@@ -2001,7 +2019,9 @@ function PageFondsBlockes({ user }) {
           <div style={c.cardBd}>
             <div style={{fontSize:11,color:'var(--text2)',display:'flex',gap:8}}>
               <i className="ti ti-signature" style={{color:'var(--gold)',flexShrink:0}}/>
-              <span>Contrat signé électroniquement par <strong>{vf.contract_signature}</strong> le {new Date(vf.contract_signed_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})}</span>
+              <Trans i18nKey="verification.contractSignedInfo"
+                values={{ name: vf.contract_signature, date: new Date(vf.contract_signed_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) }}
+                components={{ b: <strong/> }}/>
             </div>
           </div>
         </div>

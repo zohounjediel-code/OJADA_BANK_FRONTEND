@@ -3,9 +3,14 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 // Helper: requête avec token automatique
 const request = async (endpoint, options = {}) => {
   const token = localStorage.getItem('ojada_token');
+  // Langue active de l'app (choisie via LanguageSwitcher, mise en cache par i18next-browser-languagedetector)
+  // → envoyée au backend pour que les messages de réponse (succès/erreur) soient traduits dans la bonne langue,
+  //   indépendamment de la langue enregistrée sur le compte (preferred_language).
+  const lang = (typeof window !== 'undefined' && window.localStorage.getItem('ojada_lang')) || 'fr';
   const { isFormData, ...fetchOptions } = options;
   const headers = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    'X-Lang': lang,
     ...options.headers
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
