@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
@@ -80,24 +80,24 @@ const s = {
   tabLink: { color:'var(--gold-dark)', cursor:'pointer', fontSize:12 },
 };
 
-const services = [
-  { icon:'ti-credit-card', name:'Compte courant', desc:'Un compte flexible pour vos opérations du quotidien. Dépôts, retraits et virements.' },
-  { icon:'ti-piggy-bank', name:'Compte épargne', desc:'Faites fructifier votre argent avec un taux d\'intérêt compétitif. Votre épargne protégée.' },
-  { icon:'ti-building', name:'Compte entreprise', desc:'Solutions dédiées aux PME. Gestion multi-utilisateurs et outils de suivi avancés.' },
-  { icon:'ti-send', name:'Virements', desc:'Transférez de l\'argent instantanément vers n\'importe quel compte OJADA.' },
-  { icon:'ti-chart-line', name:'Suivi en temps réel', desc:'Accédez à l\'historique complet de vos transactions et relevés en ligne.' },
-  { icon:'ti-shield-check', name:'Sécurité renforcée', desc:'Fonds protégés par des protocoles bancaires stricts et surveillance continue.' },
+const getServices = (t) => [
+  { icon:'ti-credit-card', name:t('landing.service1Name'), desc:t('landing.service1Desc') },
+  { icon:'ti-piggy-bank', name:t('landing.service2Name'), desc:t('landing.service2Desc') },
+  { icon:'ti-building', name:t('landing.service3Name'), desc:t('landing.service3Desc') },
+  { icon:'ti-send', name:t('landing.service4Name'), desc:t('landing.service4Desc') },
+  { icon:'ti-chart-line', name:t('landing.service5Name'), desc:t('landing.service5Desc') },
+  { icon:'ti-shield-check', name:t('landing.service6Name'), desc:t('landing.service6Desc') },
 ];
-const steps = [
-  { num:'1', title:'Inscription', desc:'Remplissez votre demande en ligne avec vos informations personnelles.' },
-  { num:'2', title:'Vérification', desc:'Notre équipe vérifie vos documents et valide votre identité sous 24h.' },
-  { num:'3', title:'Activation', desc:'Votre compte est activé et vous recevez vos accès par SMS.' },
-  { num:'4', title:'Utilisation', desc:'Effectuez dépôts, retraits et virements depuis votre espace.' },
+const getSteps = (t) => [
+  { num:'1', title:t('landing.step1Title'), desc:t('landing.step1Desc') },
+  { num:'2', title:t('landing.step2Title'), desc:t('landing.step2Desc') },
+  { num:'3', title:t('landing.step3Title'), desc:t('landing.step3Desc') },
+  { num:'4', title:t('landing.step4Title'), desc:t('landing.step4Desc') },
 ];
-const testimonials = [
-  { text:'"OJADA BANK a simplifié ma gestion financière. Les virements sont instantanés et le service client toujours disponible."', author:'Kofi Mensah', role:'Chef de projet, Villejuif', initials:'KM', color:'#E6F1FB', textColor:'#185FA5' },
-  { text:'"Enfin une banque de proximité qui comprend les besoins des petites entreprises. Mon compte entreprise me donne une visibilité totale."', author:'Fatou Ndiaye', role:'Gérante SARL, Vitry-sur-Seine', initials:'FN', color:'#FBEAF0', textColor:'#993556' },
-  { text:'"Le compte épargne OJADA m\'a permis de mettre de côté pour mon projet. Interface claire et taux intéressant."', author:'Aïssatou Diallo', role:'Enseignante, Ivry-sur-Seine', initials:'AD', color:'#EAF3DE', textColor:'#3B6D11' },
+const getTestimonials = (t) => [
+  { text:t('landing.testimonial1Text'), author:'Kofi Mensah', role:t('landing.testimonial1Role'), initials:'KM', color:'#E6F1FB', textColor:'#185FA5' },
+  { text:t('landing.testimonial2Text'), author:'Fatou Ndiaye', role:t('landing.testimonial2Role'), initials:'FN', color:'#FBEAF0', textColor:'#993556' },
+  { text:t('landing.testimonial3Text'), author:'Aïssatou Diallo', role:t('landing.testimonial3Role'), initials:'AD', color:'#EAF3DE', textColor:'#3B6D11' },
 ];
 
 // ─── MODAL CONTENT ────────────────────────────────────────────────
@@ -316,6 +316,11 @@ export default function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  const services = getServices(t);
+  const steps = getSteps(t);
+  const testimonials = getTestimonials(t);
+  const navLabels = { services: t('landing.navServices'), comment: t('landing.navHow'), temoignages: t('landing.navTestimonials'), contact: t('landing.navContact') };
+
   // Rediriger si déjà connecté
   useEffect(() => {
     if (user) navigate(user.role === 'admin' ? '/admin' : '/client', { replace: true });
@@ -347,7 +352,7 @@ export default function Landing() {
           <div style={s.navLinks}>
             {['services','comment','temoignages','contact'].map(id => (
               <span key={id} style={s.navLink} onClick={() => scrollTo(id)}>
-                {id==='services'?'Services':id==='comment'?'Comment ça marche':id==='temoignages'?'Témoignages':'Contact'}
+                {navLabels[id]}
               </span>
             ))}
           </div>
@@ -370,7 +375,7 @@ export default function Landing() {
         <div style={{ position:'fixed', top:68, left:0, right:0, background:'var(--navy)', zIndex:99, padding:'16px 20px', borderBottom:'1px solid rgba(201,168,76,0.2)', animation:'fadeIn 0.2s ease' }}>
           {['services','comment','temoignages','contact'].map(id => (
             <div key={id} onClick={() => scrollTo(id)} style={{ padding:'12px 0', fontSize:14, color:'rgba(255,255,255,0.7)', borderBottom:'1px solid rgba(255,255,255,0.06)', cursor:'pointer' }}>
-              {id==='services'?'Services':id==='comment'?'Comment ça marche':id==='temoignages'?'Témoignages':'Contact'}
+              {navLabels[id]}
             </div>
           ))}
           <button style={{ ...s.btnOutline, width:'100%', marginTop:14, padding:'11px 0' }} onClick={() => { openModal('client'); setMenuOpen(false); }}>{t('auth.clientSpace')}</button>
@@ -382,15 +387,15 @@ export default function Landing() {
         <div style={s.heroGlow}/>
         <div style={{ position:'absolute', inset:0, opacity:0.03, backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(201,168,76,0.5) 40px,rgba(201,168,76,0.5) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(201,168,76,0.5) 40px,rgba(201,168,76,0.5) 41px)' }}/>
         <div style={s.heroContent}>
-          <div style={s.heroEyebrow}><span style={{ width:6, height:6, background:'var(--gold)', borderRadius:'50%' }}/>Banque régionale · Villejuif</div>
-          <h1 style={s.heroH1}>Votre argent,<br/>en <span style={{ color:'var(--gold)' }}>sécurité</span><br/>et à portée.</h1>
-          <p style={s.heroP}>OJADA BANK vous offre des services bancaires fiables, rapides et accessibles. Gérez vos comptes et effectuez vos transactions depuis Villejuif.</p>
+          <div style={s.heroEyebrow}><span style={{ width:6, height:6, background:'var(--gold)', borderRadius:'50%' }}/>{t('landing.heroEyebrow')}</div>
+          <h1 style={s.heroH1}>{t('landing.heroTitleLine1')}<br/>{t('landing.heroTitleLine2')} <span style={{ color:'var(--gold)' }}>{t('landing.heroTitleHighlight')}</span><br/>{t('landing.heroTitleLine3')}</h1>
+          <p style={s.heroP}>{t('landing.heroP')}</p>
           <div style={s.heroActions}>
-            <button style={s.btnHeroPrimary} onClick={() => openModal('client','register')}>Ouvrir un compte</button>
-            <button style={s.btnHeroSecondary} onClick={() => scrollTo('services')}>Découvrir nos services</button>
+            <button style={s.btnHeroPrimary} onClick={() => openModal('client','register')}>{t('landing.openAccount')}</button>
+            <button style={s.btnHeroSecondary} onClick={() => scrollTo('services')}>{t('landing.discoverServices')}</button>
           </div>
           <div style={s.heroStats}>
-            {[['24+','Clients actifs'],['8,75M €','Gérés'],['100%','Sécurisé']].map(([n,l]) => (
+            {[['24+',t('landing.statActiveClients')],['8,75M €',t('landing.statManaged')],['100%',t('landing.statSecured')]].map(([n,l]) => (
               <div key={l}><div style={s.statNum}>{n}</div><div style={s.statLabel}>{l}</div></div>
             ))}
           </div>
@@ -406,14 +411,14 @@ export default function Landing() {
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
                 <span style={{ fontSize:12, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:1 }}>K. Mensah</span>
                 <div>
-                  <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1 }}>Solde</div>
+                  <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1 }}>{t('landing.mockBalance')}</div>
                   <div style={{ fontFamily:'var(--serif)', fontSize:20, color:'var(--gold)' }}>147 000 €</div>
                 </div>
               </div>
             </div>
             <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:12, padding:'12px 16px', display:'flex', alignItems:'center', gap:12 }}>
               <div style={{ width:34, height:34, borderRadius:9, background:'rgba(123,198,122,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, color:'#7BC67A' }}><i className="ti ti-arrow-down-left"/></div>
-              <div style={{ flex:1 }}><div style={{ fontSize:12, color:'rgba(255,255,255,0.8)' }}>Dépôt reçu</div><div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>Aujourd'hui · 09:14</div></div>
+              <div style={{ flex:1 }}><div style={{ fontSize:12, color:'rgba(255,255,255,0.8)' }}>{t('landing.mockDepositReceived')}</div><div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{t('common.today')} · 09:14</div></div>
               <div style={{ fontSize:13, fontWeight:500, color:'#7BC67A' }}>+30 000 €</div>
             </div>
           </div>
@@ -422,16 +427,16 @@ export default function Landing() {
 
       {/* TRUST */}
       <div style={s.trust}>
-        {[['2024','Fondation'],['24/7','Disponible'],['0 €','Ouverture'],['100%','Sécurisé'],['Île-de-France','Région']].map(([n,l]) => (
+        {[['2024',t('landing.trustFoundation')],['24/7',t('landing.trustAvailable')],['0 €',t('landing.trustOpening')],['100%',t('landing.trustSecured')],['Île-de-France',t('landing.trustRegion')]].map(([n,l]) => (
           <div key={l} style={s.trustItem}><div style={s.trustNum}>{n}</div><div style={s.trustLabel}>{l}</div></div>
         ))}
       </div>
 
       {/* SERVICES */}
       <section style={s.services} id="services">
-        <div style={s.sectionTag}>Nos services</div>
-        <div style={s.sectionTitle}>Tout ce dont vous avez<br/>besoin, au même endroit.</div>
-        <div style={s.sectionSub}>Des solutions bancaires pensées pour les particuliers et les entreprises de la région parisienne.</div>
+        <div style={s.sectionTag}>{t('landing.servicesTag')}</div>
+        <div style={s.sectionTitle}>{t('landing.servicesTitleLine1')}<br/>{t('landing.servicesTitleLine2')}</div>
+        <div style={s.sectionSub}>{t('landing.servicesSub')}</div>
         <div style={s.servicesGrid}>
           {services.map(sv => (
             <div key={sv.name} style={s.serviceCard}
@@ -447,8 +452,8 @@ export default function Landing() {
 
       {/* HOW */}
       <section style={s.how} id="comment">
-        <div style={s.sectionTag}>Processus</div>
-        <div style={s.sectionTitle}>Ouvert en 4 étapes simples.</div>
+        <div style={s.sectionTag}>{t('landing.howTag')}</div>
+        <div style={s.sectionTitle}>{t('landing.howTitle')}</div>
         <div style={s.stepsGrid}>
           {steps.map(st => (
             <div key={st.num} style={s.step}>
@@ -462,16 +467,16 @@ export default function Landing() {
 
       {/* TESTIMONIALS */}
       <section style={s.testimonials} id="temoignages">
-        <div style={s.sectionTag}>Témoignages</div>
-        <div style={s.sectionTitle}>Ils nous font confiance.</div>
+        <div style={s.sectionTag}>{t('landing.testimonialsTag')}</div>
+        <div style={s.sectionTitle}>{t('landing.testimonialsTitle')}</div>
         <div style={s.testimonialGrid}>
-          {testimonials.map(t => (
-            <div key={t.author} style={s.testimonialCard}>
+          {testimonials.map(tm => (
+            <div key={tm.author} style={s.testimonialCard}>
               <div style={{ color:'var(--gold)', fontSize:13, marginBottom:12 }}>★★★★★</div>
-              <div style={s.testimonialText}>{t.text}</div>
+              <div style={s.testimonialText}>{tm.text}</div>
               <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                <div style={{ width:34, height:34, borderRadius:'50%', background:t.color, color:t.textColor, display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:600 }}>{t.initials}</div>
-                <div><div style={s.authorName}>{t.author}</div><div style={s.authorRole}>{t.role}</div></div>
+                <div style={{ width:34, height:34, borderRadius:'50%', background:tm.color, color:tm.textColor, display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:600 }}>{tm.initials}</div>
+                <div><div style={s.authorName}>{tm.author}</div><div style={s.authorRole}>{tm.role}</div></div>
               </div>
             </div>
           ))}
@@ -480,11 +485,11 @@ export default function Landing() {
 
       {/* CTA */}
       <section style={s.cta} id="contact">
-        <h2 style={s.ctaH2}>Prêt à rejoindre <span style={{ color:'var(--gold)' }}>OJADA BANK</span> ?</h2>
-        <p style={s.ctaP}>Ouvrez votre compte aujourd'hui et bénéficiez de tous nos services bancaires sans frais d'ouverture.</p>
+        <h2 style={s.ctaH2}><Trans i18nKey="landing.ctaTitle" components={{ b: <span style={{ color:'var(--gold)' }}/> }}/></h2>
+        <p style={s.ctaP}>{t('landing.ctaP')}</p>
         <div style={s.ctaActions}>
-          <button style={s.btnHeroPrimary} onClick={() => openModal('client','register')}>Ouvrir mon compte</button>
-          <button style={s.btnHeroSecondary}>Nous contacter</button>
+          <button style={s.btnHeroPrimary} onClick={() => openModal('client','register')}>{t('landing.ctaOpenAccount')}</button>
+          <button style={s.btnHeroSecondary}>{t('landing.ctaContactUs')}</button>
         </div>
       </section>
 
@@ -496,9 +501,9 @@ export default function Landing() {
               <div style={{ ...s.navLogoIcon, width:30, height:30, fontSize:12 }}>OJ</div>
               <span style={{ ...s.navLogoText, fontSize:16 }}>OJADA BANK</span>
             </div>
-            <p style={{ fontSize:12, color:'rgba(255,255,255,0.3)', lineHeight:1.7, maxWidth:240, fontWeight:300 }}>Votre partenaire bancaire de confiance à Villejuif et dans le Val-de-Marne.</p>
+            <p style={{ fontSize:12, color:'rgba(255,255,255,0.3)', lineHeight:1.7, maxWidth:240, fontWeight:300 }}>{t('landing.footerTagline')}</p>
           </div>
-          {[['Services',['Compte courant','Compte épargne','Compte entreprise','Virements']],['La banque',['À propos','Notre équipe','Carrières','Contact']],['Légal',['Conditions générales','Confidentialité','Mentions légales']]].map(([title, links]) => (
+          {[[t('landing.footerColServices'),[services[0].name,services[1].name,services[2].name,services[3].name]],[t('landing.footerColBank'),[t('landing.footerAbout'),t('landing.footerTeam'),t('landing.footerCareers'),t('landing.navContact')]],[t('landing.footerColLegal'),[t('landing.footerTerms'),t('landing.footerPrivacy'),t('landing.footerLegalNotice')]]].map(([title, links]) => (
             <div key={title}>
               <div style={s.footerColTitle}>{title}</div>
               {links.map(l => <span key={l} style={{ ...s.footerLink, display:'block' }}>{l}</span>)}
@@ -506,8 +511,8 @@ export default function Landing() {
           ))}
         </div>
         <div style={s.footerBottom}>
-          <span style={s.footerBottomText}>© 2026 OJADA BANK. Tous droits réservés. Villejuif, France.</span>
-          <span style={s.footerBottomText}>Établissement agréé · ACPR · Banque de France</span>
+          <span style={s.footerBottomText}>{t('landing.footerCopyright')}</span>
+          <span style={s.footerBottomText}>{t('landing.footerAgreement')}</span>
         </div>
       </footer>
 

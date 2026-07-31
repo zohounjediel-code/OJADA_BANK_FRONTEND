@@ -74,6 +74,85 @@ const translateTxnDescription = (t, txn) => {
   return params.motif ? `${base} — ${params.motif}` : base;
 };
 
+// Reconstruit le titre d'une notification système dans la langue active, à partir de sa clé structurée
+// (title_key + title_params). Les notifications sans clé (texte libre tapé par un admin/client, ou
+// notifications antérieures à cette fonctionnalité) retombent sur le texte français d'origine stocké en base.
+const translateNotifTitle = (t, n) => {
+  if (!n.title_key) return n.title;
+  let p = {};
+  try { p = n.title_params ? JSON.parse(n.title_params) : {}; } catch { /* ignore */ }
+  switch (n.title_key) {
+    case 'virementSentTitle':          return t('notif.virementSentTitle');
+    case 'virementReceivedTitle':      return t('notif.virementReceivedTitle');
+    case 'feePaymentPendingTitle':     return t('notif.feePaymentPendingTitle', { level: p.level });
+    case 'installmentRequestTitle':    return t('notif.installmentRequestTitle', { level: p.level });
+    case 'withdrawalRequestedTitle':   return t('notif.withdrawalRequestedTitle');
+    case 'withdrawalCancelledTitle':   return t('notif.withdrawalCancelledTitle');
+    case 'contractSignedTitle':        return t('notif.contractSignedTitle');
+    case 'verifPaymentSubmittedTitle': return t('notif.verifPaymentSubmittedTitle');
+    case 'withdrawalRejectedTitle':    return t('notif.withdrawalRejectedTitle');
+    case 'feeTransactionFailedTitle':  return t('notif.feeTransactionFailedTitle', { level: p.level });
+    case 'installmentValidatedTitle':  return t('notif.installmentValidatedTitle', { level: p.level });
+    case 'feeLevelCompletedTitle':     return t('notif.feeLevelCompletedTitle', { level: p.level });
+    case 'allFeesValidatedTitle':      return t('notif.allFeesValidatedTitle');
+    case 'feeLevelValidatedTitle':     return t('notif.feeLevelValidatedTitle', { level: p.level });
+    case 'stepAdvancedTitle':          return t('notif.stepAdvancedTitle', { level: p.level });
+    case 'stepFinalTitle':             return t('notif.stepFinalTitle');
+    case 'withdrawalApprovedTitle':    return t('notif.withdrawalApprovedTitle');
+    case 'fundsBlockedTitle':          return t('notif.fundsBlockedTitle');
+    case 'fundsUnblockedTitle':        return t('notif.fundsUnblockedTitle');
+    case 'verifPaymentFailedTitle':    return t('notif.verifPaymentFailedTitle');
+    case 'verifPaymentRejectedTitle':  return t('notif.verifPaymentRejectedTitle');
+    case 'verifPaymentCompleteTitle':  return t('notif.verifPaymentCompleteTitle');
+    case 'verifPaymentPartialTitle':   return t('notif.verifPaymentPartialTitle', { amount: p.amount });
+    case 'welcomeTitle':               return t('notif.welcomeTitle');
+    case 'replyTitle':                 return t('notif.replyTitle');
+    case 'replyFromTeamTitle':         return t('notif.replyFromTeamTitle');
+    default: return n.title;
+  }
+};
+
+// Idem pour le corps. Le MOTIF qu'un admin tape librement (refus, blocage...) ne peut pas être traduit
+// automatiquement : il est conservé tel quel et rattaché à la phrase traduite, comme pour les transactions.
+const translateNotifBody = (t, n) => {
+  if (!n.body_key) return n.body;
+  let p = {};
+  try { p = n.body_params ? JSON.parse(n.body_params) : {}; } catch { /* ignore */ }
+  const withReason = (base, reason) => reason ? `${base} ${t('verification.reasonLabel')} ${reason}` : base;
+
+  switch (n.body_key) {
+    case 'virementSentBody':          return t('notif.virementSentBody', { amount: p.amount, name: p.name, account: p.account });
+    case 'virementReceivedBody':      return t('notif.virementReceivedBody', { amount: p.amount, name: p.name });
+    case 'feePaymentPendingBody':     return t('notif.feePaymentPendingBody', { amount: p.amount, feeName: p.feeName });
+    case 'installmentRequestBody':    return t('notif.installmentRequestBody', { amount: p.amount, total: p.total });
+    case 'withdrawalRequestedBody':   return t('notif.withdrawalRequestedBody', { amount: p.amount });
+    case 'withdrawalCancelledBody':   return t('notif.withdrawalCancelledBody', { amount: p.amount });
+    case 'contractSignedBody':        return t('notif.contractSignedBody');
+    case 'verifPaymentSubmittedBody': return t('notif.verifPaymentSubmittedBody', { amount: p.amount });
+    case 'withdrawalRejectedBody':    return withReason(t('notif.withdrawalRejectedBody'), p.reason);
+    case 'feeTransactionFailedBody': {
+      let base = t('notif.feeTransactionFailedBody', { level: p.level });
+      if (p.remaining) base += ' ' + t('notif.remainingToPaySuffix', { remaining: p.remaining });
+      return withReason(base, p.reason);
+    }
+    case 'installmentValidatedBody':  return t('notif.installmentValidatedBody', { amount: p.amount, remaining: p.remaining, feeName: p.feeName });
+    case 'feeLevelCompletedBody':     return t('notif.feeLevelCompletedBody', { level: p.level, nextFeeName: p.nextFeeName, nextFeeAmount: p.nextFeeAmount });
+    case 'allFeesValidatedBody':      return t('notif.allFeesValidatedBody');
+    case 'feeLevelValidatedBody':     return t('notif.feeLevelValidatedBody', { nextFeeName: p.nextFeeName, nextFeeAmount: p.nextFeeAmount });
+    case 'stepAdvancedBody':          return t('notif.stepAdvancedBody', { nextFeeName: p.nextFeeName, nextFeeAmount: p.nextFeeAmount });
+    case 'stepFinalBody':             return t('notif.stepFinalBody');
+    case 'withdrawalApprovedBody':    return t('notif.withdrawalApprovedBody', { amount: p.amount, newBalance: p.newBalance });
+    case 'fundsBlockedBody':          return withReason(t('notif.fundsBlockedBody'), p.reason);
+    case 'fundsUnblockedBody':        return t('notif.fundsUnblockedBody');
+    case 'verifPaymentFailedBody':    return `${t('notif.verifPaymentFailedBody')} ${p.reason || t('notif.pleaseRetry')}`;
+    case 'verifPaymentRejectedBody':  return withReason(t('notif.verifPaymentRejectedBody'), p.reason);
+    case 'verifPaymentCompleteBody':  return t('notif.verifPaymentCompleteBody', { total: p.total });
+    case 'verifPaymentPartialBody':   return t('notif.verifPaymentPartialBody', { remaining: p.remaining, total: p.total });
+    case 'welcomeBody':               return t('notif.welcomeBody', { name: p.name, account: p.account });
+    default: return n.body;
+  }
+};
+
 // Style effectif d'une transaction (un virement sortant s'affiche comme un retrait : rouge, flèche sortante)
 const getTxnStyle = (t) => {
   const base = typeStyle[t.type] || typeStyle.depot;
@@ -1508,9 +1587,9 @@ function PageNotifications({ onUnreadChange }) {
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:12, fontWeight:500, color:'var(--text)' }}>
                         {!n.read && <span style={{ color:'var(--gold)', fontSize:7, marginRight:5, verticalAlign:'middle' }}>●</span>}
-                        {n.title}
+                        {translateNotifTitle(t, n)}
                       </div>
-                      <div style={{ fontSize:11, color:'var(--text2)', marginTop:2, lineHeight:1.5 }}>{n.body}</div>
+                      <div style={{ fontSize:11, color:'var(--text2)', marginTop:2, lineHeight:1.5 }}>{translateNotifBody(t, n)}</div>
                       <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:4 }}>
                         <div style={{ fontSize:10, color:'var(--text2)' }}>{fmtDate(n.created_at)}</div>
                         {canReply && (

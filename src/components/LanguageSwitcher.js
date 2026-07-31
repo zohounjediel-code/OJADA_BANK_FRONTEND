@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { clientService } from '../services/api';
 
 const LANGUAGES = [
   { code: 'fr', label: 'FR', flag: '🇫🇷' },
@@ -14,9 +15,14 @@ export default function LanguageSwitcher({ style = {}, dark = false }) {
 
   const handleChange = (code) => {
     i18n.changeLanguage(code);
-    // Si le compte est connecté, on pourra aussi appeler ici une API pour
-    // sauvegarder la préférence côté serveur (preferred_language), voir
-    // authService / clientService.updateProfile({ preferred_language: code }).
+    // Si un compte est connecté, on sauvegarde aussi la préférence côté serveur (preferred_language) :
+    // c'est cette valeur qui détermine la langue des emails (asynchrones, envoyés hors de toute session
+    // active) et sert de repli pour les notifications si jamais aucun en-tête de langue n'est transmis.
+    // Appel silencieux : un échec ici (déconnecté, hors-ligne...) ne doit jamais bloquer le changement
+    // de langue visible instantanément dans l'app.
+    if (localStorage.getItem('ojada_token')) {
+      clientService.updateLanguage(code).catch(() => {});
+    }
   };
 
   return (

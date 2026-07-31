@@ -90,6 +90,7 @@ export const clientService = {
 
   // Mise à jour du profil
   updateProfile: (body) => request('/client/profile', { method: 'PUT', body: JSON.stringify(body) }),
+  updateLanguage: (language) => request('/client/language', { method: 'PUT', body: JSON.stringify({ language }) }),
 
   // Changement de mot de passe
   changePassword: (body) => request('/client/password', { method: 'PUT', body: JSON.stringify(body) }),
