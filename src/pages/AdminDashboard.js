@@ -743,12 +743,15 @@ function PageVirement() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    adminService.getClients().then(r => setClients(r.data.clients)).catch(() => {});
-  }, []);
+    // Recherche côté serveur (comme la page Clients), plutôt qu'un chargement unique sans terme de
+    // recherche : sans ça, le backend ne renvoie que les 50 comptes les plus récents (LIMIT 50, non
+    // recherché), donc un client plus ancien comme "Montrevault" n'apparaît jamais, même si le filtre
+    // local sur le texte reçu fonctionne parfaitement — le client cherché n'est simplement jamais reçu.
+    if (!search) { setClients([]); return; }
+    adminService.getClients(search).then(r => setClients(r.data.clients)).catch(() => setClients([]));
+  }, [search]);
 
-  const filtered = clients.filter(cl =>
-    `${cl.first_name} ${cl.last_name} ${cl.account_number}`.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = clients; // déjà filtré côté serveur par le terme de recherche
 
   const selectedInfo = clients.find(cl => cl.id === parseInt(selectedClient));
 
@@ -768,9 +771,7 @@ function PageVirement() {
       setNote('');
       setSelectedClient('');
       setSearch('');
-      // Recharger les clients pour avoir les soldes à jour
-      const r = await adminService.getClients();
-      setClients(r.data.clients);
+      setClients([]);
     } catch(err) {
       setError(err.message || 'Erreur lors du virement.');
     }
