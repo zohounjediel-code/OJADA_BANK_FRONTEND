@@ -108,6 +108,8 @@ const translateNotifTitle = (t, n) => {
     case 'welcomeTitle':               return t('notif.welcomeTitle');
     case 'replyTitle':                 return t('notif.replyTitle');
     case 'replyFromTeamTitle':         return t('notif.replyFromTeamTitle');
+    case 'accountStatusUpdateTitle':   return t('notif.accountStatusUpdateTitle');
+    case 'adminDepositTitle':          return t('notif.adminDepositTitle');
     default: return n.title;
   }
 };
@@ -149,6 +151,11 @@ const translateNotifBody = (t, n) => {
     case 'verifPaymentCompleteBody':  return t('notif.verifPaymentCompleteBody', { total: p.total });
     case 'verifPaymentPartialBody':   return t('notif.verifPaymentPartialBody', { remaining: p.remaining, total: p.total });
     case 'welcomeBody':               return t('notif.welcomeBody', { name: p.name, account: p.account });
+    case 'accountStatusUpdateBody': {
+      const statusLabelKey = { active:'statusActive', pending:'statusPending', inactive:'statusInactive', rejected:'statusRejected' };
+      return t('notif.accountStatusUpdateBody', { status: t('notif.' + (statusLabelKey[p.statusCode] || 'statusPending')) });
+    }
+    case 'adminDepositBody':          return withReason(t('notif.adminDepositBody', { amount: p.amount, newBalance: p.newBalance }), p.reason);
     default: return n.body;
   }
 };

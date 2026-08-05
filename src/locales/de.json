@@ -539,6 +539,14 @@
     "welcomeTitle": "Willkommen bei OJADA BANK 🎉",
     "welcomeBody": "Hallo {{name}}! Ihr Konto {{account}} wurde erfolgreich erstellt. Es wird nach Überprüfung innerhalb von 24 Stunden freigeschaltet.",
     "replyFromTeamTitle": "Antwort unseres Teams",
-    "replyTitle": "Antwort"
+    "replyTitle": "Antwort",
+    "accountStatusUpdateTitle": "Ihr Konto wurde aktualisiert",
+    "accountStatusUpdateBody": "Ihr OJADA BANK-Konto wurde von der Verwaltung {{status}}.",
+    "statusActive": "validiert",
+    "statusPending": "auf Wartestatus gesetzt",
+    "statusInactive": "deaktiviert",
+    "statusRejected": "abgelehnt",
+    "adminDepositTitle": "Überweisung erhalten 💰",
+    "adminDepositBody": "Sie haben +{{amount}} € von der OJADA BANK-Verwaltung erhalten. Ihr neuer Kontostand beträgt {{newBalance}} €."
   }
 }

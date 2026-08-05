@@ -539,6 +539,14 @@
     "welcomeTitle": "Bienvenue chez OJADA BANK 🎉",
     "welcomeBody": "Bonjour {{name}} ! Votre compte {{account}} a été créé avec succès. Il sera validé après vérification sous 24h.",
     "replyFromTeamTitle": "Réponse de notre équipe",
-    "replyTitle": "Réponse"
+    "replyTitle": "Réponse",
+    "accountStatusUpdateTitle": "Mise à jour de votre compte",
+    "accountStatusUpdateBody": "Votre compte OJADA BANK a été {{status}} par l'administration.",
+    "statusActive": "validé",
+    "statusPending": "mis en attente",
+    "statusInactive": "désactivé",
+    "statusRejected": "refusé",
+    "adminDepositTitle": "Virement reçu 💰",
+    "adminDepositBody": "Vous avez reçu +{{amount}} € de l'administration OJADA BANK. Votre nouveau solde est de {{newBalance}} €."
   }
 }
