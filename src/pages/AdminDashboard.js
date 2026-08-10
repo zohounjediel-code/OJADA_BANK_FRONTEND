@@ -178,6 +178,7 @@ function PageClients() {
   const [ibanStatus, setIbanStatus] = useState('idle');
   const [ibanMsg, setIbanMsg] = useState('');
   const [notifForm, setNotifForm] = useState({ title:'', message:'' });
+  const [notifSendEmail, setNotifSendEmail] = useState(false);
   const [notifStatus, setNotifStatus] = useState('idle');
   const [notifMsg, setNotifMsg] = useState('');
 
@@ -265,10 +266,11 @@ function PageClients() {
     }
     setNotifStatus('loading'); setNotifMsg('');
     try {
-      const res = await adminService.sendNotification(selected.id, notifForm.title.trim(), notifForm.message.trim());
+      const res = await adminService.sendNotification(selected.id, notifForm.title.trim(), notifForm.message.trim(), notifSendEmail);
       if (res.success) {
-        setNotifStatus('success'); setNotifMsg('Notification envoyée.');
+        setNotifStatus('success'); setNotifMsg(res.message || 'Notification envoyée.');
         setNotifForm({ title:'', message:'' });
+        setNotifSendEmail(false);
       } else { setNotifStatus('error'); setNotifMsg(res.message || 'Erreur.'); }
     } catch { setNotifStatus('error'); setNotifMsg('Erreur serveur.'); }
   };
@@ -453,11 +455,17 @@ function PageClients() {
                   {notifMsg}
                 </div>
               )}
+              <label style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, color:'var(--text2)', marginBottom:10, cursor:'pointer' }}>
+                <input type="checkbox" checked={notifSendEmail}
+                  onChange={e => setNotifSendEmail(e.target.checked)}
+                  style={{ width:14, height:14, cursor:'pointer' }}/>
+                Envoyer aussi un email à {selected.first_name} au nom d'OJADA BANK
+              </label>
               <button onClick={handleSendNotification} disabled={notifStatus==='loading'}
                 style={{ width:'100%', height:34, borderRadius:8, border:'none', background:'var(--navy)', color:'#fff',
                   cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'var(--sans)',
                   opacity: notifStatus==='loading' ? 0.6 : 1 }}>
-                {notifStatus==='loading' ? 'Envoi…' : '📨 Envoyer la notification'}
+                {notifStatus==='loading' ? 'Envoi…' : (notifSendEmail ? '📧 Envoyer la notification + l\'email' : '📨 Envoyer la notification')}
               </button>
             </div>
 
