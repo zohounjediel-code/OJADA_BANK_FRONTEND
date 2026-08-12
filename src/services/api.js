@@ -126,7 +126,7 @@ export const adminService = {
   blockFunds: (clientId, reason) => request(`/admin/clients/${clientId}/block-funds`, { method: 'POST', body: JSON.stringify({ reason }) }),
   updateCategory: (clientId, category) => request(`/admin/clients/${clientId}/category`, { method: 'PUT', body: JSON.stringify({ category }) }),
   assignIbanBic: (clientId, client_iban, client_bic) => request(`/admin/clients/${clientId}/iban-bic`, { method: 'PUT', body: JSON.stringify({ client_iban, client_bic }) }),
-  sendNotification: (clientId, title, message) => request(`/admin/clients/${clientId}/notify`, { method: 'POST', body: JSON.stringify({ title, message }) }),
+  sendNotification: (clientId, title, message, sendEmail = false) => request(`/admin/clients/${clientId}/notify`, { method: 'POST', body: JSON.stringify({ title, message, send_email: sendEmail }) }),
   getClientMessages: () => request('/admin/messages'),
   getMessageThread: (threadId) => request(`/admin/messages/${threadId}`),
   replyToClientMessage: (threadId, message) => request(`/admin/messages/${threadId}/reply`, {
