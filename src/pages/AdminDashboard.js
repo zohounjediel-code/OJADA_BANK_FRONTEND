@@ -3,24 +3,6 @@ import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/api';
 
-// `c` reste utilisé tel quel par les pages pas encore converties ; les deux
-// coexistent le temps de la migration progressive (retiré une fois toutes
-// les pages migrées, comme pour ClientDashboard.js).
-const c = {
-  card: { background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:'var(--radius)' },
-  cardHd: { padding:'13px 16px 0', display:'flex', justifyContent:'space-between', alignItems:'center' },
-  cardTitle: { fontSize:13, fontWeight:500, color:'var(--text)' },
-  cardLink: { fontSize:11, color:'#185FA5', cursor:'pointer' },
-  cardBd: { padding:'12px 16px' },
-  kpi: { background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:12, padding:'14px 16px' },
-  badge: { fontSize:10, padding:'2px 8px', borderRadius:20, fontWeight:500, display:'inline-block' },
-  field: { display:'flex', flexDirection:'column', gap:5, marginBottom:14 },
-  label: { fontSize:11, color:'var(--text2)' },
-  input: { height:38, border:'1px solid var(--border)', borderRadius:8, padding:'0 12px', fontSize:13, fontFamily:'var(--sans)', color:'var(--text)', background:'var(--bg)', outline:'none' },
-  saveBtn: { height:38, background:'var(--navy)', border:'none', borderRadius:8, padding:'0 20px', fontSize:12, color:'#fff', cursor:'pointer', fontFamily:'var(--sans)' },
-  skeleton: { background:'linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite', borderRadius:6 },
-};
-
 // Classes Tailwind partagées par toutes les pages du dashboard admin.
 const tw = {
   card: 'rounded-xl border border-navy/10 bg-white',
@@ -1481,16 +1463,15 @@ function PageFondsAdmin() {
   })[a] || { label:a, bg:'#555' };
 
   return (
-    <div style={{animation:'fadeIn 0.35s ease'}}>
+    <div className="animate-[fadeIn_0.35s_ease]">
 
-      {toast && <div style={{position:'fixed',top:20,right:20,zIndex:999,background:'#0a1628',color:'#fff',borderRadius:10,padding:'10px 18px',fontSize:13,fontWeight:500,boxShadow:'0 4px 16px rgba(0,0,0,0.2)'}}>{toast}</div>}
+      {toast && <div className="fixed right-5 top-5 z-[999] rounded-[10px] bg-[#0a1628] px-4.5 py-2.5 text-[13px] font-medium text-white shadow-[0_4px_16px_rgba(0,0,0,0.2)]">{toast}</div>}
 
       {/* Tabs */}
-      <div style={{display:'flex',gap:8,marginBottom:16}}>
+      <div className="mb-4 flex gap-2">
         {[['blocked','🔒 Comptes bloqués'],['verifications','📋 Vérifications en cours'],['block_action','⚡ Bloquer un compte']].map(([v,l])=>(
           <button key={v} onClick={()=>setTab(v)}
-            style={{fontSize:12,padding:'6px 16px',borderRadius:20,border:'1px solid var(--border)',cursor:'pointer',fontFamily:'var(--sans)',
-              background:tab===v?'var(--navy)':'transparent',color:tab===v?'#fff':'var(--text)'}}>
+            className={`cursor-pointer rounded-full border border-navy/10 px-4 py-1.5 font-sans text-xs ${tab===v ? 'bg-navy text-white' : 'bg-transparent text-navy'}`}>
             {l}
           </button>
         ))}
@@ -1498,21 +1479,21 @@ function PageFondsAdmin() {
 
       {/* ── Tab : Comptes bloqués ── */}
       {tab === 'blocked' && (
-        <div style={c.card}>
-          <div style={c.cardBd}>
-            {loading ? <div style={{padding:24,textAlign:'center',color:'var(--text2)',fontSize:12}}>Chargement…</div>
-            : blocked.length === 0 ? <div style={{padding:24,textAlign:'center',color:'var(--text2)',fontSize:12}}><i className="ti ti-lock-open" style={{fontSize:28,display:'block',marginBottom:8,opacity:0.3}}/>Aucun compte bloqué</div>
+        <div className={tw.card}>
+          <div className={tw.cardBd}>
+            {loading ? <div className="p-6 text-center text-xs text-[#64748B]">Chargement…</div>
+            : blocked.length === 0 ? <div className="p-6 text-center text-xs text-[#64748B]"><i className="ti ti-lock-open mb-2 block text-[28px] opacity-30"/>Aucun compte bloqué</div>
             : blocked.map((u,i) => (
-              <div key={u.id} style={{padding:'12px 0',borderBottom:i<blocked.length-1?'1px solid var(--border)':'none',display:'flex',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
-                <div style={{flex:1,minWidth:180}}>
-                  <div style={{fontSize:13,fontWeight:600,color:'var(--navy)'}}>{u.first_name} {u.last_name}</div>
-                  <div style={{fontSize:11,color:'var(--text2)',fontFamily:'monospace'}}>{u.account_number}</div>
-                  <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>Solde : {Number(u.balance).toLocaleString('fr-FR')} €</div>
-                  <div style={{fontSize:11,color:'#A32D2D',marginTop:4,background:'#FCEBEB',borderRadius:6,padding:'3px 8px',display:'inline-block'}}>
+              <div key={u.id} className={`flex flex-wrap items-start gap-3 py-3 ${i<blocked.length-1 ? 'border-b border-navy/10' : ''}`}>
+                <div className="min-w-[180px] flex-1">
+                  <div className="text-[13px] font-semibold text-navy">{u.first_name} {u.last_name}</div>
+                  <div className="font-mono text-[11px] text-[#64748B]">{u.account_number}</div>
+                  <div className="mt-0.5 text-[11px] text-[#64748B]">Solde : {Number(u.balance).toLocaleString('fr-FR')} €</div>
+                  <div className="mt-1 inline-block rounded-md bg-[#FCEBEB] px-2 py-[3px] text-[11px] text-[#A32D2D]">
                     🔒 {u.funds_block_reason}
                   </div>
                 </div>
-                <div style={{fontSize:10,color:'var(--text2)'}}>
+                <div className="text-[10px] text-[#64748B]">
                   {u.funds_blocked_at && new Date(u.funds_blocked_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}
                 </div>
               </div>
@@ -1523,10 +1504,10 @@ function PageFondsAdmin() {
 
       {/* ── Tab : Vérifications ── */}
       {tab === 'verifications' && (
-        <div style={c.card}>
-          <div style={c.cardBd}>
-            {loading ? <div style={{padding:24,textAlign:'center',color:'var(--text2)',fontSize:12}}>Chargement…</div>
-            : verifs.length === 0 ? <div style={{padding:24,textAlign:'center',color:'var(--text2)',fontSize:12}}><i className="ti ti-file-off" style={{fontSize:28,display:'block',marginBottom:8,opacity:0.3}}/>Aucune vérification en cours</div>
+        <div className={tw.card}>
+          <div className={tw.cardBd}>
+            {loading ? <div className="p-6 text-center text-xs text-[#64748B]">Chargement…</div>
+            : verifs.length === 0 ? <div className="p-6 text-center text-xs text-[#64748B]"><i className="ti ti-file-off mb-2 block text-[28px] opacity-30"/>Aucune vérification en cours</div>
             : verifs.map((vf,i) => {
               const si      = verifStatusInfo(vf.status);
               const actions = getVerifActions(vf);
@@ -1535,33 +1516,34 @@ function PageFondsAdmin() {
               const progress = Math.min((amtPaid/vfTotalFee)*100,100);
               const partialAmt = Number(vf.admin_note) || 0;
               return (
-                <div key={vf.id} style={{padding:'14px 0',borderBottom:i<verifs.length-1?'1px solid var(--border)':'none'}}>
-                  <div style={{display:'flex',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
-                    <div style={{flex:1,minWidth:200}}>
-                      <div style={{fontSize:13,fontWeight:600,color:'var(--navy)'}}>{vf.first_name} {vf.last_name}</div>
-                      <div style={{fontSize:11,color:'var(--text2)',fontFamily:'monospace'}}>{vf.account_number}</div>
-                      {vf.funds_block_reason && <div style={{fontSize:11,color:'#A32D2D',marginTop:2}}>Motif blocage : {vf.funds_block_reason}</div>}
-                      {vf.contract_signature && <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>Signé : {vf.contract_signature}</div>}
+                <div key={vf.id} className={`py-3.5 ${i<verifs.length-1 ? 'border-b border-navy/10' : ''}`}>
+                  <div className="flex flex-wrap items-start gap-3">
+                    <div className="min-w-[200px] flex-1">
+                      <div className="text-[13px] font-semibold text-navy">{vf.first_name} {vf.last_name}</div>
+                      <div className="font-mono text-[11px] text-[#64748B]">{vf.account_number}</div>
+                      {vf.funds_block_reason && <div className="mt-0.5 text-[11px] text-[#A32D2D]">Motif blocage : {vf.funds_block_reason}</div>}
+                      {vf.contract_signature && <div className="mt-0.5 text-[11px] text-[#64748B]">Signé : {vf.contract_signature}</div>}
                       {/* Barre progression */}
-                      <div style={{marginTop:8}}>
-                        <div style={{fontSize:10,color:'var(--text2)',marginBottom:3}}>{amtPaid.toLocaleString('fr-FR')} € / {vfTotalFee.toLocaleString('fr-FR')} €</div>
-                        <div style={{height:6,background:'#e8e2d6',borderRadius:6,overflow:'hidden',width:160}}>
-                          <div style={{height:'100%',width:progress+'%',background:progress>=100?'#3B6D11':'var(--navy)',borderRadius:6}}/>
+                      <div className="mt-2">
+                        <div className="mb-[3px] text-[10px] text-[#64748B]">{amtPaid.toLocaleString('fr-FR')} € / {vfTotalFee.toLocaleString('fr-FR')} €</div>
+                        <div className="h-1.5 w-40 overflow-hidden rounded-md bg-[#e8e2d6]">
+                          <div className="h-full rounded-md" style={{ width:progress+'%', background: progress>=100?'#3B6D11':'var(--navy)' }}/>
                         </div>
                       </div>
                       {partialAmt > 0 && vf.status === 'pending_payment' && (
-                        <div style={{fontSize:11,color:'#185FA5',marginTop:4,fontWeight:600}}>Tranche soumise : {partialAmt.toLocaleString('fr-FR')} €</div>
+                        <div className="mt-1 text-[11px] font-semibold text-[#185FA5]">Tranche soumise : {partialAmt.toLocaleString('fr-FR')} €</div>
                       )}
                     </div>
-                    <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6}}>
-                      <span style={{background:si.bg,color:si.col,fontSize:10,fontWeight:600,borderRadius:5,padding:'3px 8px'}}>{si.label}</span>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="rounded-[5px] px-2 py-[3px] text-[10px] font-semibold" style={{ background:si.bg, color:si.col }}>{si.label}</span>
                       {actions.length > 0 && (
-                        <div style={{display:'flex',gap:6,flexWrap:'wrap',justifyContent:'flex-end'}}>
+                        <div className="flex flex-wrap justify-end gap-1.5">
                           {actions.map(a => {
                             const al = verifActionLabel(a);
                             return (
                               <button key={a} onClick={()=>{setModal({type:'verif_action',data:vf,action:a});setActionNote('');}}
-                                style={{fontSize:11,padding:'4px 10px',borderRadius:6,border:'none',background:al.bg,color:'#fff',cursor:'pointer',fontWeight:600,fontFamily:'var(--sans)'}}>
+                                className="cursor-pointer rounded-md border-none px-2.5 py-1 font-sans text-[11px] font-semibold text-white"
+                                style={{ background:al.bg }}>
                                 {al.label}
                               </button>
                             );
@@ -1579,28 +1561,28 @@ function PageFondsAdmin() {
 
       {/* ── Tab : Bloquer un compte ── */}
       {tab === 'block_action' && (
-        <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Rechercher un client à bloquer</span></div>
-          <div style={c.cardBd}>
-            <div style={{display:'flex',gap:8,marginBottom:14}}>
-              <input style={{...c.input,flex:1,margin:0}} placeholder="Nom, prénom, email ou n° compte"
+        <div className={`${tw.card} mb-3.5`}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>Rechercher un client à bloquer</span></div>
+          <div className={tw.cardBd}>
+            <div className="mb-3.5 flex gap-2">
+              <input className={`${tw.input} m-0 flex-1`} placeholder="Nom, prénom, email ou n° compte"
                 value={search} onChange={e=>setSearch(e.target.value)}
                 onKeyDown={e=>e.key==='Enter'&&searchClients()}/>
-              <button style={{height:38,padding:'0 16px',borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',cursor:'pointer',fontSize:13,fontFamily:'var(--sans)'}}
+              <button className="h-[38px] cursor-pointer rounded-lg border-none bg-navy px-4 font-sans text-[13px] text-white"
                 onClick={searchClients}>
                 {loadingClients ? '…' : 'Rechercher'}
               </button>
             </div>
             {clients.map(cl => (
-              <div key={cl.id} style={{display:'flex',alignItems:'center',gap:12,padding:'10px 0',borderBottom:'1px solid var(--border)'}}>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:13,fontWeight:600,color:'var(--navy)'}}>{cl.first_name} {cl.last_name}</div>
-                  <div style={{fontSize:11,color:'var(--text2)'}}>{cl.account_number} · {Number(cl.balance).toLocaleString('fr-FR')} €</div>
-                  {cl.funds_blocked ? <span style={{fontSize:10,background:'#FCEBEB',color:'#A32D2D',borderRadius:5,padding:'2px 6px',fontWeight:600}}>🔒 Déjà bloqué</span> : null}
+              <div key={cl.id} className="flex items-center gap-3 border-b border-navy/10 py-2.5">
+                <div className="flex-1">
+                  <div className="text-[13px] font-semibold text-navy">{cl.first_name} {cl.last_name}</div>
+                  <div className="text-[11px] text-[#64748B]">{cl.account_number} · {Number(cl.balance).toLocaleString('fr-FR')} €</div>
+                  {cl.funds_blocked ? <span className="rounded-[5px] bg-[#FCEBEB] px-1.5 py-0.5 text-[10px] font-semibold text-[#A32D2D]">🔒 Déjà bloqué</span> : null}
                 </div>
                 {!cl.funds_blocked && (
                   <button onClick={()=>{setModal({type:'block',data:cl});setBlockReason('');}}
-                    style={{fontSize:11,padding:'5px 12px',borderRadius:6,border:'none',background:'#A32D2D',color:'#fff',cursor:'pointer',fontWeight:600,fontFamily:'var(--sans)'}}>
+                    className="cursor-pointer rounded-md border-none bg-[#A32D2D] px-3 py-[5px] font-sans text-[11px] font-semibold text-white">
                     🔒 Bloquer les fonds
                   </button>
                 )}
@@ -1612,23 +1594,23 @@ function PageFondsAdmin() {
 
       {/* Modal blocage */}
       {modal?.type === 'block' && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
-          <div style={{background:'#fff',borderRadius:14,padding:24,maxWidth:400,width:'100%',boxShadow:'0 8px 32px rgba(0,0,0,0.2)'}}>
-            <div style={{fontSize:15,fontWeight:600,color:'#A32D2D',marginBottom:8}}>🔒 Bloquer les fonds</div>
-            <div style={{fontSize:12,color:'var(--text2)',marginBottom:14}}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+            <div className="mb-2 text-[15px] font-semibold text-[#A32D2D]">🔒 Bloquer les fonds</div>
+            <div className="mb-3.5 text-xs text-[#64748B]">
               Client : <strong>{modal.data.first_name} {modal.data.last_name}</strong> ({modal.data.account_number})<br/>
               Solde : <strong>{Number(modal.data.balance).toLocaleString('fr-FR')} €</strong>
             </div>
-            <div style={c.field}>
-              <label style={c.label}>Motif du blocage <span style={{color:'#A32D2D'}}>*</span></label>
-              <input style={{...c.input,borderColor:!blockReason.trim()?'#A32D2D':'var(--border)'}}
+            <div className={tw.field}>
+              <label className={tw.label}>Motif du blocage <span className="text-[#A32D2D]">*</span></label>
+              <input className={`${tw.input} w-full ${!blockReason.trim() ? 'border-[#A32D2D]' : 'border-navy/10'}`}
                 placeholder="Ex : Activité suspecte, contrôle AML…"
                 value={blockReason} onChange={e=>setBlockReason(e.target.value)}/>
             </div>
-            <div style={{display:'flex',gap:8,marginTop:8}}>
-              <button onClick={()=>setModal(null)} style={{flex:1,height:40,borderRadius:8,border:'1px solid var(--border)',background:'transparent',cursor:'pointer',fontSize:13,fontFamily:'var(--sans)'}}>Annuler</button>
+            <div className="mt-2 flex gap-2">
+              <button onClick={()=>setModal(null)} className="h-10 flex-1 cursor-pointer rounded-lg border border-navy/10 bg-transparent font-sans text-[13px]">Annuler</button>
               <button onClick={handleBlock} disabled={processing||!blockReason.trim()}
-                style={{flex:2,height:40,borderRadius:8,border:'none',background:'#A32D2D',color:'#fff',cursor:'pointer',fontSize:13,fontWeight:600,fontFamily:'var(--sans)',opacity:processing?0.6:1}}>
+                className={`h-10 flex-[2] cursor-pointer rounded-lg border-none bg-[#A32D2D] font-sans text-[13px] font-semibold text-white ${processing ? 'opacity-60' : 'opacity-100'}`}>
                 {processing ? 'Blocage…' : 'Confirmer le blocage'}
               </button>
             </div>
@@ -1638,28 +1620,28 @@ function PageFondsAdmin() {
 
       {/* Modal action vérification */}
       {modal?.type === 'verif_action' && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
-          <div style={{background:'#fff',borderRadius:14,padding:24,maxWidth:400,width:'100%',boxShadow:'0 8px 32px rgba(0,0,0,0.2)'}}>
-            <div style={{fontSize:15,fontWeight:600,color:'var(--navy)',marginBottom:8}}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+            <div className="mb-2 text-[15px] font-semibold text-navy">
               {verifActionLabel(modal.action).label}
             </div>
-            <div style={{fontSize:12,color:'var(--text2)',marginBottom:14,lineHeight:1.7}}>
+            <div className="mb-3.5 text-xs leading-[1.7] text-[#64748B]">
               Client : <strong>{modal.data.first_name} {modal.data.last_name}</strong><br/>
               {modal.action === 'validate' && <>Tranche soumise : <strong>{Number(modal.data.admin_note).toLocaleString('fr-FR')} €</strong><br/>Nouveau total payé : <strong>{(Number(modal.data.amount_paid||0) + Number(modal.data.admin_note||0)).toLocaleString('fr-FR')} €</strong> / {Number(modal.data.total_fee||8542).toLocaleString('fr-FR')} €</>}
               {modal.action === 'unblock' && <>Le client a payé la totalité des frais. Son compte sera débloqué.</>}
               {modal.action === 'failed' && <>La transaction a échoué. Le client sera informé et devra réessayer.</>}
               {modal.action === 'reject' && <>Le paiement sera refusé.</>}
             </div>
-            <div style={c.field}>
-              <label style={c.label}>Note pour le client (optionnel)</label>
-              <input style={c.input} placeholder="Ex : Virement confirmé, merci de réessayer…"
+            <div className={tw.field}>
+              <label className={tw.label}>Note pour le client (optionnel)</label>
+              <input className={`${tw.input} w-full`} placeholder="Ex : Virement confirmé, merci de réessayer…"
                 value={actionNote} onChange={e=>setActionNote(e.target.value)}/>
             </div>
-            <div style={{display:'flex',gap:8,marginTop:8}}>
-              <button onClick={()=>setModal(null)} style={{flex:1,height:40,borderRadius:8,border:'1px solid var(--border)',background:'transparent',cursor:'pointer',fontSize:13,fontFamily:'var(--sans)'}}>Annuler</button>
+            <div className="mt-2 flex gap-2">
+              <button onClick={()=>setModal(null)} className="h-10 flex-1 cursor-pointer rounded-lg border border-navy/10 bg-transparent font-sans text-[13px]">Annuler</button>
               <button onClick={()=>handleVerifAction(modal.action)} disabled={processing}
-                style={{flex:2,height:40,borderRadius:8,border:'none',color:'#fff',cursor:'pointer',fontSize:13,fontWeight:600,fontFamily:'var(--sans)',
-                  background:verifActionLabel(modal.action).bg,opacity:processing?0.6:1}}>
+                className={`h-10 flex-[2] cursor-pointer rounded-lg border-none font-sans text-[13px] font-semibold text-white ${processing ? 'opacity-60' : 'opacity-100'}`}
+                style={{ background:verifActionLabel(modal.action).bg }}>
                 {processing ? 'Traitement…' : 'Confirmer'}
               </button>
             </div>
@@ -1712,23 +1694,22 @@ function PageDocuments() {
       .catch(err => setViewError("Impossible d'afficher ce document : " + err.message));
   };
 
-  if (loading) return <div style={{padding:24,color:'var(--text2)',fontSize:12}}>Chargement…</div>;
+  if (loading) return <div className="p-6 text-xs text-[#64748B]">Chargement…</div>;
 
   const identityDocs = docs?.identityDocs || [];
   const contracts    = docs?.contracts    || [];
 
   return (
-    <div style={{animation:'fadeIn 0.35s ease'}}>
+    <div className="animate-[fadeIn_0.35s_ease]">
 
       {/* Tabs */}
-      <div style={{display:'flex',gap:8,marginBottom:16}}>
+      <div className="mb-4 flex gap-2">
         {[
           ['identity', `📄 Pièces d\'identité (${identityDocs.length})`],
           ['contracts', `✍️ Contrats signés (${contracts.length})`],
         ].map(([v,l]) => (
           <button key={v} onClick={()=>setTab(v)}
-            style={{fontSize:12,padding:'6px 16px',borderRadius:20,border:'1px solid var(--border)',cursor:'pointer',fontFamily:'var(--sans)',
-              background:tab===v?'var(--navy)':'transparent',color:tab===v?'#fff':'var(--text)'}}>
+            className={`cursor-pointer rounded-full border border-navy/10 px-4 py-1.5 font-sans text-xs ${tab===v ? 'bg-navy text-white' : 'bg-transparent text-navy'}`}>
             {l}
           </button>
         ))}
@@ -1736,49 +1717,49 @@ function PageDocuments() {
 
       {/* ── Pièces d\'identité ── */}
       {tab === 'identity' && (
-        <div style={c.card}>
-          <div style={c.cardBd}>
+        <div className={tw.card}>
+          <div className={tw.cardBd}>
             {identityDocs.length === 0 ? (
-              <div style={{padding:32,textAlign:'center',color:'var(--text2)',fontSize:12}}>
-                <i className="ti ti-id-badge-off" style={{fontSize:32,display:'block',marginBottom:8,opacity:0.3}}/>
+              <div className="p-8 text-center text-xs text-[#64748B]">
+                <i className="ti ti-id-badge-off mb-2 block text-[32px] opacity-30"/>
                 Aucune pièce d'identité uploadée
               </div>
             ) : identityDocs.map((doc, i) => (
-              <div key={doc.ref_id} style={{padding:'14px 0',borderBottom:i<identityDocs.length-1?'1px solid var(--border)':'none',display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
-                <div style={{width:40,height:40,borderRadius:8,background:'#FAEEDA',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                  <i className="ti ti-id-badge" style={{color:'var(--gold)',fontSize:18}}/>
+              <div key={doc.ref_id} className={`flex flex-wrap items-center gap-3 py-3.5 ${i<identityDocs.length-1 ? 'border-b border-navy/10' : ''}`}>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FAEEDA]">
+                  <i className="ti ti-id-badge text-lg text-gold"/>
                 </div>
-                <div style={{flex:1,minWidth:180}}>
-                  <div style={{fontSize:13,fontWeight:600,color:'var(--navy)'}}>{doc.first_name} {doc.last_name}</div>
-                  <div style={{fontSize:11,color:'var(--text2)'}}>{doc.account_number} · {doc.email}</div>
-                  <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>
-                    Réf : <span style={{fontFamily:'monospace'}}>{doc.reference}</span> ·{' '}
+                <div className="min-w-[180px] flex-1">
+                  <div className="text-[13px] font-semibold text-navy">{doc.first_name} {doc.last_name}</div>
+                  <div className="text-[11px] text-[#64748B]">{doc.account_number} · {doc.email}</div>
+                  <div className="mt-0.5 text-[11px] text-[#64748B]">
+                    Réf : <span className="font-mono">{doc.reference}</span> ·{' '}
                     {new Date(doc.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}
                   </div>
-                  <span style={{fontSize:10,background:'#FAEEDA',color:'#854F0B',borderRadius:5,padding:'2px 8px',fontWeight:600}}>
+                  <span className="rounded-[5px] bg-[#FAEEDA] px-2 py-0.5 text-[10px] font-semibold text-[#854F0B]">
                     Retrait · niveau 6
                   </span>
                 </div>
                 {/* Recto */}
-                <div style={{marginBottom:8}}>
-                  <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',marginBottom:4}}>Recto</div>
-                  <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                <div className="mb-2">
+                  <div className="mb-1 text-[11px] font-semibold text-[#64748B]">Recto</div>
+                  <div className="flex items-center gap-2">
                     {doc.url && (doc.url.endsWith('.jpg')||doc.url.endsWith('.jpeg')||doc.url.endsWith('.png')||doc.url.endsWith('.webp')) && (
                       <img
                         src={API_URL + doc.url}
                         alt="Recto"
-                        style={{width:60,height:60,objectFit:'cover',borderRadius:6,border:'1px solid var(--border)',cursor:'pointer'}}
+                        className="h-[60px] w-[60px] cursor-pointer rounded-md border border-navy/10 object-cover"
                         onClick={()=>viewFile(doc.url)}
                       />
                     )}
                     <button
                       onClick={()=>downloadFile(doc.url, `recto-${doc.last_name}-${doc.ref_id}${doc.url.substring(doc.url.lastIndexOf('.'))}`)}
-                      style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',cursor:'pointer',fontWeight:500,fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
+                      className="flex items-center gap-1.5 rounded-lg border-none bg-navy px-3.5 py-1.5 font-sans text-xs font-medium text-white cursor-pointer">
                       <i className="ti ti-download"/>Télécharger
                     </button>
                     <button
                       onClick={()=>viewFile(doc.url)}
-                      style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'1px solid var(--border)',background:'transparent',color:'var(--text)',cursor:'pointer',fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
+                      className="flex items-center gap-1.5 rounded-lg border border-navy/10 bg-transparent px-3.5 py-1.5 font-sans text-xs cursor-pointer">
                       <i className="ti ti-eye"/>Voir
                     </button>
                   </div>
@@ -1787,24 +1768,24 @@ function PageDocuments() {
                 {/* Verso */}
                 {doc.url_verso && (
                   <div>
-                    <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',marginBottom:4}}>Verso</div>
-                    <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                    <div className="mb-1 text-[11px] font-semibold text-[#64748B]">Verso</div>
+                    <div className="flex items-center gap-2">
                       {(doc.url_verso.endsWith('.jpg')||doc.url_verso.endsWith('.jpeg')||doc.url_verso.endsWith('.png')||doc.url_verso.endsWith('.webp')) && (
                         <img
                           src={API_URL + doc.url_verso}
                           alt="Verso"
-                          style={{width:60,height:60,objectFit:'cover',borderRadius:6,border:'1px solid var(--border)',cursor:'pointer'}}
+                          className="h-[60px] w-[60px] cursor-pointer rounded-md border border-navy/10 object-cover"
                           onClick={()=>viewFile(doc.url_verso)}
                         />
                       )}
                       <button
                         onClick={()=>downloadFile(doc.url_verso, `verso-${doc.last_name}-${doc.ref_id}${doc.url_verso.substring(doc.url_verso.lastIndexOf('.'))}`)}
-                        style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',cursor:'pointer',fontWeight:500,fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
+                        className="flex items-center gap-1.5 rounded-lg border-none bg-navy px-3.5 py-1.5 font-sans text-xs font-medium text-white cursor-pointer">
                         <i className="ti ti-download"/>Télécharger
                       </button>
                       <button
                         onClick={()=>viewFile(doc.url_verso)}
-                        style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'1px solid var(--border)',background:'transparent',color:'var(--text)',cursor:'pointer',fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
+                        className="flex items-center gap-1.5 rounded-lg border border-navy/10 bg-transparent px-3.5 py-1.5 font-sans text-xs cursor-pointer">
                         <i className="ti ti-eye"/>Voir
                       </button>
                     </div>
@@ -1814,8 +1795,8 @@ function PageDocuments() {
             ))}
           </div>
           {viewError && (
-            <div style={{margin:'10px 14px',background:'#FCEBEB',color:'#A32D2D',borderRadius:8,padding:'10px 14px',fontSize:12,display:'flex',gap:8,alignItems:'flex-start'}}>
-              <i className="ti ti-alert-triangle" style={{flexShrink:0,marginTop:1}}/>
+            <div className="m-3.5 flex items-start gap-2 rounded-lg bg-[#FCEBEB] px-3.5 py-2.5 text-xs text-[#A32D2D]">
+              <i className="ti ti-alert-triangle mt-px shrink-0"/>
               <span>{viewError}</span>
             </div>
           )}
@@ -1824,36 +1805,36 @@ function PageDocuments() {
 
       {/* ── Contrats signés ── */}
       {tab === 'contracts' && (
-        <div style={c.card}>
-          <div style={c.cardBd}>
+        <div className={tw.card}>
+          <div className={tw.cardBd}>
             {contracts.length === 0 ? (
-              <div style={{padding:32,textAlign:'center',color:'var(--text2)',fontSize:12}}>
-                <i className="ti ti-file-off" style={{fontSize:32,display:'block',marginBottom:8,opacity:0.3}}/>
+              <div className="p-8 text-center text-xs text-[#64748B]">
+                <i className="ti ti-file-off mb-2 block text-[32px] opacity-30"/>
                 Aucun contrat signé
               </div>
             ) : contracts.map((doc, i) => (
-              <div key={doc.ref_id} style={{padding:'14px 0',borderBottom:i<contracts.length-1?'1px solid var(--border)':'none'}}>
-                <div style={{display:'flex',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
-                  <div style={{width:40,height:40,borderRadius:8,background:'#EAF3DE',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <i className="ti ti-signature" style={{color:'#3B6D11',fontSize:18}}/>
+              <div key={doc.ref_id} className={`py-3.5 ${i<contracts.length-1 ? 'border-b border-navy/10' : ''}`}>
+                <div className="flex flex-wrap items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#EAF3DE]">
+                    <i className="ti ti-signature text-lg text-[#3B6D11]"/>
                   </div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:13,fontWeight:600,color:'var(--navy)'}}>{doc.first_name} {doc.last_name}</div>
-                    <div style={{fontSize:11,color:'var(--text2)'}}>{doc.account_number} · {doc.email}</div>
-                    <div style={{fontSize:12,marginTop:6,background:'#f8f6f1',borderRadius:6,padding:'8px 12px',border:'1px solid var(--border)'}}>
-                      <div style={{fontSize:10,color:'var(--text2)',marginBottom:3}}>Signature électronique</div>
-                      <div style={{fontFamily:'Georgia,serif',fontSize:16,color:'var(--navy)',fontStyle:'italic'}}>{doc.signature}</div>
-                      <div style={{fontSize:10,color:'var(--text2)',marginTop:3}}>
+                  <div className="flex-1">
+                    <div className="text-[13px] font-semibold text-navy">{doc.first_name} {doc.last_name}</div>
+                    <div className="text-[11px] text-[#64748B]">{doc.account_number} · {doc.email}</div>
+                    <div className="mt-1.5 rounded-md border border-navy/10 bg-[#f8f6f1] px-3 py-2 text-xs">
+                      <div className="mb-[3px] text-[10px] text-[#64748B]">Signature électronique</div>
+                      <div className="text-base italic text-navy" style={{ fontFamily:'Georgia,serif' }}>{doc.signature}</div>
+                      <div className="mt-[3px] text-[10px] text-[#64748B]">
                         Signé le {new Date(doc.contract_signed_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}
                       </div>
                     </div>
                   </div>
-                  <div style={{display:'flex',flexDirection:'column',gap:6,alignItems:'flex-end'}}>
-                    <span style={{
-                      fontSize:10,fontWeight:600,borderRadius:5,padding:'3px 8px',
-                      background: doc.status==='completed'?'#EAF3DE':doc.status==='rejected'?'#FCEBEB':'#FAEEDA',
-                      color: doc.status==='completed'?'#3B6D11':doc.status==='rejected'?'#A32D2D':'#854F0B'
-                    }}>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span className="rounded-[5px] px-2 py-[3px] text-[10px] font-semibold"
+                      style={{
+                        background: doc.status==='completed'?'#EAF3DE':doc.status==='rejected'?'#FCEBEB':'#FAEEDA',
+                        color: doc.status==='completed'?'#3B6D11':doc.status==='rejected'?'#A32D2D':'#854F0B'
+                      }}>
                       {doc.status==='completed'?'✅ Débloqué':doc.status==='rejected'?'❌ Refusé':doc.status==='completed_pending_unblock'?'🔔 Prêt à débloquer':'⏳ En cours'}
                     </span>
                     <button
@@ -1872,7 +1853,7 @@ function PageDocuments() {
                         w.document.close();
                         w.print();
                       }}
-                      style={{fontSize:12,padding:'6px 14px',borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',cursor:'pointer',fontWeight:500,fontFamily:'var(--sans)',display:'flex',alignItems:'center',gap:6}}>
+                      className="flex items-center gap-1.5 rounded-lg border-none bg-navy px-3.5 py-1.5 font-sans text-xs font-medium text-white cursor-pointer">
                       <i className="ti ti-printer"/>Imprimer / PDF
                     </button>
                   </div>
@@ -1888,16 +1869,16 @@ function PageDocuments() {
 
 function PageParametres() {
   return (
-    <div style={{ animation:'fadeIn 0.35s ease', maxWidth:500 }}>
-      <div style={{ ...c.card, padding:20 }}>
-        <div style={{ fontFamily:'var(--serif)', fontSize:18, color:'var(--navy)', marginBottom:16 }}>Informations de la banque</div>
+    <div className="max-w-[500px] animate-[fadeIn_0.35s_ease]">
+      <div className={`${tw.card} p-5`}>
+        <div className="mb-4 font-serif text-lg text-navy">Informations de la banque</div>
         {[['Nom de la banque','OJADA BANK'],['Ville','Villejuif, Île-de-France'],['Devise','EUR (€)'],['Email de contact','contact@ojadabank.fr']].map(([label, val]) => (
-          <div key={label} style={c.field}>
-            <label style={c.label}>{label}</label>
-            <input style={c.input} defaultValue={val}/>
+          <div key={label} className={tw.field}>
+            <label className={tw.label}>{label}</label>
+            <input className={tw.input} defaultValue={val}/>
           </div>
         ))}
-        <button style={c.saveBtn}>Enregistrer les modifications</button>
+        <button className={tw.saveBtn}>Enregistrer les modifications</button>
       </div>
     </div>
   );
