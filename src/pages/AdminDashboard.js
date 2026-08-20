@@ -3,6 +3,9 @@ import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { adminService } from '../services/api';
 
+// `c` reste utilisé tel quel par les pages pas encore converties ; les deux
+// coexistent le temps de la migration progressive (retiré une fois toutes
+// les pages migrées, comme pour ClientDashboard.js).
 const c = {
   card: { background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:'var(--radius)' },
   cardHd: { padding:'13px 16px 0', display:'flex', justifyContent:'space-between', alignItems:'center' },
@@ -16,6 +19,22 @@ const c = {
   input: { height:38, border:'1px solid var(--border)', borderRadius:8, padding:'0 12px', fontSize:13, fontFamily:'var(--sans)', color:'var(--text)', background:'var(--bg)', outline:'none' },
   saveBtn: { height:38, background:'var(--navy)', border:'none', borderRadius:8, padding:'0 20px', fontSize:12, color:'#fff', cursor:'pointer', fontFamily:'var(--sans)' },
   skeleton: { background:'linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite', borderRadius:6 },
+};
+
+// Classes Tailwind partagées par toutes les pages du dashboard admin.
+const tw = {
+  card: 'rounded-xl border border-navy/10 bg-white',
+  cardHd: 'flex items-center justify-between px-4 pt-[13px]',
+  cardTitle: 'text-[13px] font-medium text-navy',
+  cardLink: 'cursor-pointer text-[11px] text-[#185FA5]',
+  cardBd: 'px-4 py-3',
+  kpi: 'rounded-xl border border-navy/10 bg-white px-4 py-3.5',
+  badge: 'inline-block rounded-full px-2 py-0.5 text-[10px] font-medium',
+  field: 'flex flex-col gap-[5px] mb-3.5',
+  label: 'text-[11px] text-[#64748B]',
+  input: 'h-[38px] rounded-lg border border-navy/10 bg-[#F8F6F1] px-3 text-[13px] font-sans text-navy outline-none',
+  saveBtn: 'h-[38px] rounded-lg border-none bg-navy px-5 font-sans text-xs text-white cursor-pointer',
+  skeleton: 'rounded-md bg-gradient-to-r from-[#F8F6F1] via-navy/10 to-[#F8F6F1] bg-[length:200%_100%] animate-[shimmer_1.4s_infinite]',
 };
 
 const navItems = [
@@ -58,14 +77,14 @@ const avatarColor = (i) => {
 };
 
 function Skeleton({ h=14, mb=8 }) {
-  return <div style={{ ...c.skeleton, height:h, marginBottom:mb }}/>;
+  return <div className={tw.skeleton} style={{ height:h, marginBottom:mb }}/>;
 }
 
 function EmptyState({ icon, message }) {
   return (
-    <div style={{ textAlign:'center', padding:'28px 16px', color:'var(--text2)' }}>
-      <i className={`ti ${icon}`} style={{ fontSize:32, opacity:0.3, display:'block', marginBottom:8 }}/>
-      <div style={{ fontSize:12 }}>{message}</div>
+    <div className="py-7 px-4 text-center text-[#64748B]">
+      <i className={`ti ${icon} mb-2 block text-[32px] opacity-30`}/>
+      <div className="text-xs">{message}</div>
     </div>
   );
 }
@@ -90,46 +109,46 @@ function PageDashboard({ setPage }) {
   ] : [];
 
   return (
-    <div style={{ animation:'fadeIn 0.35s ease' }}>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:12, marginBottom:18 }}>
+    <div className="animate-[fadeIn_0.35s_ease]">
+      <div className="mb-[18px] grid grid-cols-2 gap-3 sm:grid-cols-4">
         {loading ? [1,2,3,4].map(i => (
-          <div key={i} style={c.kpi}><Skeleton h={11} mb={10}/><Skeleton h={22} mb={6}/><Skeleton h={11} mb={0}/></div>
+          <div key={i} className={tw.kpi}><Skeleton h={11} mb={10}/><Skeleton h={22} mb={6}/><Skeleton h={11} mb={0}/></div>
         )) : kpis.map(k => (
-          <div key={k.label} style={c.kpi}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:8 }}>
-              <div style={{ fontSize:11, color:'var(--text2)' }}>{k.label}</div>
-              <div style={{ width:27, height:27, borderRadius:7, background:k.bg, color:k.col, display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}><i className={`ti ${k.ic}`}/></div>
+          <div key={k.label} className={tw.kpi}>
+            <div className="mb-2 flex items-start justify-between">
+              <div className="text-[11px] text-[#64748B]">{k.label}</div>
+              <div className="flex h-[27px] w-[27px] items-center justify-center rounded-[7px] text-sm" style={{ background:k.bg, color:k.col }}><i className={`ti ${k.ic}`}/></div>
             </div>
-            <div style={{ fontSize:20, fontWeight:500, color:'var(--text)', lineHeight:1 }}>{k.value}</div>
-            <div style={{ fontSize:11, marginTop:5, color: k.up ? '#3B6D11' : '#A32D2D' }}>{k.delta}</div>
+            <div className="text-xl font-medium leading-none text-navy">{k.value}</div>
+            <div className={`mt-1.5 text-[11px] ${k.up ? 'text-[#3B6D11]' : 'text-[#A32D2D]'}`}>{k.delta}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:14 }}>
-        <div style={c.card}>
-          <div style={c.cardHd}>
-            <span style={c.cardTitle}>Dernières transactions</span>
-            <span style={c.cardLink} onClick={() => setPage('transactions')}>Voir tout →</span>
+      <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2">
+        <div className={tw.card}>
+          <div className={tw.cardHd}>
+            <span className={tw.cardTitle}>Dernières transactions</span>
+            <span className={tw.cardLink} onClick={() => setPage('transactions')}>Voir tout →</span>
           </div>
-          <div style={c.cardBd}>
+          <div className={tw.cardBd}>
             {loading ? [1,2,3,4].map(i => <Skeleton key={i} h={40} mb={10}/>) :
              !data?.recent_transactions?.length ? <EmptyState icon="ti-arrows-exchange" message="Aucune transaction"/> :
              data.recent_transactions.map((t, i) => {
                const ts = typeStyle[t.type] || typeStyle.depot;
                const isLast = i === data.recent_transactions.length - 1;
                return (
-                 <div key={t.id} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 0', borderBottom: isLast ? 'none' : '1px solid var(--border)' }}>
-                   <div style={{ width:32, height:32, borderRadius:8, background:ts.bg, color:ts.color, display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, flexShrink:0 }}>
+                 <div key={t.id} className={`flex items-center gap-2.5 py-2 ${isLast ? 'border-b-0' : 'border-b border-navy/10'}`}>
+                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm" style={{ background:ts.bg, color:ts.color }}>
                      <i className={`ti ${t.type==='depot'?'ti-arrow-down-left':t.type==='retrait'?'ti-arrow-up-right':'ti-arrows-exchange'}`}/>
                    </div>
-                   <div style={{ flex:1, minWidth:0 }}>
-                     <div style={{ fontSize:12, fontWeight:500, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                   <div className="min-w-0 flex-1">
+                     <div className="truncate text-xs font-medium">
                        {t.description || ts.label} — {t.first_name} {t.last_name}
                      </div>
-                     <div style={{ fontSize:10, color:'var(--text2)' }}>{fmtDate(t.created_at)}</div>
+                     <div className="text-[10px] text-[#64748B]">{fmtDate(t.created_at)}</div>
                    </div>
-                   <div style={{ fontSize:12, fontWeight:500, color: t.type==='retrait'?'#A32D2D':'#3B6D11', flexShrink:0 }}>
+                   <div className={`shrink-0 text-xs font-medium ${t.type==='retrait'?'text-[#A32D2D]':'text-[#3B6D11]'}`}>
                      {t.type==='retrait'?'-':'+'}{fmt(t.amount)} €
                    </div>
                  </div>
@@ -138,9 +157,9 @@ function PageDashboard({ setPage }) {
           </div>
         </div>
 
-        <div style={c.card}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Activité du mois</span></div>
-          <div style={c.cardBd}>
+        <div className={tw.card}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>Activité du mois</span></div>
+          <div className={tw.cardBd}>
             {loading ? [1,2,3,4].map(i => <Skeleton key={i} h={28} mb={10}/>) : (
               <>
                 {[
@@ -148,14 +167,14 @@ function PageDashboard({ setPage }) {
                   ['Retraits', data?.month_stats.total_retrait, '#A32D2D'],
                   ['Virements', data?.month_stats.total_virement, '#185FA5'],
                 ].map(([label, val, col]) => (
-                  <div key={label} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid var(--border)', fontSize:12 }}>
-                    <span style={{ color:'var(--text2)' }}>{label}</span>
-                    <span style={{ fontWeight:500, color:col }}>{fmt(val)} €</span>
+                  <div key={label} className="flex justify-between border-b border-navy/10 py-2 text-xs">
+                    <span className="text-[#64748B]">{label}</span>
+                    <span className="font-medium" style={{ color:col }}>{fmt(val)} €</span>
                   </div>
                 ))}
-                <div style={{ marginTop:12, paddingTop:10, borderTop:'1px solid var(--border)' }}>
-                  <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>Volume total géré</div>
-                  <div style={{ fontFamily:'var(--serif)', fontSize:20, color:'var(--navy)' }}>{fmt(data?.kpis.total_balance)} €</div>
+                <div className="mt-3 border-t border-navy/10 pt-2.5">
+                  <div className="mb-1 text-[11px] text-[#64748B]">Volume total géré</div>
+                  <div className="font-serif text-xl text-navy">{fmt(data?.kpis.total_balance)} €</div>
                 </div>
               </>
             )}
@@ -276,13 +295,13 @@ function PageClients() {
   };
 
   return (
-    <div style={{ animation:'fadeIn 0.35s ease' }}>
-      <div style={{ display:'flex', gap:8, marginBottom:14, flexWrap:'wrap' }}>
-        <div style={{ position:'relative', flex:1, minWidth:180 }}>
-          <i className="ti ti-search" style={{ position:'absolute', left:9, top:'50%', transform:'translateY(-50%)', color:'var(--text2)', fontSize:14, pointerEvents:'none' }}/>
-          <input value={search} onChange={e => setSearch(e.target.value)} style={{ width:'100%', height:34, border:'1px solid var(--border)', borderRadius:8, padding:'0 10px 0 30px', fontSize:12, color:'var(--text)', background:'var(--bg2)', outline:'none', fontFamily:'var(--sans)' }} placeholder="Rechercher un client..."/>
+    <div className="animate-[fadeIn_0.35s_ease]">
+      <div className="mb-3.5 flex flex-wrap gap-2">
+        <div className="relative min-w-[180px] flex-1">
+          <i className="ti ti-search pointer-events-none absolute left-[9px] top-1/2 -translate-y-1/2 text-sm text-[#64748B]"/>
+          <input value={search} onChange={e => setSearch(e.target.value)} className="h-[34px] w-full rounded-lg border border-navy/10 bg-white pl-[30px] pr-2.5 font-sans text-xs text-navy outline-none" placeholder="Rechercher un client..."/>
         </div>
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ height:34, border:'1px solid var(--border)', borderRadius:8, padding:'0 12px', fontSize:12, background:'var(--bg2)', color:'var(--text)', cursor:'pointer', fontFamily:'var(--sans)' }}>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="h-[34px] cursor-pointer rounded-lg border border-navy/10 bg-white px-3 font-sans text-xs text-navy outline-none">
           <option value="">Tous les statuts</option>
           <option value="active">Actifs</option>
           <option value="pending">En attente</option>
@@ -292,16 +311,16 @@ function PageClients() {
         </select>
       </div>
 
-      <div style={{ ...c.card, overflowX:'auto' }}>
+      <div className={`${tw.card} overflow-x-auto`}>
         {loading ? (
-          <div style={{ padding:16 }}>{[1,2,3,4].map(i => <Skeleton key={i} h={42} mb={8}/>)}</div>
+          <div className="p-4">{[1,2,3,4].map(i => <Skeleton key={i} h={42} mb={8}/>)}</div>
         ) : clients.length === 0 ? (
           <EmptyState icon="ti-users" message="Aucun client trouvé"/>
         ) : (
-          <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
+          <table className="w-full border-collapse text-xs">
             <thead>
               <tr>{['Client','Numéro','Catégorie','Solde','Statut','Actions'].map(h => (
-                <th key={h} style={{ textAlign:'left', fontSize:10, color:'var(--text2)', fontWeight:500, padding:'7px 12px', borderBottom:'1px solid var(--border)', textTransform:'uppercase', letterSpacing:0.5, whiteSpace:'nowrap' }}>{h}</th>
+                <th key={h} className="whitespace-nowrap border-b border-navy/10 px-3 py-[7px] text-left text-[10px] font-medium uppercase tracking-wide text-[#64748B]">{h}</th>
               ))}</tr>
             </thead>
             <tbody>
@@ -309,30 +328,31 @@ function PageClients() {
                 const ss = statusStyle[cl.status] || statusStyle.pending;
                 const [bg, col] = avatarColor(i);
                 return (
-                  <tr key={cl.id} onMouseEnter={e => e.currentTarget.style.background='var(--bg)'} onMouseLeave={e => e.currentTarget.style.background=''}>
-                    <td style={{ padding:'9px 12px', whiteSpace:'nowrap' }}>
-                      <span style={{ width:26, height:26, borderRadius:'50%', background:bg, color:col, display:'inline-flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:600, marginRight:8, verticalAlign:'middle' }}>{initials(cl.first_name, cl.last_name)}</span>
+                  <tr key={cl.id} className="hover:bg-[#F8F6F1]">
+                    <td className="whitespace-nowrap px-3 py-[9px]">
+                      <span className="mr-2 inline-flex h-[26px] w-[26px] items-center justify-center rounded-full align-middle text-[10px] font-semibold" style={{ background:bg, color:col }}>{initials(cl.first_name, cl.last_name)}</span>
                       {cl.first_name} {cl.last_name}
                     </td>
-                    <td style={{ padding:'9px 12px', fontFamily:'monospace', fontSize:11, color:'var(--text2)', whiteSpace:'nowrap' }}>{cl.account_number}</td>
-                    <td style={{ padding:'9px 12px' }}>
+                    <td className="whitespace-nowrap px-3 py-[9px] font-mono text-[11px] text-[#64748B]">{cl.account_number}</td>
+                    <td className="px-3 py-[9px]">
                       <select value={cl.account_category || 'basic'} onChange={e => handleCategoryChange(cl.id, e.target.value)} disabled={updating}
-                        style={{ fontSize:10, border:'1px solid var(--border)', borderRadius:12, padding:'2px 8px', cursor:'pointer', fontFamily:'var(--sans)',
-                          background: catStyle(cl.account_category).bg, color: catStyle(cl.account_category).col, fontWeight:600 }}>
+                        className="cursor-pointer rounded-xl border border-navy/10 px-2 py-0.5 font-sans text-[10px] font-semibold"
+                        style={{ background: catStyle(cl.account_category).bg, color: catStyle(cl.account_category).col }}>
                         {CATEGORIES.map(cat => <option key={cat.value} value={cat.value}>{cat.label}</option>)}
                       </select>
                     </td>
-                    <td style={{ padding:'9px 12px', fontWeight:500, whiteSpace:'nowrap' }}>{fmt(cl.balance)} €</td>
-                    <td style={{ padding:'9px 12px' }}>
+                    <td className="whitespace-nowrap px-3 py-[9px] font-medium">{fmt(cl.balance)} €</td>
+                    <td className="px-3 py-[9px]">
                       <select value={cl.status} onChange={e => handleStatusChange(cl.id, e.target.value)} disabled={updating}
-                        style={{ ...c.badge, background:ss.bg, color:ss.color, border:'none', cursor:'pointer', fontFamily:'var(--sans)', fontSize:10, padding:'2px 8px', borderRadius:20 }}>
+                        className={`${tw.badge} cursor-pointer border-none font-sans`}
+                        style={{ background:ss.bg, color:ss.color }}>
                         <option value="active">Actif</option>
                         <option value="pending">En attente</option>
                         <option value="inactive">Inactif</option>
                       </select>
                     </td>
-                    <td style={{ padding:'9px 12px' }}>
-                      <button onClick={() => { setSelected(cl); setIbanForm({ client_iban: cl.client_iban || '', client_bic: cl.client_bic || '' }); setIbanStatus('idle'); setIbanMsg(''); setNotifForm({ title:'', message:'' }); setNotifStatus('idle'); setNotifMsg(''); }} style={{ fontSize:11, border:'1px solid var(--border)', borderRadius:6, padding:'3px 10px', cursor:'pointer', background:'transparent', fontFamily:'var(--sans)' }}>Voir</button>
+                    <td className="px-3 py-[9px]">
+                      <button onClick={() => { setSelected(cl); setIbanForm({ client_iban: cl.client_iban || '', client_bic: cl.client_bic || '' }); setIbanStatus('idle'); setIbanMsg(''); setNotifForm({ title:'', message:'' }); setNotifStatus('idle'); setNotifMsg(''); }} className="cursor-pointer rounded-md border border-navy/10 bg-transparent px-2.5 py-[3px] font-sans text-[11px]">Voir</button>
                     </td>
                   </tr>
                 );
@@ -344,84 +364,79 @@ function PageClients() {
 
       {/* Modal détail client */}
       {selected && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
           onClick={e => e.target === e.currentTarget && setSelected(null)}>
-          <div style={{ background:'var(--bg2)', borderRadius:14, padding:24, width:'100%', maxWidth:420, maxHeight:'80vh', overflowY:'auto', position:'relative' }}>
-            <button onClick={() => setSelected(null)} style={{ position:'absolute', top:12, right:12, background:'transparent', border:'none', fontSize:18, cursor:'pointer', color:'var(--text2)' }}>✕</button>
-            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:18 }}>
-              <div style={{ width:44, height:44, borderRadius:'50%', background:'var(--navy)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--serif)', fontSize:18, color:'var(--gold)' }}>{initials(selected.first_name, selected.last_name)}</div>
+          <div className="relative max-h-[80vh] w-full max-w-[420px] overflow-y-auto rounded-2xl bg-white p-6">
+            <button onClick={() => setSelected(null)} className="absolute right-3 top-3 cursor-pointer border-none bg-transparent text-lg text-[#64748B]">✕</button>
+            <div className="mb-[18px] flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-navy font-serif text-lg text-gold">{initials(selected.first_name, selected.last_name)}</div>
               <div>
-                <div style={{ fontFamily:'var(--serif)', fontSize:18, color:'var(--navy)' }}>{selected.first_name} {selected.last_name}</div>
-                <div style={{ fontSize:11, color:'var(--text2)', fontFamily:'monospace' }}>{selected.account_number}</div>
+                <div className="font-serif text-lg text-navy">{selected.first_name} {selected.last_name}</div>
+                <div className="font-mono text-[11px] text-[#64748B]">{selected.account_number}</div>
               </div>
             </div>
             {[['Email', selected.email],['Téléphone', selected.phone||'—'],['Adresse', selected.address||'—'],['Ville', selected.city||'—'],['Code postal', selected.postal_code||'—'],['Type', selected.account_type],['Solde', `${fmt(selected.balance)} €`],['Inscrit le', fmtDate(selected.created_at)]].map(([k,v]) => (
-              <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom:'1px solid var(--border)', fontSize:12 }}>
-                <span style={{ color:'var(--text2)' }}>{k}</span>
-                <span style={{ fontWeight: k==='Solde'?500:undefined }}>{v}</span>
+              <div key={k} className="flex justify-between border-b border-navy/10 py-[7px] text-xs">
+                <span className="text-[#64748B]">{k}</span>
+                <span className={k==='Solde' ? 'font-medium' : ''}>{v}</span>
               </div>
             ))}
             {/* IBAN / BIC */}
-            <div style={{ marginTop:14, marginBottom:14, background:'var(--bg)', borderRadius:10, padding:14 }}>
-              <div style={{ fontSize:11, fontWeight:600, color:'var(--navy)', marginBottom:10, display:'flex', alignItems:'center', gap:6 }}>
-                <i className="ti ti-building-bank" style={{ color:'var(--gold)' }}/>
+            <div className="mb-3.5 mt-3.5 rounded-[10px] bg-[#F8F6F1] p-3.5">
+              <div className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold text-navy">
+                <i className="ti ti-building-bank text-gold"/>
                 IBAN &amp; BIC du client
               </div>
               {selected.client_iban ? (
-                <div style={{ marginBottom:10 }}>
-                  <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>IBAN actuel</div>
-                  <div style={{ fontFamily:'monospace', fontSize:12, color:'var(--navy)', fontWeight:600, letterSpacing:1 }}>
+                <div className="mb-2.5">
+                  <div className="mb-[3px] text-[11px] text-[#64748B]">IBAN actuel</div>
+                  <div className="font-mono text-xs font-semibold tracking-wide text-navy">
                     {selected.client_iban.replace(/(.{4})/g, '$1 ').trim()}
                   </div>
-                  <div style={{ fontSize:11, color:'var(--text2)', marginTop:4 }}>BIC : <strong>{selected.client_bic}</strong></div>
+                  <div className="mt-1 text-[11px] text-[#64748B]">BIC : <strong>{selected.client_bic}</strong></div>
                 </div>
               ) : (
-                <div style={{ fontSize:11, color:'#A32D2D', marginBottom:8 }}>⚠ Aucun IBAN attribué</div>
+                <div className="mb-2 text-[11px] text-[#A32D2D]">⚠ Aucun IBAN attribué</div>
               )}
-              <div style={{ display:'flex', gap:6, marginBottom:6 }}>
-                <div style={{ flex:2 }}>
-                  <div style={{ fontSize:10, color:'var(--text2)', marginBottom:2 }}>IBAN</div>
-                  <input style={{ ...c.input, fontSize:11, fontFamily:'monospace' }}
+              <div className="mb-1.5 flex gap-1.5">
+                <div className="flex-[2]">
+                  <div className="mb-0.5 text-[10px] text-[#64748B]">IBAN</div>
+                  <input className={`${tw.input} font-mono text-[11px]`}
                     placeholder="FR76 3000 6000 0112 3456 7890 189"
                     value={ibanForm.client_iban}
                     onChange={e => { setIbanForm(f => ({ ...f, client_iban: e.target.value })); setIbanStatus('idle'); setIbanMsg(''); }}/>
                 </div>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:10, color:'var(--text2)', marginBottom:2 }}>BIC</div>
-                  <input style={{ ...c.input, fontSize:11, fontFamily:'monospace' }}
+                <div className="flex-1">
+                  <div className="mb-0.5 text-[10px] text-[#64748B]">BIC</div>
+                  <input className={`${tw.input} font-mono text-[11px]`}
                     placeholder="BNPAFRPP"
                     value={ibanForm.client_bic}
                     onChange={e => { setIbanForm(f => ({ ...f, client_bic: e.target.value })); setIbanStatus('idle'); setIbanMsg(''); }}/>
                 </div>
               </div>
               {ibanMsg && (
-                <div style={{ fontSize:11, borderRadius:6, padding:'5px 10px', marginBottom:6,
-                  background: ibanStatus==='success' ? '#EAF3DE' : '#FCEBEB',
-                  color: ibanStatus==='success' ? '#3B6D11' : '#A32D2D' }}>
+                <div className={`mb-1.5 rounded-md px-2.5 py-1.5 text-[11px] ${ibanStatus==='success' ? 'bg-[#EAF3DE] text-[#3B6D11]' : 'bg-[#FCEBEB] text-[#A32D2D]'}`}>
                   {ibanMsg}
                 </div>
               )}
               <button onClick={handleAssignIbanBic} disabled={ibanStatus==='loading'}
-                style={{ width:'100%', height:34, borderRadius:8, border:'none', background:'var(--navy)', color:'#fff',
-                  cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'var(--sans)',
-                  opacity: ibanStatus==='loading' ? 0.6 : 1 }}>
+                className={`h-[34px] w-full rounded-lg border-none bg-navy font-sans text-xs font-semibold text-white cursor-pointer ${ibanStatus==='loading' ? 'opacity-60' : 'opacity-100'}`}>
                 {ibanStatus==='loading' ? 'Attribution…' : selected.client_iban ? 'Modifier IBAN / BIC' : 'Attribuer IBAN / BIC'}
               </button>
             </div>
 
             {/* Catégorie de compte */}
-            <div style={{ marginTop:14, marginBottom:14 }}>
-              <div style={{ fontSize:11, color:'var(--text2)', marginBottom:6 }}>Catégorie de compte</div>
-              <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+            <div className="mb-3.5 mt-3.5">
+              <div className="mb-1.5 text-[11px] text-[#64748B]">Catégorie de compte</div>
+              <div className="flex flex-wrap gap-1.5">
                 {CATEGORIES.map(cat => (
                   <button key={cat.value}
                     onClick={() => handleCategoryChange(selected.id, cat.value)}
                     disabled={updating || selected.account_category === cat.value}
-                    style={{ fontSize:11, padding:'4px 12px', borderRadius:12, border:`1px solid ${cat.bg}`, cursor: selected.account_category===cat.value?'default':'pointer',
+                    className={`rounded-xl border px-3 py-1 font-sans text-[11px] ${selected.account_category===cat.value ? 'cursor-default font-bold' : 'cursor-pointer font-normal'}`}
+                    style={{ borderColor: cat.bg,
                       background: selected.account_category===cat.value ? cat.bg : 'transparent',
-                      color: selected.account_category===cat.value ? cat.col : 'var(--text2)',
-                      fontWeight: selected.account_category===cat.value ? 700 : 400,
-                      fontFamily:'var(--sans)' }}>
+                      color: selected.account_category===cat.value ? cat.col : 'var(--text2)' }}>
                     {selected.account_category===cat.value ? '✓ ' : ''}{cat.label}
                   </button>
                 ))}
@@ -429,52 +444,50 @@ function PageClients() {
             </div>
 
             {/* Envoyer une notification */}
-            <div style={{ marginTop:14, marginBottom:14, background:'var(--bg)', borderRadius:10, padding:14 }}>
-              <div style={{ fontSize:11, fontWeight:600, color:'var(--navy)', marginBottom:10, display:'flex', alignItems:'center', gap:6 }}>
-                <i className="ti ti-bell" style={{ color:'var(--gold)' }}/>
+            <div className="mb-3.5 mt-3.5 rounded-[10px] bg-[#F8F6F1] p-3.5">
+              <div className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold text-navy">
+                <i className="ti ti-bell text-gold"/>
                 Envoyer une notification à {selected.first_name}
               </div>
-              <div style={{ marginBottom:6 }}>
-                <div style={{ fontSize:10, color:'var(--text2)', marginBottom:2 }}>Titre</div>
-                <input style={{ ...c.input, fontSize:12 }}
+              <div className="mb-1.5">
+                <div className="mb-0.5 text-[10px] text-[#64748B]">Titre</div>
+                <input className={`${tw.input} text-xs`}
                   placeholder="Ex : Information importante"
                   value={notifForm.title}
                   onChange={e => { setNotifForm(f => ({ ...f, title: e.target.value })); setNotifStatus('idle'); setNotifMsg(''); }}/>
               </div>
-              <div style={{ marginBottom:6 }}>
-                <div style={{ fontSize:10, color:'var(--text2)', marginBottom:2 }}>Message</div>
-                <textarea style={{ ...c.input, fontSize:12, height:70, resize:'vertical', fontFamily:'var(--sans)', paddingTop:8 }}
+              <div className="mb-1.5">
+                <div className="mb-0.5 text-[10px] text-[#64748B]">Message</div>
+                <textarea className="h-[70px] w-full resize-y rounded-lg border border-navy/10 bg-[#F8F6F1] px-3 pt-2 font-sans text-xs text-navy outline-none"
                   placeholder="Écrivez votre message au client..."
                   value={notifForm.message}
                   onChange={e => { setNotifForm(f => ({ ...f, message: e.target.value })); setNotifStatus('idle'); setNotifMsg(''); }}/>
               </div>
               {notifMsg && (
-                <div style={{ fontSize:11, borderRadius:6, padding:'5px 10px', marginBottom:6,
-                  background: notifStatus==='success' ? '#EAF3DE' : '#FCEBEB',
-                  color: notifStatus==='success' ? '#3B6D11' : '#A32D2D' }}>
+                <div className={`mb-1.5 rounded-md px-2.5 py-1.5 text-[11px] ${notifStatus==='success' ? 'bg-[#EAF3DE] text-[#3B6D11]' : 'bg-[#FCEBEB] text-[#A32D2D]'}`}>
                   {notifMsg}
                 </div>
               )}
-              <label style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, color:'var(--text2)', marginBottom:10, cursor:'pointer' }}>
+              <label className="mb-2.5 flex cursor-pointer items-center gap-1.5 text-[11px] text-[#64748B]">
                 <input type="checkbox" checked={notifSendEmail}
                   onChange={e => setNotifSendEmail(e.target.checked)}
-                  style={{ width:14, height:14, cursor:'pointer' }}/>
+                  className="h-3.5 w-3.5 cursor-pointer"/>
                 Envoyer aussi un email à {selected.first_name} au nom d'OJADA BANK
               </label>
               <button onClick={handleSendNotification} disabled={notifStatus==='loading'}
-                style={{ width:'100%', height:34, borderRadius:8, border:'none', background:'var(--navy)', color:'#fff',
-                  cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'var(--sans)',
-                  opacity: notifStatus==='loading' ? 0.6 : 1 }}>
+                className={`h-[34px] w-full rounded-lg border-none bg-navy font-sans text-xs font-semibold text-white cursor-pointer ${notifStatus==='loading' ? 'opacity-60' : 'opacity-100'}`}>
                 {notifStatus==='loading' ? 'Envoi…' : (notifSendEmail ? '📧 Envoyer la notification + l\'email' : '📨 Envoyer la notification')}
               </button>
             </div>
 
-            <div style={{ marginTop:14, display:'flex', gap:8 }}>
+            <div className="mt-3.5 flex gap-2">
               {['active','pending','inactive'].map(st => {
                 const ss = statusStyle[st];
+                const isCurrent = selected.status===st;
                 return (
-                  <button key={st} onClick={() => handleStatusChange(selected.id, st)} disabled={updating || selected.status===st}
-                    style={{ flex:1, height:34, border:`1px solid ${ss.bg}`, borderRadius:7, fontSize:11, cursor: selected.status===st ? 'default' : 'pointer', background: selected.status===st ? ss.bg : 'transparent', color: selected.status===st ? ss.color : 'var(--text2)', fontFamily:'var(--sans)', transition:'all 0.15s' }}>
+                  <button key={st} onClick={() => handleStatusChange(selected.id, st)} disabled={updating || isCurrent}
+                    className={`h-[34px] flex-1 rounded-[7px] border font-sans text-[11px] transition-all duration-150 ${isCurrent ? 'cursor-default' : 'cursor-pointer'}`}
+                    style={{ borderColor: ss.bg, background: isCurrent ? ss.bg : 'transparent', color: isCurrent ? ss.color : 'var(--text2)' }}>
                     {ss.label}
                   </button>
                 );
@@ -482,22 +495,22 @@ function PageClients() {
             </div>
 
             {/* Actions sensibles */}
-            <div style={{ marginTop:10, display:'flex', gap:8 }}>
+            <div className="mt-2.5 flex gap-2">
               {selected.status === 'pending' && (
                 <button onClick={() => handleStatusChange(selected.id, 'rejected')} disabled={updating}
-                  style={{ flex:1, height:34, border:'1px solid #FCEBEB', borderRadius:7, fontSize:11, cursor:'pointer', background:'transparent', color:'#A32D2D', fontFamily:'var(--sans)' }}>
+                  className="h-[34px] flex-1 cursor-pointer rounded-[7px] border border-[#FCEBEB] bg-transparent font-sans text-[11px] text-[#A32D2D]">
                   🚫 Refuser l'inscription
                 </button>
               )}
               {selected.status !== 'deleted' && (
                 <button onClick={() => handleDeleteClient(selected.id, `${selected.first_name} ${selected.last_name}`)} disabled={updating}
-                  style={{ flex:1, height:34, border:'1px solid #A32D2D', borderRadius:7, fontSize:11, cursor:'pointer', background:'#A32D2D', color:'#fff', fontFamily:'var(--sans)', fontWeight:600 }}>
+                  className="h-[34px] flex-1 cursor-pointer rounded-[7px] border border-[#A32D2D] bg-[#A32D2D] font-sans text-[11px] font-semibold text-white">
                   🗑️ Supprimer le compte
                 </button>
               )}
             </div>
             {deleteMsg && (
-              <div style={{ fontSize:11, color:'#A32D2D', background:'#FCEBEB', borderRadius:6, padding:'6px 10px', marginTop:8 }}>
+              <div className="mt-2 rounded-md bg-[#FCEBEB] px-2.5 py-1.5 text-[11px] text-[#A32D2D]">
                 {deleteMsg}
               </div>
             )}
@@ -554,40 +567,39 @@ function PageMessages() {
 
   return (
     <div>
-      <div style={{ marginBottom:16 }}>
-        <div style={{ fontSize:18, fontWeight:600, color:'var(--navy)' }}>Messages</div>
-        <div style={{ fontSize:12, color:'var(--text2)' }}>Messages envoyés par les clients</div>
+      <div className="mb-4">
+        <div className="text-lg font-semibold text-navy">Messages</div>
+        <div className="text-xs text-[#64748B]">Messages envoyés par les clients</div>
       </div>
 
       {toast && (
-        <div style={{ position:'fixed', top:20, right:20, background:'var(--navy)', color:'#fff', padding:'10px 18px', borderRadius:8, fontSize:12, zIndex:999 }}>
+        <div className="fixed right-5 top-5 z-[999] rounded-lg bg-navy px-[18px] py-2.5 text-xs text-white">
           {toast}
         </div>
       )}
 
-      <div style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
+      <div className="flex items-start gap-4">
         {/* Liste des fils */}
-        <div style={{ ...c.card, width:340, flexShrink:0, maxHeight:640, overflowY:'auto' }}>
-          <div style={c.cardHd}><span style={c.cardTitle}>Conversations ({threads.length})</span></div>
-          <div style={{ padding:'8px 0' }}>
+        <div className={`${tw.card} max-h-[640px] w-[340px] shrink-0 overflow-y-auto`}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>Conversations ({threads.length})</span></div>
+          <div className="py-2">
             {loading ? (
-              <div style={{ padding:16 }}><Skeleton mb={10}/><Skeleton mb={10}/><Skeleton/></div>
+              <div className="p-4"><Skeleton mb={10}/><Skeleton mb={10}/><Skeleton/></div>
             ) : threads.length === 0 ? (
               <EmptyState icon="ti-message-off" message="Aucun message reçu."/>
             ) : threads.map(t => {
               const unanswered = Number(t.admin_reply_count) === 0;
               return (
                 <div key={t.thread_id} onClick={() => openThread(t.thread_id)}
-                  style={{ padding:'10px 16px', cursor:'pointer', borderBottom:'1px solid var(--border)',
-                    background: activeId === t.thread_id ? 'var(--bg)' : 'transparent' }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                    <span style={{ fontSize:12, fontWeight:600, color:'var(--text)' }}>{t.first_name} {t.last_name}</span>
-                    {unanswered && <span style={{ ...c.badge, background:'#FCEBEB', color:'#A32D2D' }}>Sans réponse</span>}
+                  className={`cursor-pointer border-b border-navy/10 px-4 py-2.5 ${activeId === t.thread_id ? 'bg-[#F8F6F1]' : 'bg-transparent'}`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-navy">{t.first_name} {t.last_name}</span>
+                    {unanswered && <span className={`${tw.badge} bg-[#FCEBEB] text-[#A32D2D]`}>Sans réponse</span>}
                   </div>
-                  <div style={{ fontSize:11, color:'var(--text2)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginTop:2 }}>
+                  <div className="mt-0.5 truncate text-[11px] text-[#64748B]">
                     {t.last_sender_role === 'admin' ? 'Vous : ' : ''}{t.last_body}
                   </div>
-                  <div style={{ fontSize:10, color:'var(--text2)', marginTop:2 }}>{new Date(t.last_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+                  <div className="mt-0.5 text-[10px] text-[#64748B]">{new Date(t.last_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
                 </div>
               );
             })}
@@ -595,37 +607,35 @@ function PageMessages() {
         </div>
 
         {/* Détail du fil */}
-        <div style={{ ...c.card, flex:1, minHeight:400 }}>
+        <div className={`${tw.card} min-h-[400px] flex-1`}>
           {!activeId ? (
-            <div style={{ padding:40 }}><EmptyState icon="ti-message-2" message="Sélectionnez une conversation."/></div>
+            <div className="p-10"><EmptyState icon="ti-message-2" message="Sélectionnez une conversation."/></div>
           ) : loadingThread ? (
-            <div style={{ padding:16 }}><Skeleton mb={10}/><Skeleton mb={10}/><Skeleton/></div>
+            <div className="p-4"><Skeleton mb={10}/><Skeleton mb={10}/><Skeleton/></div>
           ) : !thread ? (
-            <div style={{ padding:40 }}><EmptyState icon="ti-alert-triangle" message="Impossible de charger ce fil."/></div>
+            <div className="p-10"><EmptyState icon="ti-alert-triangle" message="Impossible de charger ce fil."/></div>
           ) : (
             <>
-              <div style={{ ...c.cardHd, borderBottom:'1px solid var(--border)', paddingBottom:12 }}>
-                <span style={c.cardTitle}>{thread.client?.first_name} {thread.client?.last_name} — {thread.client?.account_number}</span>
+              <div className={`${tw.cardHd} border-b border-navy/10 pb-3`}>
+                <span className={tw.cardTitle}>{thread.client?.first_name} {thread.client?.last_name} — {thread.client?.account_number}</span>
               </div>
-              <div style={{ padding:16, maxHeight:440, overflowY:'auto', display:'flex', flexDirection:'column', gap:10 }}>
+              <div className="flex max-h-[440px] flex-col gap-2.5 overflow-y-auto p-4">
                 {thread.messages.map(m => (
-                  <div key={m.id} style={{ display:'flex', justifyContent: m.sender_role === 'admin' ? 'flex-end' : 'flex-start' }}>
-                    <div style={{ maxWidth:'70%', padding:'8px 12px', borderRadius:10,
-                      background: m.sender_role === 'admin' ? 'var(--navy)' : 'var(--bg)',
-                      color: m.sender_role === 'admin' ? '#fff' : 'var(--text)' }}>
-                      {m.title && <div style={{ fontSize:11, fontWeight:600, marginBottom:2, opacity:0.85 }}>{m.title}</div>}
-                      <div style={{ fontSize:12, lineHeight:1.5 }}>{m.body}</div>
-                      <div style={{ fontSize:9, opacity:0.7, marginTop:4 }}>{new Date(m.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+                  <div key={m.id} className={`flex ${m.sender_role === 'admin' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[70%] rounded-[10px] px-3 py-2 ${m.sender_role === 'admin' ? 'bg-navy text-white' : 'bg-[#F8F6F1] text-navy'}`}>
+                      {m.title && <div className="mb-0.5 text-[11px] font-semibold opacity-85">{m.title}</div>}
+                      <div className="text-xs leading-[1.5]">{m.body}</div>
+                      <div className="mt-1 text-[9px] opacity-70">{new Date(m.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div style={{ padding:16, borderTop:'1px solid var(--border)', display:'flex', gap:8 }}>
-                <input style={{ ...c.input, flex:1 }} placeholder="Écrire une réponse..." value={replyText}
+              <div className="flex gap-2 border-t border-navy/10 p-4">
+                <input className={`${tw.input} flex-1`} placeholder="Écrire une réponse..." value={replyText}
                   onChange={e => setReplyText(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && !sending) handleReply(); }}/>
                 <button onClick={handleReply} disabled={sending || !replyText.trim()}
-                  style={{ ...c.saveBtn, opacity: sending || !replyText.trim() ? 0.6 : 1 }}>
+                  className={`${tw.saveBtn} ${sending || !replyText.trim() ? 'opacity-60' : 'opacity-100'}`}>
                   {sending ? '...' : 'Envoyer'}
                 </button>
               </div>
@@ -647,27 +657,27 @@ function PageComptes() {
   }, []);
 
   return (
-    <div style={{ animation:'fadeIn 0.35s ease' }}>
+    <div className="animate-[fadeIn_0.35s_ease]">
       {loading ? (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))', gap:12 }}>
-          {[1,2,3,4].map(i => <div key={i} style={{ ...c.card, padding:16 }}><Skeleton h={100} mb={0}/></div>)}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {[1,2,3,4].map(i => <div key={i} className={`${tw.card} p-4`}><Skeleton h={100} mb={0}/></div>)}
         </div>
       ) : clients.length === 0 ? (
         <EmptyState icon="ti-credit-card" message="Aucun compte enregistré"/>
       ) : (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))', gap:12 }}>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {clients.map(cl => {
             const ss = statusStyle[cl.status] || statusStyle.pending;
             return (
-              <div key={cl.id} style={c.card}>
-                <div style={c.cardBd}>
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:3 }}>
-                    <div style={{ fontSize:10, color:'var(--text2)', textTransform:'uppercase', letterSpacing:0.8 }}>{cl.account_type}</div>
-                    <span style={{ ...c.badge, background:ss.bg, color:ss.color }}>{ss.label}</span>
+              <div key={cl.id} className={tw.card}>
+                <div className={tw.cardBd}>
+                  <div className="mb-[3px] flex items-start justify-between">
+                    <div className="text-[10px] uppercase tracking-wide text-[#64748B]">{cl.account_type}</div>
+                    <span className={tw.badge} style={{ background:ss.bg, color:ss.color }}>{ss.label}</span>
                   </div>
-                  <div style={{ fontFamily:'monospace', fontSize:11, color:'var(--text2)', marginBottom:10, letterSpacing:1 }}>{cl.account_number}</div>
-                  <div style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>{fmt(cl.balance)} <span style={{ fontSize:14, color:'var(--text2)' }}>€</span></div>
-                  <div style={{ fontSize:11, color:'var(--text2)' }}><i className="ti ti-user" style={{ marginRight:4 }}/>{cl.first_name} {cl.last_name}</div>
+                  <div className="mb-2.5 font-mono text-[11px] tracking-wide text-[#64748B]">{cl.account_number}</div>
+                  <div className="mb-1 font-serif text-2xl text-navy">{fmt(cl.balance)} <span className="text-sm text-[#64748B]">€</span></div>
+                  <div className="text-[11px] text-[#64748B]"><i className="ti ti-user mr-1"/>{cl.first_name} {cl.last_name}</div>
                 </div>
               </div>
             );
@@ -696,22 +706,22 @@ function PageTransactions() {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div style={{ animation:'fadeIn 0.35s ease' }}>
-      <div style={{ display:'flex', gap:6, marginBottom:14, flexWrap:'wrap' }}>
+    <div className="animate-[fadeIn_0.35s_ease]">
+      <div className="mb-3.5 flex flex-wrap gap-1.5">
         {['tous','depot','retrait','virement'].map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{ fontSize:11, padding:'5px 14px', borderRadius:20, cursor:'pointer', border:'1px solid var(--border)', background: filter===f ? 'var(--navy)' : 'transparent', color: filter===f ? '#fff' : 'var(--text2)', transition:'all 0.15s', fontFamily:'var(--sans)' }}>
+          <button key={f} onClick={() => setFilter(f)} className={`rounded-full border border-navy/10 px-3.5 py-[5px] font-sans text-[11px] transition-colors duration-150 ${filter===f ? 'bg-navy text-white' : 'bg-transparent text-[#64748B]'}`}>
             {f==='tous'?'Toutes':f==='depot'?'Dépôts':f==='retrait'?'Retraits':'Virements'}
           </button>
         ))}
       </div>
-      <div style={{ ...c.card, overflowX:'auto' }}>
+      <div className={`${tw.card} overflow-x-auto`}>
         {loading ? (
-          <div style={{ padding:16 }}>{[1,2,3,4].map(i => <Skeleton key={i} h={36} mb={8}/>)}</div>
+          <div className="p-4">{[1,2,3,4].map(i => <Skeleton key={i} h={36} mb={8}/>)}</div>
         ) : txns.length === 0 ? <EmptyState icon="ti-receipt" message="Aucune transaction"/> : (
-          <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
+          <table className="w-full border-collapse text-xs">
             <thead>
               <tr>{['Référence','Client','Type','Montant','Date','Statut'].map(h => (
-                <th key={h} style={{ textAlign:'left', fontSize:10, color:'var(--text2)', fontWeight:500, padding:'7px 12px', borderBottom:'1px solid var(--border)', textTransform:'uppercase', letterSpacing:0.5, whiteSpace:'nowrap' }}>{h}</th>
+                <th key={h} className="whitespace-nowrap border-b border-navy/10 px-3 py-[7px] text-left text-[10px] font-medium uppercase tracking-wide text-[#64748B]">{h}</th>
               ))}</tr>
             </thead>
             <tbody>
@@ -719,15 +729,15 @@ function PageTransactions() {
                 const ts = typeStyle[t.type] || typeStyle.depot;
                 const ss = statusStyle[t.status] || statusStyle.valide;
                 return (
-                  <tr key={t.id} onMouseEnter={e => e.currentTarget.style.background='var(--bg)'} onMouseLeave={e => e.currentTarget.style.background=''}>
-                    <td style={{ padding:'9px 12px', fontFamily:'monospace', fontSize:11, color:'var(--text2)', whiteSpace:'nowrap' }}>{t.reference}</td>
-                    <td style={{ padding:'9px 12px', whiteSpace:'nowrap' }}>{t.first_name} {t.last_name}</td>
-                    <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background:ts.bg, color:ts.color }}>{ts.label}</span></td>
-                    <td style={{ padding:'9px 12px', fontWeight:500, color: t.type==='retrait'?'#A32D2D':'#3B6D11', whiteSpace:'nowrap' }}>
+                  <tr key={t.id} className="hover:bg-[#F8F6F1]">
+                    <td className="whitespace-nowrap px-3 py-[9px] font-mono text-[11px] text-[#64748B]">{t.reference}</td>
+                    <td className="whitespace-nowrap px-3 py-[9px]">{t.first_name} {t.last_name}</td>
+                    <td className="px-3 py-[9px]"><span className={tw.badge} style={{ background:ts.bg, color:ts.color }}>{ts.label}</span></td>
+                    <td className={`whitespace-nowrap px-3 py-[9px] font-medium ${t.type==='retrait'?'text-[#A32D2D]':'text-[#3B6D11]'}`}>
                       {t.type==='retrait'?'-':'+'}{fmt(t.amount)} €
                     </td>
-                    <td style={{ padding:'9px 12px', color:'var(--text2)', fontSize:11, whiteSpace:'nowrap' }}>{fmtDate(t.created_at)}</td>
-                    <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background:ss.bg, color:ss.color }}>{ss.label}</span></td>
+                    <td className="whitespace-nowrap px-3 py-[9px] text-[11px] text-[#64748B]">{fmtDate(t.created_at)}</td>
+                    <td className="px-3 py-[9px]"><span className={tw.badge} style={{ background:ss.bg, color:ss.color }}>{ss.label}</span></td>
                   </tr>
                 );
               })}
