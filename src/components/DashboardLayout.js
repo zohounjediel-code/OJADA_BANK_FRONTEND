@@ -4,34 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
 import logo from '../assets/logo.png';
 
-const s = {
-  app: { display:'flex', height:'100vh', overflow:'hidden' },
-  overlay: { position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:98, display:'none' },
-  sidebar: { width:'var(--sidebar-w)', background:'var(--navy)', display:'flex', flexDirection:'column', flexShrink:0, transition:'transform 0.3s ease', zIndex:99 },
-  sidebarMobileOpen: { position:'fixed', top:0, bottom:0, left:0, width:240, zIndex:99, transform:'translateX(0)' },
-  sidebarMobileClosed: { position:'fixed', top:0, bottom:0, left:0, width:240, zIndex:99, transform:'translateX(-100%)' },
-  logoArea: { padding:'18px 16px 14px', borderBottom:'1px solid rgba(201,168,76,0.2)' },
-  logoBadge: { display:'flex', alignItems:'center', gap:10 },
-  logoIcon: { width:34, height:34, borderRadius:'50%', objectFit:'cover', flexShrink:0, boxShadow:'0 0 0 1.5px rgba(201,168,76,0.5)' },
-  logoName: { fontFamily:'var(--serif)', fontSize:17, color:'#fff', letterSpacing:0.5 },
-  logoSub: { fontSize:10, color:'rgba(201,168,76,0.5)', letterSpacing:0.5, marginTop:1 },
-  nav: { flex:1, padding:'8px 0', overflowY:'auto' },
-  navSection: { padding:'10px 16px 3px', fontSize:9, color:'rgba(201,168,76,0.4)', letterSpacing:1.5, textTransform:'uppercase' },
-  navItem: { display:'flex', alignItems:'center', gap:9, padding:'8px 16px', fontSize:12, color:'rgba(255,255,255,0.5)', cursor:'pointer', borderLeft:'2px solid transparent', transition:'all 0.15s', userSelect:'none' },
-  navItemActive: { background:'rgba(201,168,76,0.13)', color:'var(--gold-light)', borderLeftColor:'var(--gold)' },
-  navBadge: { marginLeft:'auto', background:'#E24B4A', color:'#fff', fontSize:9, fontWeight:700, padding:'1px 5px', borderRadius:8 },
-  sidebarFooter: { padding:'10px 16px', borderTop:'1px solid rgba(255,255,255,0.06)' },
-  main: { flex:1, display:'flex', flexDirection:'column', overflow:'hidden', minWidth:0 },
-  topbar: { background:'var(--bg2)', borderBottom:'1px solid var(--border)', padding:'0 20px', height:54, display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 },
-  topbarTitle: { fontFamily:'var(--serif)', fontSize:18, color:'var(--navy)', fontWeight:600 },
-  topbarSub: { fontSize:11, color:'var(--text2)' },
-  topbarRight: { display:'flex', gap:7, alignItems:'center' },
-  iconBtn: { width:32, height:32, borderRadius:8, border:'1px solid var(--border)', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:'var(--text2)', fontSize:15, position:'relative', transition:'all 0.15s' },
-  notifDot: { position:'absolute', top:6, right:6, width:5, height:5, background:'#E24B4A', borderRadius:'50%', border:'1.5px solid var(--bg2)' },
-  content: { flex:1, overflowY:'auto', padding:'18px 20px' },
-  menuBtn: { width:32, height:32, background:'transparent', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.7)', fontSize:18, display:'flex', alignItems:'center', justifyContent:'center' },
-};
-
 export default function DashboardLayout({ title, subtitle, navItems, children, activePage, onPageChange, logoSub, userLabel, userRole, extraSidebarContent }) {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -49,77 +21,99 @@ export default function DashboardLayout({ title, subtitle, navItems, children, a
     navigate('/');
   };
 
-  const sidebarStyle = isMobile
-    ? { ...s.sidebar, ...(sidebarOpen ? s.sidebarMobileOpen : s.sidebarMobileClosed) }
-    : { ...s.sidebar, position:'relative', transform:'none' };
-
   return (
-    <div style={s.app}>
-      {/* Mobile overlay */}
+    <div className="flex h-screen overflow-hidden">
       {isMobile && sidebarOpen && (
-        <div style={{ ...s.overlay, display:'block' }} onClick={() => setSidebarOpen(false)}/>
+        <div className="fixed inset-0 z-[98] bg-black/50" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <div style={sidebarStyle}>
-        <div style={s.logoArea}>
-          <div style={s.logoBadge}>
-            {isMobile && <button style={s.menuBtn} onClick={() => setSidebarOpen(false)}><i className="ti ti-x"/></button>}
-            <img src={logo} alt="OjadaBank" style={s.logoIcon}/>
-            <div>
-              <div style={s.logoName}>OJADA BANK</div>
-              <div style={s.logoSub}>{logoSub}</div>
+      <div
+        className={[
+          'z-[99] flex w-60 shrink-0 flex-col bg-navy transition-transform duration-300 ease-in-out md:relative md:w-[220px] md:translate-x-0',
+          isMobile ? 'fixed inset-y-0 left-0' : 'relative',
+          isMobile && !sidebarOpen ? '-translate-x-full' : 'translate-x-0',
+        ].join(' ')}
+      >
+        <div className="border-b border-gold/20 px-4 pb-3.5 pt-[18px]">
+          <div className="flex items-center gap-2.5">
+            {isMobile && (
+              <button className="flex h-8 w-8 items-center justify-center text-lg text-white/70" onClick={() => setSidebarOpen(false)}>
+                <i className="ti ti-x" />
+              </button>
+            )}
+            <img src={logo} alt="OjadaBank" className="h-[34px] w-[34px] shrink-0 rounded-full object-cover ring-[1.5px] ring-gold/50" />
+            <div className="min-w-0">
+              <div className="truncate font-serif text-[17px] tracking-wide text-white">OJADA BANK</div>
+              <div className="truncate text-[10px] tracking-wide text-gold/50">{logoSub}</div>
             </div>
           </div>
         </div>
 
         {extraSidebarContent}
 
-        <nav style={s.nav}>
+        <nav className="flex-1 overflow-y-auto py-2">
           {navItems.map((item, i) => (
             item.section
-              ? <div key={i} style={s.navSection}>{item.section}</div>
-              : <div key={item.id} style={{ ...s.navItem, ...(activePage===item.id ? s.navItemActive : {}) }}
-                  onClick={() => { onPageChange(item.id); if(isMobile) setSidebarOpen(false); }}>
-                  <i className={`ti ${item.icon}`} style={{ fontSize:16 }}/>
+              ? <div key={i} className="px-4 pb-1 pt-2.5 text-[9px] uppercase tracking-wider text-gold/40">{item.section}</div>
+              : (
+                <div
+                  key={item.id}
+                  onClick={() => { onPageChange(item.id); if (isMobile) setSidebarOpen(false); }}
+                  className={[
+                    'flex cursor-pointer select-none items-center gap-2.5 border-l-2 px-4 py-2 text-xs transition-colors',
+                    activePage === item.id
+                      ? 'border-gold bg-gold/[0.13] text-gold-light'
+                      : 'border-transparent text-white/50 hover:bg-white/5 hover:text-white/70',
+                  ].join(' ')}
+                >
+                  <i className={`ti ${item.icon} text-base`} />
                   {item.label}
-                  {item.badge && <span style={s.navBadge}>{item.badge}</span>}
+                  {item.badge && (
+                    <span className="ml-auto rounded-full bg-[#E24B4A] px-1.5 py-0.5 text-[9px] font-bold text-white">{item.badge}</span>
+                  )}
                 </div>
+              )
           ))}
         </nav>
 
-        <div style={s.sidebarFooter}>
-          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <div style={{ width:28, height:28, borderRadius:'50%', background:'var(--gold)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, color:'var(--navy)', flexShrink:0 }}>{userLabel}</div>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:11, color:'#fff', fontWeight:500, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{userRole}</div>
+        <div className="border-t border-white/[0.06] px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-navy">{userLabel}</div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-[11px] font-medium text-white">{userRole}</div>
             </div>
-            <button onClick={handleLogout} style={{ background:'transparent', border:'none', color:'rgba(255,255,255,0.3)', cursor:'pointer', fontSize:15 }} title="Déconnexion">
-              <i className="ti ti-logout"/>
+            <button onClick={handleLogout} className="text-white/30 transition-colors hover:text-white/60" title="Déconnexion">
+              <i className="ti ti-logout text-[15px]" />
             </button>
           </div>
         </div>
       </div>
 
-      <div style={s.main}>
-        <div style={s.topbar}>
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="flex h-[54px] shrink-0 items-center justify-between border-b border-navy/10 bg-white px-5">
+          <div className="flex min-w-0 items-center gap-2.5">
             {isMobile && (
-              <button style={{ ...s.iconBtn, borderColor:'transparent' }} onClick={() => setSidebarOpen(true)}>
-                <i className="ti ti-menu-2"/>
+              <button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#64748B]" onClick={() => setSidebarOpen(true)}>
+                <i className="ti ti-menu-2" />
               </button>
             )}
-            <div>
-              <div style={s.topbarTitle}>{title}</div>
-              <div style={s.topbarSub}>{subtitle}</div>
+            <div className="min-w-0">
+              <div className="truncate font-serif text-lg font-semibold text-navy">{title}</div>
+              <div className="truncate text-[11px] text-[#64748B]">{subtitle}</div>
             </div>
           </div>
-          <div style={s.topbarRight}>
-            <LanguageSwitcher style={{ marginRight: 4 }}/>
-            <button style={s.iconBtn}><i className="ti ti-bell"/><span style={s.notifDot}/></button>
-            <button style={s.iconBtn}><i className="ti ti-user-circle"/></button>
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-[7px]">
+            <LanguageSwitcher />
+            <button className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-navy/10 text-[15px] text-[#64748B] transition-colors hover:bg-navy/5">
+              <i className="ti ti-bell" />
+              <span className="absolute right-1.5 top-1.5 h-[5px] w-[5px] rounded-full bg-[#E24B4A] ring-[1.5px] ring-white" />
+            </button>
+            <button className="hidden h-8 w-8 items-center justify-center rounded-lg border border-navy/10 text-[15px] text-[#64748B] transition-colors hover:bg-navy/5 sm:flex">
+              <i className="ti ti-user-circle" />
+            </button>
           </div>
         </div>
-        <div style={s.content}>{children}</div>
+        <div className="flex-1 overflow-y-auto px-5 py-[18px]">{children}</div>
       </div>
     </div>
   );
