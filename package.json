@@ -5,6 +5,7 @@
   "dependencies": {
     "@capacitor/android": "^8.5.0",
     "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "@fontsource/cormorant-garamond": "^5.3.0",
     "@fontsource/dm-sans": "^5.3.0",
     "@tabler/icons-webfont": "^3.19.0",
@@ -18,7 +19,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "build:native": "react-scripts build && node -e \"require('fs').rmSync('build/downloads',{recursive:true,force:true})\"",
+    "sync:android": "npm run build:native && npx cap sync android",
+    "sync:ios": "npm run build:native && npx cap sync ios"
   },
   "browserslist": {
     "production": [
