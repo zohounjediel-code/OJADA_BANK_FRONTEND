@@ -36,6 +36,12 @@ const tw = {
   txnIc: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[15px]',
   badge: 'inline-block rounded-full px-2 py-0.5 text-[10px] font-medium',
   skeleton: 'rounded-md bg-gradient-to-r from-[#F8F6F1] via-navy/10 to-[#F8F6F1] bg-[length:200%_100%] animate-[shimmer_1.4s_infinite]',
+  field: 'flex flex-col gap-[5px] mb-3.5',
+  label: 'text-[11px] text-[#64748B]',
+  input: 'h-[38px] rounded-lg border bg-[#F8F6F1] px-3 text-[13px] font-sans text-navy outline-none',
+  select: 'h-[38px] rounded-lg border bg-[#F8F6F1] px-3 text-[13px] font-sans text-navy outline-none',
+  submitBtn: 'h-10 w-full rounded-lg border-none bg-navy font-sans text-[13px] font-medium text-white cursor-pointer',
+  submitGold: 'h-10 w-full rounded-lg border-none bg-gold font-sans text-[13px] font-medium text-navy cursor-pointer',
 };
 
 const getNavItems = (t) => [
@@ -592,17 +598,20 @@ function PageVirement({ user }) {
   const amt     = parseFloat(amount) || 0;
   const canSend = lookupStatus === 'found' && amt > 0 && amt <= balance && submitStatus !== 'loading';
 
+  const acctBorder = lookupStatus==='found' ? 'border-[#3B6D11]' : lookupStatus==='notfound' ? 'border-[#A32D2D]' : 'border-navy/10';
+  const amtBorder = amt > balance ? 'border-[#A32D2D]' : 'border-navy/10';
+
   return (
-    <div style={{ maxWidth:480, animation:'fadeIn 0.35s ease' }}>
+    <div className="max-w-[480px] animate-[fadeIn_0.35s_ease]">
 
       {submitStatus === 'success' && (
-        <div style={{ background:'#EAF3DE', border:'1px solid #B6D99B', borderRadius:10, padding:'12px 16px', marginBottom:14, display:'flex', alignItems:'flex-start', gap:10 }}>
-          <i className="ti ti-circle-check" style={{ color:'#3B6D11', fontSize:18, flexShrink:0, marginTop:1 }}/>
+        <div className="mb-3.5 flex items-start gap-2.5 rounded-[10px] border border-[#B6D99B] bg-[#EAF3DE] px-4 py-3">
+          <i className="ti ti-circle-check mt-px shrink-0 text-lg text-[#3B6D11]"/>
           <div>
-            <div style={{ fontSize:12, fontWeight:600, color:'#3B6D11', marginBottom:2 }}>{t('virement.transferCompleted')}</div>
-            <div style={{ fontSize:12, color:'#3B6D11' }}>{submitMsg}</div>
+            <div className="mb-0.5 text-xs font-semibold text-[#3B6D11]">{t('virement.transferCompleted')}</div>
+            <div className="text-xs text-[#3B6D11]">{submitMsg}</div>
             {newBalance !== null && (
-              <div style={{ fontSize:11, color:'#5a8c2f', marginTop:4 }}>
+              <div className="mt-1 text-[11px] text-[#5a8c2f]">
                 {t('virement.newBalanceLabel')} : <strong>{newBalance.toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</strong>
               </div>
             )}
@@ -610,89 +619,88 @@ function PageVirement({ user }) {
         </div>
       )}
 
-      <div style={{ ...c.card, marginBottom:14 }}>
-        <div style={c.cardHd}><span style={c.cardTitle}>{t('virement.newTransferTitle')}</span></div>
-        <div style={c.cardBd}>
+      <div className={`${tw.card} mb-3.5`}>
+        <div className={tw.cardHd}><span className={tw.cardTitle}>{t('virement.newTransferTitle')}</span></div>
+        <div className={tw.cardBd}>
 
-          <div style={{ background:'var(--bg)', borderRadius:8, padding:'8px 12px', marginBottom:14, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <span style={{ fontSize:11, color:'var(--text2)' }}>{t('dashboard.availableBalance')}</span>
-            <span style={{ fontSize:13, fontWeight:600, color:'var(--navy)' }}>{balance.toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</span>
+          <div className="mb-3.5 flex items-center justify-between rounded-lg bg-[#F8F6F1] px-3 py-2">
+            <span className="text-[11px] text-[#64748B]">{t('dashboard.availableBalance')}</span>
+            <span className="text-[13px] font-semibold text-navy">{balance.toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</span>
           </div>
 
-          <div style={c.field}>
-            <label style={c.label}>{t('virement.receiverAccountNumber')}</label>
-            <div style={{ position:'relative' }}>
+          <div className={tw.field}>
+            <label className={tw.label}>{t('virement.receiverAccountNumber')}</label>
+            <div className="relative">
               <input
-                style={{ ...c.input, width:'100%', boxSizing:'border-box', paddingRight:36,
-                  borderColor: lookupStatus==='found' ? '#3B6D11' : lookupStatus==='notfound' ? '#A32D2D' : 'var(--border)' }}
+                className={`${tw.input} w-full box-border pr-9 ${acctBorder}`}
                 placeholder="Ex : OJ-2025-0042"
                 value={accountNumber}
                 onChange={e => { setAccountNumber(e.target.value); setSubmitStatus('idle'); }}
               />
-              <div style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', fontSize:15 }}>
-                {lookupStatus==='loading'  && <i className="ti ti-loader-2" style={{ color:'var(--text2)', animation:'spin 1s linear infinite' }}/>}
-                {lookupStatus==='found'    && <i className="ti ti-circle-check" style={{ color:'#3B6D11' }}/>}
-                {lookupStatus==='notfound' && <i className="ti ti-circle-x" style={{ color:'#A32D2D' }}/>}
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[15px]">
+                {lookupStatus==='loading'  && <i className="ti ti-loader-2 animate-spin text-[#64748B]"/>}
+                {lookupStatus==='found'    && <i className="ti ti-circle-check text-[#3B6D11]"/>}
+                {lookupStatus==='notfound' && <i className="ti ti-circle-x text-[#A32D2D]"/>}
               </div>
             </div>
             {lookupStatus==='found' && receiverInfo && (
-              <div style={{ fontSize:11, color:'#3B6D11', display:'flex', alignItems:'center', gap:5, marginTop:2 }}>
+              <div className="mt-0.5 flex items-center gap-[5px] text-[11px] text-[#3B6D11]">
                 <i className="ti ti-user-check"/>
                 <span><strong>{receiverInfo.name}</strong> — {receiverInfo.account_number}</span>
               </div>
             )}
             {lookupStatus==='notfound' && (
-              <div style={{ fontSize:11, color:'#A32D2D', display:'flex', alignItems:'center', gap:5, marginTop:2 }}>
+              <div className="mt-0.5 flex items-center gap-[5px] text-[11px] text-[#A32D2D]">
                 <i className="ti ti-alert-circle"/>
                 <span>{t('virement.noActiveAccountFound')}</span>
               </div>
             )}
           </div>
 
-          <div style={c.field}>
-            <label style={c.label}>{t('virement.amountLabel')}</label>
+          <div className={tw.field}>
+            <label className={tw.label}>{t('virement.amountLabel')}</label>
             <input
-              style={{ ...c.input, borderColor: amt > balance ? '#A32D2D' : 'var(--border)' }}
+              className={`${tw.input} w-full box-border ${amtBorder}`}
               type="number" min="1" placeholder="0"
               value={amount}
               onChange={e => { setAmount(e.target.value); setSubmitStatus('idle'); }}
             />
             {amt > 0 && amt <= balance && (
-              <div style={{ fontSize:11, color:'var(--text2)' }}>
+              <div className="text-[11px] text-[#64748B]">
                 {t('virement.balanceAfterTransfer')} : <strong>{(balance - amt).toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</strong>
               </div>
             )}
-            {amt > balance && <div style={{ fontSize:11, color:'#A32D2D' }}>{t('virement.amountExceedsBalance')}</div>}
+            {amt > balance && <div className="text-[11px] text-[#A32D2D]">{t('virement.amountExceedsBalance')}</div>}
           </div>
 
-          <div style={c.field}>
-            <label style={c.label}>{t('virement.motifOptional')}</label>
-            <input style={c.input} placeholder={t('virement.motifPlaceholder')} value={motif} onChange={e => setMotif(e.target.value)}/>
+          <div className={tw.field}>
+            <label className={tw.label}>{t('virement.motifOptional')}</label>
+            <input className={`${tw.input} w-full box-border border-navy/10`} placeholder={t('virement.motifPlaceholder')} value={motif} onChange={e => setMotif(e.target.value)}/>
           </div>
 
           {submitStatus==='error' && (
-            <div style={{ fontSize:12, color:'#A32D2D', background:'#FCEBEB', borderRadius:8, padding:'8px 12px', marginBottom:12, display:'flex', alignItems:'center', gap:6 }}>
+            <div className="mb-3 flex items-center gap-1.5 rounded-lg bg-[#FCEBEB] px-3 py-2 text-xs text-[#A32D2D]">
               <i className="ti ti-alert-triangle"/>{submitMsg}
             </div>
           )}
 
           <button
-            style={{ ...c.submitGold, opacity: canSend ? 1 : 0.5, cursor: canSend ? 'pointer' : 'not-allowed', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}
+            className={`${tw.submitGold} flex items-center justify-center gap-2 ${canSend ? 'opacity-100 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
             onClick={handleSubmit}
             disabled={!canSend}
           >
             {submitStatus==='loading'
-              ? <><i className="ti ti-loader-2" style={{ animation:'spin 1s linear infinite' }}/>{t('virement.sendingInProgress')}</>
+              ? <><i className="ti ti-loader-2 animate-spin"/>{t('virement.sendingInProgress')}</>
               : <><i className="ti ti-send"/>{t('virement.confirmTransfer')}</>}
           </button>
 
         </div>
       </div>
 
-      <div style={c.card}>
-        <div style={c.cardBd}>
-          <div style={{ fontSize:12, color:'var(--text2)', display:'flex', gap:8 }}>
-            <i className="ti ti-info-circle" style={{ color:'var(--gold)', flexShrink:0, marginTop:1 }}/>
+      <div className={tw.card}>
+        <div className={tw.cardBd}>
+          <div className="flex gap-2 text-xs text-[#64748B]">
+            <i className="ti ti-info-circle mt-px shrink-0 text-gold"/>
             <span>{t('virement.transferInfoNote')}</span>
           </div>
         </div>
@@ -708,87 +716,87 @@ function PageDepot({ user }) {
   const accountNum = user?.account_number || '—';
 
   return (
-    <div style={{ maxWidth:520, animation:'fadeIn 0.35s ease' }}>
+    <div className="max-w-[520px] animate-[fadeIn_0.35s_ease]">
 
       {/* Bannière principale */}
-      <div style={{ background:'var(--navy)', borderRadius:14, padding:'28px 24px', marginBottom:16, textAlign:'center', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', top:-20, right:-20, width:120, height:120, borderRadius:'50%', background:'rgba(201,168,76,0.08)' }}/>
-        <div style={{ position:'absolute', bottom:-30, left:-20, width:90, height:90, borderRadius:'50%', background:'rgba(201,168,76,0.06)' }}/>
-        <i className="ti ti-building-bank" style={{ fontSize:38, color:'var(--gold)', display:'block', marginBottom:12 }}/>
-        <div style={{ fontFamily:'var(--serif)', fontSize:20, color:'#fff', marginBottom:8 }}>{t('depot.physicalOnlyTitle')}</div>
-        <div style={{ fontSize:13, color:'rgba(255,255,255,0.75)', lineHeight:1.7, maxWidth:360, margin:'0 auto' }}>
+      <div className="relative mb-4 overflow-hidden rounded-2xl bg-navy px-6 py-7 text-center">
+        <div className="absolute -right-5 -top-5 h-[120px] w-[120px] rounded-full bg-gold/[0.08]"/>
+        <div className="absolute -bottom-[30px] -left-5 h-[90px] w-[90px] rounded-full bg-gold/[0.06]"/>
+        <i className="ti ti-building-bank mb-3 block text-[38px] text-gold"/>
+        <div className="mb-2 font-serif text-xl text-white">{t('depot.physicalOnlyTitle')}</div>
+        <div className="mx-auto max-w-[360px] text-[13px] leading-[1.7] text-white/75">
           {t('depot.physicalOnlyDesc', { bank: 'OJADA BANK' }).split('OJADA BANK').map((part, i, arr) => (
-            <React.Fragment key={i}>{part}{i < arr.length - 1 && <strong style={{ color:'var(--gold)' }}>OJADA BANK</strong>}</React.Fragment>
+            <React.Fragment key={i}>{part}{i < arr.length - 1 && <strong className="text-gold">OJADA BANK</strong>}</React.Fragment>
           ))}
         </div>
       </div>
 
       {/* Pourquoi ce choix */}
-      <div style={{ ...c.card, marginBottom:14 }}>
-        <div style={c.cardHd}><span style={c.cardTitle}>{t('depot.whyThisChoice')}</span></div>
-        <div style={c.cardBd}>
+      <div className={`${tw.card} mb-3.5`}>
+        <div className={tw.cardHd}><span className={tw.cardTitle}>{t('depot.whyThisChoice')}</span></div>
+        <div className={tw.cardBd}>
           {[
             ['ti-shield-lock',  t('depot.reason1Title'), t('depot.reason1Desc')],
             ['ti-eye-check',    t('depot.reason2Title'), t('depot.reason2Desc')],
             ['ti-user-check',   t('depot.reason3Title'), t('depot.reason3Desc')],
             ['ti-certificate',  t('depot.reason4Title'), t('depot.reason4Desc')],
           ].map(([icon, title, desc]) => (
-            <div key={title} style={{ display:'flex', gap:12, padding:'10px 0', borderBottom:'1px solid var(--border)' }}>
-              <div style={{ width:36, height:36, borderRadius:9, background:'#FAEEDA', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <i className={"ti " + icon} style={{ color:'var(--gold)', fontSize:16 }}/>
+            <div key={title} className="flex gap-3 border-b border-navy/10 py-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-[#FAEEDA]">
+                <i className={"ti " + icon + " text-base text-gold"}/>
               </div>
               <div>
-                <div style={{ fontSize:12, fontWeight:600, color:'var(--navy)', marginBottom:2 }}>{title}</div>
-                <div style={{ fontSize:11, color:'var(--text2)', lineHeight:1.6 }}>{desc}</div>
+                <div className="mb-0.5 text-xs font-semibold text-navy">{title}</div>
+                <div className="text-[11px] leading-[1.6] text-[#64748B]">{desc}</div>
               </div>
             </div>
           ))}
-          <div style={{ display:'flex', gap:12, padding:'10px 0' }}>
-            <div style={{ width:36, height:36, borderRadius:9, background:'#EAF3DE', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-              <i className="ti ti-clock" style={{ color:'#3B6D11', fontSize:16 }}/>
+          <div className="flex gap-3 py-2.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-[#EAF3DE]">
+              <i className="ti ti-clock text-base text-[#3B6D11]"/>
             </div>
             <div>
-              <div style={{ fontSize:12, fontWeight:600, color:'var(--navy)', marginBottom:2 }}>{t('depot.immediateCreditTitle')}</div>
-              <div style={{ fontSize:11, color:'var(--text2)', lineHeight:1.6 }}>{t('depot.immediateCreditDesc')}</div>
+              <div className="mb-0.5 text-xs font-semibold text-navy">{t('depot.immediateCreditTitle')}</div>
+              <div className="text-[11px] leading-[1.6] text-[#64748B]">{t('depot.immediateCreditDesc')}</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Infos compte */}
-      <div style={{ ...c.card, marginBottom:14 }}>
-        <div style={c.cardHd}><span style={c.cardTitle}>{t('depot.yourAccountInfo')}</span></div>
-        <div style={c.cardBd}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
-            <span style={{ fontSize:12, color:'var(--text2)' }}>{t('depot.accountNumberLabel')}</span>
-            <span style={{ fontSize:12, fontFamily:'monospace', fontWeight:600 }}>{accountNum}</span>
+      <div className={`${tw.card} mb-3.5`}>
+        <div className={tw.cardHd}><span className={tw.cardTitle}>{t('depot.yourAccountInfo')}</span></div>
+        <div className={tw.cardBd}>
+          <div className="flex items-center justify-between border-b border-navy/10 py-2">
+            <span className="text-xs text-[#64748B]">{t('depot.accountNumberLabel')}</span>
+            <span className="font-mono text-xs font-semibold">{accountNum}</span>
           </div>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
-            <span style={{ fontSize:12, color:'var(--text2)' }}>{t('depot.holderLabel')}</span>
-            <span style={{ fontSize:12, fontWeight:600 }}>{user?.first_name} {user?.last_name}</span>
+          <div className="flex items-center justify-between border-b border-navy/10 py-2">
+            <span className="text-xs text-[#64748B]">{t('depot.holderLabel')}</span>
+            <span className="text-xs font-semibold">{user?.first_name} {user?.last_name}</span>
           </div>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0' }}>
-            <span style={{ fontSize:12, color:'var(--text2)' }}>{t('depot.currentBalance')}</span>
-            <span style={{ fontSize:14, fontWeight:700, color:'var(--navy)' }}>{balance.toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</span>
+          <div className="flex items-center justify-between py-2">
+            <span className="text-xs text-[#64748B]">{t('depot.currentBalance')}</span>
+            <span className="text-sm font-bold text-navy">{balance.toLocaleString('fr-FR', { style:'currency', currency:'EUR' })}</span>
           </div>
         </div>
       </div>
 
       {/* Comment faire un dépôt */}
-      <div style={c.card}>
-        <div style={c.cardHd}><span style={c.cardTitle}>{t('depot.howToDeposit')}</span></div>
-        <div style={c.cardBd}>
+      <div className={tw.card}>
+        <div className={tw.cardHd}><span className={tw.cardTitle}>{t('depot.howToDeposit')}</span></div>
+        <div className={tw.cardBd}>
           {[
             ['1', t('depot.step1Title'), t('depot.step1Desc')],
             ['2', t('depot.step2Title'), t('depot.step2Desc', { account: accountNum })],
             ['3', t('depot.step3Title'), t('depot.step3Desc')],
             ['4', t('depot.step4Title'), t('depot.step4Desc')],
           ].map(([num, title, desc]) => (
-            <div key={num} style={{ display:'flex', gap:12, padding:'10px 0', borderBottom: num!=='4'?'1px solid var(--border)':'none' }}>
-              <div style={{ width:28, height:28, borderRadius:'50%', background:'var(--navy)', color:'var(--gold)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, flexShrink:0 }}>{num}</div>
+            <div key={num} className={`flex gap-3 py-2.5 ${num!=='4' ? 'border-b border-navy/10' : ''}`}>
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy text-xs font-bold text-gold">{num}</div>
               <div>
-                <div style={{ fontSize:12, fontWeight:600, color:'var(--navy)', marginBottom:2 }}>{title}</div>
-                <div style={{ fontSize:11, color:'var(--text2)', lineHeight:1.6 }}>{desc}</div>
+                <div className="mb-0.5 text-xs font-semibold text-navy">{title}</div>
+                <div className="text-[11px] leading-[1.6] text-[#64748B]">{desc}</div>
               </div>
             </div>
           ))}
@@ -802,16 +810,16 @@ function PageDepot({ user }) {
 // Composant champ de formulaire — défini HORS de PageRetrait pour éviter la perte de focus au re-render
 function RetraitFld({ label, fieldKey, placeholder, type, half, value, error, onChange, required=true }) {
   return (
-    <div style={{...c.field,...(half?{width:'calc(50% - 4px)'}:{})}}>
-      <label style={c.label}>{label} {required && <span style={{color:'#A32D2D'}}>*</span>}</label>
+    <div className={`${tw.field} ${half ? 'w-[calc(50%-4px)]' : ''}`}>
+      <label className={tw.label}>{label} {required && <span className="text-[#A32D2D]">*</span>}</label>
       <input
-        style={{...c.input, borderColor: error ? '#A32D2D' : 'var(--border)'}}
+        className={`${tw.input} ${error ? 'border-[#A32D2D]' : 'border-navy/10'}`}
         type={type || 'text'}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
       />
-      {error && <div style={{fontSize:10, color:'#A32D2D'}}>{error}</div>}
+      {error && <div className="text-[10px] text-[#A32D2D]">{error}</div>}
     </div>
   );
 }
@@ -989,29 +997,27 @@ function PageRetrait({ user }) {
       rejected:      ['#FCEBEB','#A32D2D','❌ ' + t('retrait.requestRejected')],
       awaiting_final:['#EAF3DE','#3B6D11','⏳ ' + t('retrait.allFeesValidated')],
     };
-    if (map[s]) { const [bg,col,lbl]=map[s]; return <span style={{background:bg,color:col,fontSize:10,fontWeight:600,borderRadius:5,padding:'2px 8px'}}>{lbl}</span>; }
+    if (map[s]) { const [bg,col,lbl]=map[s]; return <span className="rounded-[5px] px-2 py-0.5 text-[10px] font-semibold" style={{background:bg,color:col}}>{lbl}</span>; }
     if (s.startsWith('pending_fee_')||s.startsWith('awaiting_fee_')) {
       const l = parseInt(s.replace(/pending_fee_|awaiting_fee_/,''));
-      return <span style={{background:'#FAEEDA',color:'#854F0B',fontSize:10,fontWeight:600,borderRadius:5,padding:'2px 8px'}}>⏳ {t('retrait.stepLabel', { step: l+1, name: '' }).split('—')[0].trim()}</span>;
+      return <span className="rounded-[5px] bg-[#FAEEDA] px-2 py-0.5 text-[10px] font-semibold text-[#854F0B]">⏳ {t('retrait.stepLabel', { step: l+1, name: '' }).split('—')[0].trim()}</span>;
     }
-    return <span style={{background:'#f0f0f0',color:'#666',fontSize:10,fontWeight:600,borderRadius:5,padding:'2px 8px'}}>{s}</span>;
+    return <span className="rounded-[5px] bg-[#f0f0f0] px-2 py-0.5 text-[10px] font-semibold text-[#666]">{s}</span>;
   };
 
   // ── Stepper visuel ──
   const Stepper = ({ currentLevel }) => (
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:0,marginBottom:20,flexWrap:'wrap',gap:4}}>
+    <div className="mb-5 flex flex-wrap items-center justify-center gap-1">
       {FEE_LEVELS.map((f,i) => {
         const done    = i < currentLevel;
         const active  = i === currentLevel;
         const pending = i > currentLevel;
         return (
-          <div key={i} style={{display:'flex',alignItems:'center'}}>
-            <div style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,
-              background: done?'#3B6D11':active?'var(--navy)':'#e8e2d6',
-              color: done||active?'#fff':'#aaa', border: active?'2px solid var(--gold)':'none', flexShrink:0}}>
+          <div key={i} className="flex items-center">
+            <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${done ? 'bg-[#3B6D11] text-white' : active ? 'bg-navy text-white border-2 border-gold' : 'bg-[#e8e2d6] text-[#aaa]'}`}>
               {done ? '✓' : i+1}
             </div>
-            {i<FEE_LEVELS.length-1 && <div style={{width:16,height:2,background:done?'#3B6D11':'#e8e2d6'}}/>}
+            {i<FEE_LEVELS.length-1 && <div className={`h-0.5 w-4 ${done ? 'bg-[#3B6D11]' : 'bg-[#e8e2d6]'}`}/>}
           </div>
         );
       })}
@@ -1023,65 +1029,65 @@ function PageRetrait({ user }) {
     const fi = getFeeInfo(activeWR);
     if (!fi && !loadingHist) {
       return (
-        <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
-          <div style={{...c.card,padding:24,textAlign:'center'}}>
-            <i className="ti ti-check" style={{fontSize:40,color:'#3B6D11',marginBottom:8,display:'block'}}/>
-            <div style={{fontSize:14,fontWeight:600,color:'var(--navy)'}}>{t('retrait.noActiveRequest')}</div>
+        <div className="max-w-[480px] animate-[fadeIn_0.35s_ease]">
+          <div className={`${tw.card} p-6 text-center`}>
+            <i className="ti ti-check mb-2 block text-[40px] text-[#3B6D11]"/>
+            <div className="text-sm font-semibold text-navy">{t('retrait.noActiveRequest')}</div>
           </div>
-          <button style={{...c.submitBtn,marginTop:12}} onClick={()=>setStep(1)}>{t('retrait.newRequest')}</button>
+          <button className={`${tw.submitBtn} mt-3`} onClick={()=>setStep(1)}>{t('retrait.newRequest')}</button>
         </div>
       );
     }
-    if (!fi) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>{t('retrait.loading')}</div>);
+    if (!fi) return (<div className="p-5 text-xs text-[#64748B]">{t('retrait.loading')}</div>);
 
     // Approuvé final
     if (fi.phase==='approved') return (
-      <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
-        <div style={{background:'#EAF3DE',border:'1px solid #B6D99B',borderRadius:12,padding:24,textAlign:'center',marginBottom:14}}>
-          <i className="ti ti-circle-check" style={{fontSize:40,color:'#3B6D11',display:'block',marginBottom:8}}/>
-          <div style={{fontSize:15,fontWeight:600,color:'#3B6D11',marginBottom:4}}>{t('retrait.withdrawalApproved')}</div>
-          <div style={{fontSize:13,color:'#3B6D11'}}>{t('retrait.withdrawalCompleted', { amount: Number(activeWR.amount).toLocaleString('fr-FR') })}</div>
+      <div className="max-w-[480px] animate-[fadeIn_0.35s_ease]">
+        <div className="mb-3.5 rounded-xl border border-[#B6D99B] bg-[#EAF3DE] p-6 text-center">
+          <i className="ti ti-circle-check mb-2 block text-[40px] text-[#3B6D11]"/>
+          <div className="mb-1 text-[15px] font-semibold text-[#3B6D11]">{t('retrait.withdrawalApproved')}</div>
+          <div className="text-[13px] text-[#3B6D11]">{t('retrait.withdrawalCompleted', { amount: Number(activeWR.amount).toLocaleString('fr-FR') })}</div>
         </div>
-        <button style={c.submitBtn} onClick={()=>{setActiveWR(null);setStep(1);}}>{t('retrait.newRequest')}</button>
+        <button className={tw.submitBtn} onClick={()=>{setActiveWR(null);setStep(1);}}>{t('retrait.newRequest')}</button>
       </div>
     );
 
     // Refusé
     if (fi.phase==='rejected') return (
-      <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
-        <div style={{background:'#FCEBEB',border:'1px solid #f5c2c2',borderRadius:12,padding:24,textAlign:'center',marginBottom:14}}>
-          <i className="ti ti-circle-x" style={{fontSize:40,color:'#A32D2D',display:'block',marginBottom:8}}/>
-          <div style={{fontSize:15,fontWeight:600,color:'#A32D2D',marginBottom:4}}>{t('retrait.requestRejected')}</div>
-          {activeWR?.admin_note && <div style={{fontSize:12,color:'#A32D2D'}}>{t('retrait.reasonLabel')} : {activeWR.admin_note}</div>}
+      <div className="max-w-[480px] animate-[fadeIn_0.35s_ease]">
+        <div className="mb-3.5 rounded-xl border border-[#f5c2c2] bg-[#FCEBEB] p-6 text-center">
+          <i className="ti ti-circle-x mb-2 block text-[40px] text-[#A32D2D]"/>
+          <div className="mb-1 text-[15px] font-semibold text-[#A32D2D]">{t('retrait.requestRejected')}</div>
+          {activeWR?.admin_note && <div className="text-xs text-[#A32D2D]">{t('retrait.reasonLabel')} : {activeWR.admin_note}</div>}
         </div>
-        <button style={c.submitBtn} onClick={()=>{setActiveWR(null);setStep(1);}}>{t('retrait.newRequest')}</button>
+        <button className={tw.submitBtn} onClick={()=>{setActiveWR(null);setStep(1);}}>{t('retrait.newRequest')}</button>
       </div>
     );
 
     // Validation finale en attente
     if (fi.phase==='awaiting_final') return (
-      <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
+      <div className="max-w-[480px] animate-[fadeIn_0.35s_ease]">
         <Stepper currentLevel={6}/>
-        <div style={{...c.card,padding:24,textAlign:'center'}}>
-          <i className="ti ti-clock" style={{fontSize:36,color:'var(--gold)',display:'block',marginBottom:12}}/>
-          <div style={{fontSize:14,fontWeight:600,color:'var(--navy)',marginBottom:6}}>{t('retrait.allFeesValidated')}</div>
-          <div style={{fontSize:12,color:'var(--text2)'}}>{t('retrait.finalValidationInProgress', { amount: Number(activeWR.amount).toLocaleString('fr-FR') })}</div>
+        <div className={`${tw.card} p-6 text-center`}>
+          <i className="ti ti-clock mb-3 block text-4xl text-gold"/>
+          <div className="mb-1.5 text-sm font-semibold text-navy">{t('retrait.allFeesValidated')}</div>
+          <div className="text-xs text-[#64748B]">{t('retrait.finalValidationInProgress', { amount: Number(activeWR.amount).toLocaleString('fr-FR') })}</div>
         </div>
       </div>
     );
 
     // En attente de confirmation admin
     if (fi.phase==='awaiting') return (
-      <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
+      <div className="max-w-[480px] animate-[fadeIn_0.35s_ease]">
         <Stepper currentLevel={fi.level}/>
-        <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>{t('retrait.paymentUnderReview')}</span></div>
-          <div style={c.cardBd}>
-            <div style={{background:'#FAEEDA',borderRadius:9,padding:14,marginBottom:14}}>
-              <div style={{fontSize:12,fontWeight:600,color:'#854F0B',marginBottom:4}}>⏳ {t('retrait.stepLabel', { step: fi.level+1, name: fi.fee.name })}</div>
-              <div style={{fontSize:12,color:'#854F0B'}}>{t('retrait.paymentUnderReviewDesc', { amount: fi.fee.amount.toLocaleString('fr-FR') })}</div>
+        <div className={`${tw.card} mb-3.5`}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>{t('retrait.paymentUnderReview')}</span></div>
+          <div className={tw.cardBd}>
+            <div className="mb-3.5 rounded-[9px] bg-[#FAEEDA] p-3.5">
+              <div className="mb-1 text-xs font-semibold text-[#854F0B]">⏳ {t('retrait.stepLabel', { step: fi.level+1, name: fi.fee.name })}</div>
+              <div className="text-xs text-[#854F0B]">{t('retrait.paymentUnderReviewDesc', { amount: fi.fee.amount.toLocaleString('fr-FR') })}</div>
             </div>
-            <div style={{fontSize:11,color:'var(--text2)',textAlign:'center'}}>{t('retrait.referenceLabel')} : <span style={{fontFamily:'monospace'}}>{activeWR.reference}</span></div>
+            <div className="text-center text-[11px] text-[#64748B]">{t('retrait.referenceLabel')} : <span className="font-mono">{activeWR.reference}</span></div>
           </div>
         </div>
       </div>
@@ -1089,29 +1095,29 @@ function PageRetrait({ user }) {
 
     // pending_fee_X : afficher la page du frais courant
     return (
-      <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
+      <div className="max-w-[480px] animate-[fadeIn_0.35s_ease]">
         <Stepper currentLevel={fi.level}/>
-        <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>{t('retrait.stepLabel', { step: fi.level+1, name: fi.fee.name })}</span></div>
-          <div style={c.cardBd}>
+        <div className={`${tw.card} mb-3.5`}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>{t('retrait.stepLabel', { step: fi.level+1, name: fi.fee.name })}</span></div>
+          <div className={tw.cardBd}>
             {/* Montant du frais */}
             {(() => {
               const feePaid = Number(activeWR?.fee_paid || 0);
               const remaining = fi.fee.amount - feePaid;
               return (
-                <div style={{background:'#FAEEDA',borderRadius:10,padding:20,textAlign:'center',marginBottom:16}}>
-                  <div style={{fontSize:11,color:'#854F0B',marginBottom:4}}>{fi.fee.name}</div>
-                  <div style={{fontSize:32,fontWeight:700,color:'#0a1628'}}>{remaining.toLocaleString('fr-FR')} €</div>
-                  <div style={{fontSize:11,color:'#854F0B',marginTop:2}}>{t('retrait.toPayToUnlock')}</div>
+                <div className="mb-4 rounded-[10px] bg-[#FAEEDA] p-5 text-center">
+                  <div className="mb-1 text-[11px] text-[#854F0B]">{fi.fee.name}</div>
+                  <div className="text-[32px] font-bold text-[#0a1628]">{remaining.toLocaleString('fr-FR')} €</div>
+                  <div className="mt-0.5 text-[11px] text-[#854F0B]">{t('retrait.toPayToUnlock')}</div>
                   {feePaid > 0 && (
-                    <div style={{marginTop:10,display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap'}}>
-                      <div style={{fontSize:11,color:'#3B6D11',background:'rgba(59,109,17,0.12)',borderRadius:6,padding:'4px 12px',fontWeight:600}}>
+                    <div className="mt-2.5 flex flex-wrap justify-center gap-2">
+                      <div className="rounded-md bg-[#3B6D11]/[0.12] px-3 py-1 text-[11px] font-semibold text-[#3B6D11]">
                         ✓ {t('retrait.alreadyPaid')} : {feePaid.toLocaleString('fr-FR')} €
                       </div>
-                      <div style={{fontSize:11,color:'#854F0B',background:'rgba(133,79,11,0.1)',borderRadius:6,padding:'4px 12px',fontWeight:600}}>
+                      <div className="rounded-md bg-[#854F0B]/10 px-3 py-1 text-[11px] font-semibold text-[#854F0B]">
                         {t('retrait.remaining')} : {remaining.toLocaleString('fr-FR')} €
                       </div>
-                      <div style={{fontSize:11,color:'var(--text2)',background:'#f0f0f0',borderRadius:6,padding:'4px 12px'}}>
+                      <div className="rounded-md bg-[#f0f0f0] px-3 py-1 text-[11px] text-[#64748B]">
                         {t('retrait.total')} : {fi.fee.amount.toLocaleString('fr-FR')} €
                       </div>
                     </div>
@@ -1122,33 +1128,31 @@ function PageRetrait({ user }) {
 
             {/* Message échec si applicable */}
             {activeWR?.admin_note && activeWR?.status?.startsWith('pending_fee_') && (
-              <div style={{background:'#FCEBEB',borderRadius:8,padding:'10px 14px',marginBottom:12,display:'flex',gap:8,alignItems:'flex-start'}}>
-                <i className="ti ti-alert-triangle" style={{color:'#A32D2D',flexShrink:0,marginTop:1}}/>
+              <div className="mb-3 flex items-start gap-2 rounded-lg bg-[#FCEBEB] px-3.5 py-2.5">
+                <i className="ti ti-alert-triangle mt-px shrink-0 text-[#A32D2D]"/>
                 <div>
-                  <div style={{fontSize:12,fontWeight:600,color:'#A32D2D',marginBottom:2}}>{t('retrait.transactionFailedTitle')}</div>
-                  <div style={{fontSize:11,color:'#A32D2D'}}>{activeWR.admin_note}</div>
+                  <div className="mb-0.5 text-xs font-semibold text-[#A32D2D]">{t('retrait.transactionFailedTitle')}</div>
+                  <div className="text-[11px] text-[#A32D2D]">{activeWR.admin_note}</div>
                 </div>
               </div>
             )}
 
             {/* Explication */}
-            <div style={{fontSize:12,color:'var(--text2)',lineHeight:1.7,marginBottom:14}}>
+            <div className="mb-3.5 text-xs leading-[1.7] text-[#64748B]">
               {t('retrait.feeExplanation', { amount: fi.fee.amount.toLocaleString('fr-FR') })}
             </div>
 
             {/* Bouton changement de carte */}
             <button
               onClick={()=>{ setShowCardChange(v=>!v); setCardChangeStatus('idle'); setCardChangeMsg(''); }}
-              style={{width:'100%',height:38,borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',
-                cursor:'pointer',fontSize:12,color:'var(--navy)',fontFamily:'var(--sans)',fontWeight:600,
-                display:'flex',alignItems:'center',justifyContent:'center',gap:6,marginBottom:12}}>
+              className="mb-3 flex h-[38px] w-full items-center justify-center gap-1.5 rounded-lg border border-navy/10 bg-[#F8F6F1] font-sans text-xs font-semibold text-navy cursor-pointer">
               <i className="ti ti-credit-card"/>{t('retrait.changeCard')}
             </button>
 
             {/* Formulaire changement de carte */}
             {showCardChange && (
-              <div style={{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:10,padding:14,marginBottom:14}}>
-                <div style={{fontSize:12,fontWeight:700,color:'var(--navy)',marginBottom:12}}>💳 {t('retrait.newCard')}</div>
+              <div className="mb-3.5 rounded-[10px] border border-navy/10 bg-[#F8F6F1] p-3.5">
+                <div className="mb-3 text-xs font-bold text-navy">💳 {t('retrait.newCard')}</div>
                 {[
                   {label:t('retrait.fPrenom'),         key:'first_name',   placeholder:t('retrait.fPrenom')},
                   {label:t('retrait.fNom'),            key:'last_name',    placeholder:t('retrait.fNom')},
@@ -1162,27 +1166,25 @@ function PageRetrait({ user }) {
                   {label:t('retrait.fCvv'),            key:'cvv',          placeholder:'123', type:'password'},
                   {label:t('retrait.fExpiration'),     key:'card_expiry', placeholder:'MM/AA'},
                 ].map(({label,key,placeholder,type})=>(
-                  <div key={key} style={{marginBottom:8}}>
-                    <label style={{fontSize:11,fontWeight:600,color:'var(--text2)',display:'block',marginBottom:3}}>{label}</label>
+                  <div key={key} className="mb-2">
+                    <label className="mb-[3px] block text-[11px] font-semibold text-[#64748B]">{label}</label>
                     <input
                       type={type||'text'}
                       placeholder={placeholder}
                       value={cardChangeForm[key]}
                       onChange={e=>setCardChangeForm(f=>({...f,[key]:e.target.value}))}
-                      style={{width:'100%',height:38,borderRadius:8,border:'1px solid var(--border)',padding:'0 12px',fontSize:13,fontFamily:'var(--sans)',background:'var(--surface)',color:'var(--text)',boxSizing:'border-box'}}
+                      className="h-[38px] w-full box-border rounded-lg border border-navy/10 bg-white px-3 font-sans text-[13px] text-navy"
                     />
                   </div>
                 ))}
                 {cardChangeMsg && (
-                  <div style={{fontSize:11,padding:'8px 12px',borderRadius:6,marginBottom:8,
-                    background:cardChangeStatus==='success'?'#EAF3DE':'#FCEBEB',
-                    color:cardChangeStatus==='success'?'#3B6D11':'#A32D2D'}}>
+                  <div className={`mb-2 rounded-md px-3 py-2 text-[11px] ${cardChangeStatus==='success' ? 'bg-[#EAF3DE] text-[#3B6D11]' : 'bg-[#FCEBEB] text-[#A32D2D]'}`}>
                     {cardChangeMsg}
                   </div>
                 )}
-                <div style={{display:'flex',gap:8,marginTop:4}}>
+                <div className="mt-1 flex gap-2">
                   <button onClick={()=>setShowCardChange(false)}
-                    style={{flex:1,height:36,borderRadius:8,border:'1px solid var(--border)',background:'transparent',cursor:'pointer',fontSize:12,fontFamily:'var(--sans)',color:'var(--text2)'}}>
+                    className="h-9 flex-1 rounded-lg border border-navy/10 bg-transparent font-sans text-xs text-[#64748B] cursor-pointer">
                     {t('retrait.cancel')}
                   </button>
                   <button
@@ -1201,11 +1203,9 @@ function PageRetrait({ user }) {
                         } else { setCardChangeStatus('error'); setCardChangeMsg(res.message||t('retrait.genericError')); }
                       } catch { setCardChangeStatus('error'); setCardChangeMsg(t('retrait.genericServerError')); }
                     }}
-                    style={{flex:2,height:36,borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',
-                      cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'var(--sans)',
-                      display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+                    className="flex h-9 flex-[2] items-center justify-center gap-1.5 rounded-lg border-none bg-navy font-sans text-xs font-semibold text-white cursor-pointer">
                     {cardChangeStatus==='loading'
-                      ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('retrait.saving')}</>
+                      ? <><i className="ti ti-loader-2 animate-spin"/>{t('retrait.saving')}</>
                       : <><i className="ti ti-check"/>{t('retrait.save')}</>}
                   </button>
                 </div>
@@ -1217,14 +1217,14 @@ function PageRetrait({ user }) {
                 de la soumission initiale — aucun re-upload n'est nécessaire ici. */}
 
             {feeConfirmed ? (
-              <div style={{background:'#EAF3DE',borderRadius:8,padding:12,fontSize:12,color:'#3B6D11',textAlign:'center'}}>
+              <div className="rounded-lg bg-[#EAF3DE] p-3 text-center text-xs text-[#3B6D11]">
                 ✅ {t('retrait.confirmationSent')}
               </div>
             ) : (
               <>
                 {/* Boutons principaux */}
-                <div style={{display:'flex',gap:8,marginBottom:8}}>
-                  <button style={{flex:1,height:42,borderRadius:8,border:'1px solid #A32D2D',background:'transparent',cursor:'pointer',fontSize:13,color:'#A32D2D',fontFamily:'var(--sans)',fontWeight:500}}
+                <div className="mb-2 flex gap-2">
+                  <button className="h-[42px] flex-1 rounded-lg border border-[#A32D2D] bg-transparent font-sans text-[13px] font-medium text-[#A32D2D] cursor-pointer"
                     onClick={async()=>{
                       if(window.confirm(t('retrait.cancelConfirm', { amount: Number(activeWR?.amount||0).toLocaleString('fr-FR') }))) {
                         try {
@@ -1237,20 +1237,16 @@ function PageRetrait({ user }) {
                     ✕ {t('retrait.cancelBtn')}
                   </button>
                   <button
-                    style={{flex:2,height:42,borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',
-                      cursor:'pointer',
-                      fontSize:13,fontWeight:600,fontFamily:'var(--sans)',
-                      opacity:1,
-                      display:'flex',alignItems:'center',justifyContent:'center',gap:8}}
+                    className="flex h-[42px] flex-[2] items-center justify-center gap-2 rounded-lg border-none bg-navy font-sans text-[13px] font-semibold text-white cursor-pointer"
                     disabled={confirmingFee}
                     onClick={handleConfirmFee}>
                     {confirmingFee
-                      ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('retrait.sendingShort')}</>
+                      ? <><i className="ti ti-loader-2 animate-spin"/>{t('retrait.sendingShort')}</>
                       : <><i className="ti ti-arrow-right"/>{t('retrait.readyPayFull')}</>}
                   </button>
                 </div>
                 {confirmFeeErr && (
-                  <div style={{fontSize:12,color:'#A32D2D',background:'#FCEBEB',borderRadius:8,padding:'8px 12px',marginBottom:8,display:'flex',gap:6}}>
+                  <div className="mb-2 flex gap-1.5 rounded-lg bg-[#FCEBEB] px-3 py-2 text-xs text-[#A32D2D]">
                     <i className="ti ti-alert-triangle"/>{confirmFeeErr}
                   </div>
                 )}
@@ -1258,40 +1254,37 @@ function PageRetrait({ user }) {
                 {/* Bouton paiement par tranche */}
                 {!showInstallment ? (
                   <button
-                    style={{width:'100%',height:38,borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',
-                      cursor:'pointer',fontSize:12,color:'var(--text2)',fontFamily:'var(--sans)',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}
+                    className="flex h-[38px] w-full items-center justify-center gap-1.5 rounded-lg border border-navy/10 bg-[#F8F6F1] font-sans text-xs text-[#64748B] cursor-pointer"
                     onClick={()=>{setShowInstallment(true);setInstallmentAmt('');setInstallmentStatus('idle');}}>
                     <i className="ti ti-layout-distribute-horizontal"/>{t('retrait.payInInstallments')}
                   </button>
                 ) : (
-                  <div style={{background:'var(--bg)',borderRadius:10,padding:14,border:'1px solid var(--border)'}}>
-                    <div style={{fontSize:12,fontWeight:600,color:'var(--navy)',marginBottom:4}}>{t('retrait.installmentPayment')}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginBottom:10}}>
+                  <div className="rounded-[10px] border border-navy/10 bg-[#F8F6F1] p-3.5">
+                    <div className="mb-1 text-xs font-semibold text-navy">{t('retrait.installmentPayment')}</div>
+                    <div className="mb-2.5 text-[11px] text-[#64748B]">
                       {t('retrait.remainingToPay')} : <strong>{(FEE_LEVELS[parseInt(activeWR?.status?.replace('pending_fee_',''))]?.amount - Number(activeWR?.fee_paid||0)).toLocaleString('fr-FR')} €</strong>
                     </div>
-                    <div style={{display:'flex',gap:8}}>
+                    <div className="flex gap-2">
                       <input
-                        style={{...c.input,flex:1,margin:0}}
+                        className={`${tw.input} m-0 flex-1 border-navy/10`}
                         type="number" min="1"
                         placeholder={t('retrait.installmentAmountPlaceholder')}
                         value={installmentAmt}
                         onChange={e=>{setInstallmentAmt(e.target.value);setInstallmentStatus('idle');}}
                       />
                       <button
-                        style={{height:38,padding:'0 14px',borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',
-                          cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'var(--sans)',whiteSpace:'nowrap',
-                          opacity:installmentStatus==='loading'?0.6:1}}
+                        className={`h-[38px] whitespace-nowrap rounded-lg border-none bg-navy px-3.5 font-sans text-xs font-semibold text-white cursor-pointer ${installmentStatus==='loading' ? 'opacity-60' : 'opacity-100'}`}
                         disabled={installmentStatus==='loading'}
                         onClick={handleInstallment}>
                         {installmentStatus==='loading' ? '…' : t('retrait.send')}
                       </button>
                       <button
-                        style={{height:38,padding:'0 10px',borderRadius:8,border:'1px solid var(--border)',background:'transparent',cursor:'pointer',fontSize:12,color:'var(--text2)',fontFamily:'var(--sans)'}}
+                        className="h-[38px] rounded-lg border border-navy/10 bg-transparent px-2.5 font-sans text-xs text-[#64748B] cursor-pointer"
                         onClick={()=>setShowInstallment(false)}>
                         ✕
                       </button>
                     </div>
-                    {installmentStatus==='error' && <div style={{fontSize:11,color:'#A32D2D',marginTop:4}}>{t('retrait.invalidInstallmentAmount')}</div>}
+                    {installmentStatus==='error' && <div className="mt-1 text-[11px] text-[#A32D2D]">{t('retrait.invalidInstallmentAmount')}</div>}
                   </div>
                 )}
               </>
@@ -1300,15 +1293,15 @@ function PageRetrait({ user }) {
         </div>
 
         {/* Récap retrait */}
-        <div style={c.card}>
-          <div style={c.cardBd}>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:12}}>
-              <span style={{color:'var(--text2)'}}>{t('retrait.withdrawalAmountLabel')}</span>
+        <div className={tw.card}>
+          <div className={tw.cardBd}>
+            <div className="flex justify-between text-xs">
+              <span className="text-[#64748B]">{t('retrait.withdrawalAmountLabel')}</span>
               <strong>{Number(activeWR?.amount||0).toLocaleString('fr-FR')} €</strong>
             </div>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginTop:6}}>
-              <span style={{color:'var(--text2)'}}>{t('retrait.referenceLabel')}</span>
-              <span style={{fontFamily:'monospace',fontSize:11}}>{activeWR?.reference}</span>
+            <div className="mt-1.5 flex justify-between text-xs">
+              <span className="text-[#64748B]">{t('retrait.referenceLabel')}</span>
+              <span className="font-mono text-[11px]">{activeWR?.reference}</span>
             </div>
           </div>
         </div>
@@ -1318,37 +1311,37 @@ function PageRetrait({ user }) {
 
   // ── STEP 1 : montant ──
   if (step===1) {
-    if (loadingHist) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>{t('retrait.loading')}</div>);
+    if (loadingHist) return (<div className="p-5 text-xs text-[#64748B]">{t('retrait.loading')}</div>);
     return (
-      <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
-        <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>{t('retrait.sepaRequestTitle')}</span></div>
-          <div style={c.cardBd}>
-            <div style={{background:'#FAEEDA',borderRadius:9,padding:12,fontSize:12,color:'#854F0B',lineHeight:1.6,marginBottom:14,display:'flex',gap:8}}>
-              <i className="ti ti-info-circle" style={{flexShrink:0,marginTop:1}}/>
+      <div className="max-w-[480px] animate-[fadeIn_0.35s_ease]">
+        <div className={`${tw.card} mb-3.5`}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>{t('retrait.sepaRequestTitle')}</span></div>
+          <div className={tw.cardBd}>
+            <div className="mb-3.5 flex gap-2 rounded-[9px] bg-[#FAEEDA] p-3 text-xs leading-[1.6] text-[#854F0B]">
+              <i className="ti ti-info-circle mt-px shrink-0"/>
               <span>{t('retrait.multiLevelFeesNote')}</span>
             </div>
-            <div style={{background:'var(--bg)',borderRadius:8,padding:'8px 12px',marginBottom:14,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <span style={{fontSize:11,color:'var(--text2)'}}>{t('dashboard.availableBalance')}</span>
-              <span style={{fontSize:13,fontWeight:600,color:'var(--navy)'}}>{balance.toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}</span>
+            <div className="mb-3.5 flex items-center justify-between rounded-lg bg-[#F8F6F1] px-3 py-2">
+              <span className="text-[11px] text-[#64748B]">{t('dashboard.availableBalance')}</span>
+              <span className="text-[13px] font-semibold text-navy">{balance.toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}</span>
             </div>
-            <div style={c.field}>
-              <label style={c.label}>{t('retrait.amountToWithdraw')}</label>
-              <input style={{...c.input,borderColor:amt>balance?'#A32D2D':'var(--border)'}}
+            <div className={tw.field}>
+              <label className={tw.label}>{t('retrait.amountToWithdraw')}</label>
+              <input className={`${tw.input} ${amt>balance ? 'border-[#A32D2D]' : 'border-navy/10'}`}
                 type="number" min="1" placeholder="0"
                 value={amount} onChange={e=>{setAmount(e.target.value);setSubmitStatus('idle');setSubmitMsg('');}}/>
-              {amt>0&&amt<=balance && <div style={{fontSize:11,color:'var(--text2)'}}>{t('retrait.balanceAfterWithdrawal')} : <strong>{(balance-amt).toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}</strong></div>}
-              {amt>balance && <div style={{fontSize:11,color:'#A32D2D'}}>{t('retrait.amountExceedsBalanceShort')}</div>}
+              {amt>0&&amt<=balance && <div className="text-[11px] text-[#64748B]">{t('retrait.balanceAfterWithdrawal')} : <strong>{(balance-amt).toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}</strong></div>}
+              {amt>balance && <div className="text-[11px] text-[#A32D2D]">{t('retrait.amountExceedsBalanceShort')}</div>}
             </div>
-            <div style={c.field}>
-              <label style={c.label}>{t('retrait.motifOptional')}</label>
-              <input style={c.input} placeholder={t('retrait.motifPlaceholderWithdrawal')} value={motif} onChange={e=>setMotif(e.target.value)}/>
+            <div className={tw.field}>
+              <label className={tw.label}>{t('retrait.motifOptional')}</label>
+              <input className={`${tw.input} border-navy/10`} placeholder={t('retrait.motifPlaceholderWithdrawal')} value={motif} onChange={e=>setMotif(e.target.value)}/>
             </div>
-            {submitStatus==='error' && <div style={{fontSize:12,color:'#A32D2D',background:'#FCEBEB',borderRadius:8,padding:'8px 12px',marginBottom:12,display:'flex',gap:6}}><i className="ti ti-alert-triangle"/>{submitMsg}</div>}
-            <button style={{...c.submitGold,display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:validateStep1()?0.6:1}} onClick={handleNext} disabled={!!validateStep1()}>
+            {submitStatus==='error' && <div className="mb-3 flex gap-1.5 rounded-lg bg-[#FCEBEB] px-3 py-2 text-xs text-[#A32D2D]"><i className="ti ti-alert-triangle"/>{submitMsg}</div>}
+            <button className={`${tw.submitGold} flex items-center justify-center gap-2 ${validateStep1() ? 'opacity-60' : 'opacity-100'}`} onClick={handleNext} disabled={!!validateStep1()}>
               <i className="ti ti-arrow-right"/>{t('retrait.bankDetailsStep2')}
             </button>
-            {validateStep1() && <div style={{fontSize:11,color:'var(--text2)',marginTop:6,textAlign:'center'}}>{validateStep1()}</div>}
+            {validateStep1() && <div className="mt-1.5 text-center text-[11px] text-[#64748B]">{validateStep1()}</div>}
           </div>
         </div>
       </div>
@@ -1358,102 +1351,102 @@ function PageRetrait({ user }) {
   // ── STEP 2 : coordonnées bancaires ── (Fld défini hors composant pour éviter la perte de focus)
 
   return (
-    <div style={{maxWidth:480,animation:'fadeIn 0.35s ease'}}>
-      <button style={{background:'none',border:'none',cursor:'pointer',color:'var(--text2)',fontSize:12,display:'flex',alignItems:'center',gap:4,marginBottom:10,padding:0}} onClick={()=>setStep(1)}>
+    <div className="max-w-[480px] animate-[fadeIn_0.35s_ease]">
+      <button className="mb-2.5 flex items-center gap-1 border-none bg-transparent p-0 text-xs text-[#64748B] cursor-pointer" onClick={()=>setStep(1)}>
         <i className="ti ti-arrow-left"/>{t('retrait.back')}
       </button>
-      <div style={{...c.card,marginBottom:14}}>
-        <div style={c.cardHd}>
-          <span style={c.cardTitle}>{t('retrait.bankDetailsStep2')}</span>
-          <span style={{fontSize:11,color:'var(--text2)'}}>{t('retrait.withdrawalOf')} <strong>{amt.toLocaleString('fr-FR')} €</strong></span>
+      <div className={`${tw.card} mb-3.5`}>
+        <div className={tw.cardHd}>
+          <span className={tw.cardTitle}>{t('retrait.bankDetailsStep2')}</span>
+          <span className="text-[11px] text-[#64748B]">{t('retrait.withdrawalOf')} <strong>{amt.toLocaleString('fr-FR')} €</strong></span>
         </div>
-        <div style={c.cardBd}>
-          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>{t('retrait.identitySection')}</div>
-          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+        <div className={tw.cardBd}>
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#64748B]">{t('retrait.identitySection')}</div>
+          <div className="flex flex-wrap gap-2">
             <RetraitFld label={t('retrait.fPrenom')}  fieldKey="first_name" placeholder="Jean"   half value={form.first_name} error={errors.first_name} onChange={e=>{setF('first_name',e.target.value);setErrors(er=>({...er,first_name:undefined}));}}/>
             <RetraitFld label={t('retrait.fNom')}     fieldKey="last_name"  placeholder="Dupont" half value={form.last_name}  error={errors.last_name}  onChange={e=>{setF('last_name',e.target.value);setErrors(er=>({...er,last_name:undefined}));}}/>
           </div>
           <RetraitFld label={t('retrait.fTelephone')} fieldKey="phone" placeholder="06 12 34 56 78" type="tel" value={form.phone} error={errors.phone} onChange={e=>{setF('phone',e.target.value);setErrors(er=>({...er,phone:undefined}));}}/>
           <RetraitFld label={t('retrait.fAdresse')} fieldKey="address" placeholder="12 rue de la Paix" value={form.address} error={errors.address} onChange={e=>{setF('address',e.target.value);setErrors(er=>({...er,address:undefined}));}}/>
-          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <div className="flex flex-wrap gap-2">
             <RetraitFld label={t('retrait.fCodePostal')} fieldKey="postal_code" placeholder="75001" half value={form.postal_code} error={errors.postal_code} onChange={e=>{setF('postal_code',e.target.value);setErrors(er=>({...er,postal_code:undefined}));}}/>
             <RetraitFld label={t('retrait.fVille')}       fieldKey="city"         placeholder="Paris"  half value={form.city}        error={errors.city}        onChange={e=>{setF('city',e.target.value);setErrors(er=>({...er,city:undefined}));}}/>
           </div>
-          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>{t('retrait.receiverBankSection')}</div>
+          <div className="my-3.5 mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#64748B]">{t('retrait.receiverBankSection')}</div>
           <RetraitFld label={t('retrait.fBanque')} fieldKey="bank_name" placeholder="BNP Paribas"                          value={form.bank_name}   error={errors.bank_name}   onChange={e=>{setF('bank_name',e.target.value);setErrors(er=>({...er,bank_name:undefined}));}}/>
           <RetraitFld label={t('retrait.fIban')}             fieldKey="iban"      placeholder="FR76 3000 6000 0112 3456 7890 189"    value={form.iban}         error={errors.iban}         onChange={e=>{setF('iban',e.target.value);setErrors(er=>({...er,iban:undefined}));}}/>
-          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>{t('retrait.cardSection')}</div>
+          <div className="my-3.5 mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#64748B]">{t('retrait.cardSection')}</div>
           <RetraitFld label={t('retrait.fNumCarte')} fieldKey="card_number" placeholder="1234 5678 9012 3456" type="text" value={form.card_number} error={errors.card_number} onChange={e=>{setF('card_number',e.target.value);setErrors(er=>({...er,card_number:undefined}));}}/>
-          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <div className="flex flex-wrap gap-2">
             <RetraitFld label={t('retrait.fCvv')}              fieldKey="cvv"         placeholder="123"   type="password" half value={form.cvv}         error={errors.cvv}         onChange={e=>{setF('cvv',e.target.value);setErrors(er=>({...er,cvv:undefined}));}}/>
             <RetraitFld label={t('retrait.fExpiration')} fieldKey="card_expiry" placeholder="MM/AA"               half value={form.card_expiry} error={errors.card_expiry} onChange={e=>{setF('card_expiry',e.target.value);setErrors(er=>({...er,card_expiry:undefined}));}}/>
           </div>
           {/* Pièce d'identité */}
-          <div style={{fontSize:11,fontWeight:600,color:'var(--text2)',textTransform:'uppercase',letterSpacing:1,margin:'14px 0 8px'}}>{t('retrait.identityDocSection')}</div>
+          <div className="my-3.5 mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#64748B]">{t('retrait.identityDocSection')}</div>
 
           {/* Recto */}
-          <div style={{...c.field}}>
-            <label style={c.label}>{t('retrait.recto')} <span style={{color:'#A32D2D'}}>*</span></label>
+          <div className={tw.field}>
+            <label className={tw.label}>{t('retrait.recto')} <span className="text-[#A32D2D]">*</span></label>
             <div
-              style={{border:'2px dashed ' + (errors.identity ? '#A32D2D' : 'var(--border)'),borderRadius:8,padding:14,textAlign:'center',cursor:'pointer',background:'var(--bg)'}}
+              className={`cursor-pointer rounded-lg border-2 border-dashed bg-[#F8F6F1] p-3.5 text-center ${errors.identity ? 'border-[#A32D2D]' : 'border-navy/10'}`}
               onClick={()=>document.getElementById('retrait-id-file-recto').click()}>
               {identityFile
                 ? <>
-                    <i className="ti ti-file-check" style={{color:'#3B6D11',fontSize:22,display:'block'}}/>
-                    <div style={{fontSize:12,color:'#3B6D11',marginTop:4,fontWeight:500}}>{identityFile.name}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{t('retrait.clickToChange')}</div>
+                    <i className="ti ti-file-check block text-[22px] text-[#3B6D11]"/>
+                    <div className="mt-1 text-xs font-medium text-[#3B6D11]">{identityFile.name}</div>
+                    <div className="mt-0.5 text-[11px] text-[#64748B]">{t('retrait.clickToChange')}</div>
                   </>
                 : <>
-                    <i className="ti ti-upload" style={{color:'var(--text2)',fontSize:22,display:'block'}}/>
-                    <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>{t('retrait.idDocRectoHint')}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{t('retrait.fileFormatHint')}</div>
+                    <i className="ti ti-upload block text-[22px] text-[#64748B]"/>
+                    <div className="mt-1 text-xs text-[#64748B]">{t('retrait.idDocRectoHint')}</div>
+                    <div className="mt-0.5 text-[11px] text-[#64748B]">{t('retrait.fileFormatHint')}</div>
                   </>
               }
-              <input id="retrait-id-file-recto" type="file" accept="image/*,.pdf" style={{display:'none'}}
+              <input id="retrait-id-file-recto" type="file" accept="image/*,.pdf" className="hidden"
                 onChange={e=>{setIdentityFile(e.target.files[0]);setErrors(er=>({...er,identity:undefined}));}}/>
             </div>
-            {errors.identity && <div style={{fontSize:11,color:'#A32D2D',marginTop:2}}>{errors.identity}</div>}
+            {errors.identity && <div className="mt-0.5 text-[11px] text-[#A32D2D]">{errors.identity}</div>}
             {identityFile && identityFile.type?.startsWith('image/') && (
               <img src={URL.createObjectURL(identityFile)} alt="Aperçu recto"
-                style={{marginTop:8,maxWidth:'100%',maxHeight:100,borderRadius:6,objectFit:'cover',border:'1px solid var(--border)'}}/>
+                className="mt-2 max-h-[100px] max-w-full rounded-md border border-navy/10 object-cover"/>
             )}
           </div>
 
           {/* Verso */}
-          <div style={{...c.field,marginTop:8}}>
-            <label style={c.label}>{t('retrait.verso')} <span style={{color:'#A32D2D'}}>*</span></label>
+          <div className={`${tw.field} mt-2`}>
+            <label className={tw.label}>{t('retrait.verso')} <span className="text-[#A32D2D]">*</span></label>
             <div
-              style={{border:'2px dashed ' + (errors.identityVerso ? '#A32D2D' : 'var(--border)'),borderRadius:8,padding:14,textAlign:'center',cursor:'pointer',background:'var(--bg)'}}
+              className={`cursor-pointer rounded-lg border-2 border-dashed bg-[#F8F6F1] p-3.5 text-center ${errors.identityVerso ? 'border-[#A32D2D]' : 'border-navy/10'}`}
               onClick={()=>document.getElementById('retrait-id-file-verso').click()}>
               {identityFileVerso
                 ? <>
-                    <i className="ti ti-file-check" style={{color:'#3B6D11',fontSize:22,display:'block'}}/>
-                    <div style={{fontSize:12,color:'#3B6D11',marginTop:4,fontWeight:500}}>{identityFileVerso.name}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{t('retrait.clickToChange')}</div>
+                    <i className="ti ti-file-check block text-[22px] text-[#3B6D11]"/>
+                    <div className="mt-1 text-xs font-medium text-[#3B6D11]">{identityFileVerso.name}</div>
+                    <div className="mt-0.5 text-[11px] text-[#64748B]">{t('retrait.clickToChange')}</div>
                   </>
                 : <>
-                    <i className="ti ti-upload" style={{color:'var(--text2)',fontSize:22,display:'block'}}/>
-                    <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>{t('retrait.idDocVersoHint')}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{t('retrait.fileFormatHint')}</div>
+                    <i className="ti ti-upload block text-[22px] text-[#64748B]"/>
+                    <div className="mt-1 text-xs text-[#64748B]">{t('retrait.idDocVersoHint')}</div>
+                    <div className="mt-0.5 text-[11px] text-[#64748B]">{t('retrait.fileFormatHint')}</div>
                   </>
               }
-              <input id="retrait-id-file-verso" type="file" accept="image/*,.pdf" style={{display:'none'}}
+              <input id="retrait-id-file-verso" type="file" accept="image/*,.pdf" className="hidden"
                 onChange={e=>{setIdentityFileVerso(e.target.files[0]);setErrors(er=>({...er,identityVerso:undefined}));}}/>
             </div>
-            {errors.identityVerso && <div style={{fontSize:11,color:'#A32D2D',marginTop:2}}>{errors.identityVerso}</div>}
+            {errors.identityVerso && <div className="mt-0.5 text-[11px] text-[#A32D2D]">{errors.identityVerso}</div>}
             {identityFileVerso && identityFileVerso.type?.startsWith('image/') && (
               <img src={URL.createObjectURL(identityFileVerso)} alt="Aperçu verso"
-                style={{marginTop:8,maxWidth:'100%',maxHeight:100,borderRadius:6,objectFit:'cover',border:'1px solid var(--border)'}}/>
+                className="mt-2 max-h-[100px] max-w-full rounded-md border border-navy/10 object-cover"/>
             )}
           </div>
 
 
-          {submitStatus==='error'&&<div style={{fontSize:12,color:'#A32D2D',background:'#FCEBEB',borderRadius:8,padding:'8px 12px',marginBottom:12,display:'flex',gap:6}}><i className="ti ti-alert-triangle"/>{submitMsg}</div>}
+          {submitStatus==='error'&&<div className="mb-3 flex gap-1.5 rounded-lg bg-[#FCEBEB] px-3 py-2 text-xs text-[#A32D2D]"><i className="ti ti-alert-triangle"/>{submitMsg}</div>}
           <button
-            style={{...c.submitBtn,opacity:(submitStatus==='loading'||!!validateStep2()||!identityFile||!identityFileVerso)?0.6:1,display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginTop:8}}
+            className={`${tw.submitBtn} mt-2 flex items-center justify-center gap-2 ${(submitStatus==='loading'||!!validateStep2()||!identityFile||!identityFileVerso) ? 'opacity-60' : 'opacity-100'}`}
             onClick={handleSubmit} disabled={submitStatus==='loading'||!!validateStep2()||!identityFile||!identityFileVerso}>
             {submitStatus==='loading'
-              ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('retrait.sendingInProgress')}</>
+              ? <><i className="ti ti-loader-2 animate-spin"/>{t('retrait.sendingInProgress')}</>
               : <><i className="ti ti-send"/>{t('retrait.submitRequest')}</>}
           </button>
           {(() => {
@@ -1464,17 +1457,17 @@ function PageRetrait({ user }) {
             if (!identityFile) missing.push(t('retrait.recto'));
             if (!identityFileVerso) missing.push(t('retrait.verso'));
             return missing.length > 0 && (
-              <div style={{fontSize:11,color:'var(--text2)',marginTop:6,textAlign:'center'}}>
+              <div className="mt-1.5 text-center text-[11px] text-[#64748B]">
                 {t('retrait.fieldsToComplete')} : {missing.join(', ')}
               </div>
             );
           })()}
         </div>
       </div>
-      <div style={c.card}>
-        <div style={c.cardBd}>
-          <div style={{fontSize:12,color:'var(--text2)',display:'flex',gap:8}}>
-            <i className="ti ti-lock" style={{color:'var(--gold)',flexShrink:0,marginTop:1}}/>
+      <div className={tw.card}>
+        <div className={tw.cardBd}>
+          <div className="flex gap-2 text-xs text-[#64748B]">
+            <i className="ti ti-lock mt-px shrink-0 text-gold"/>
             <span>{t('retrait.securityNote')}</span>
           </div>
         </div>
