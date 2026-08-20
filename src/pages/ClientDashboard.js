@@ -352,34 +352,27 @@ function MonthlyActivityChart() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{fontSize:12,color:'var(--text2)'}}>{t('dashboard.loadingChart')}</div>;
-  if (data.length === 0) return <div style={{fontSize:12,color:'var(--text2)'}}>{t('dashboard.noActivity')}</div>;
+  if (loading) return <div className="text-xs text-[#64748B]">{t('dashboard.loadingChart')}</div>;
+  if (data.length === 0) return <div className="text-xs text-[#64748B]">{t('dashboard.noActivity')}</div>;
 
   // Trouver le max pour échelonner les barres
   const maxTotal = Math.max(...data.map(d => d.total || 0), 1);
-  
+
   return (
-    <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:90, padding:'8px 0' }}>
+    <div className="flex items-end gap-2 h-[90px] py-2">
       {data.map((item, idx) => {
         const [year, month] = item.month.split('-');
         const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString(dLocale(), { month:'short' });
         const height = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
         const isLast = idx === data.length - 1;
         return (
-          <div key={item.month} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-            <div 
-              style={{ 
-                width:'100%', 
-                background: isLast ? 'var(--gold)' : '#F0D080', 
-                borderRadius:'3px 3px 0 0', 
-                height:`${Math.max(height, 5)}%`,
-                cursor:'pointer',
-                transition:'0.2s',
-                opacity: 0.8
-              }}
+          <div key={item.month} className="flex flex-1 flex-col items-center gap-1">
+            <div
+              className={`w-full rounded-t-[3px] cursor-pointer transition-opacity duration-200 opacity-80 hover:opacity-100 ${isLast ? 'bg-gold' : 'bg-[#F0D080]'}`}
+              style={{ height:`${Math.max(height, 5)}%` }}
               title={`${monthName} : ${item.total.toLocaleString('fr-FR')} €`}
             />
-            <span style={{ fontSize:10, color:'var(--text2)' }}>{monthName}</span>
+            <span className="text-[10px] text-[#64748B]">{monthName}</span>
           </div>
         );
       })}
@@ -390,81 +383,80 @@ function MonthlyActivityChart() {
 
 function PageComptes({ user }) {
   const { t } = useTranslation();
+  const isActive = user?.status === 'active';
   return (
-    <div style={{ animation:'fadeIn 0.35s ease' }}>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:14, marginBottom:16 }}>
-        <div style={{ background:'linear-gradient(135deg,var(--navy),var(--navy3))', borderRadius:16, padding:22, position:'relative', overflow:'hidden' }}>
-          <div style={{ position:'absolute', right:-20, top:-20, width:100, height:100, borderRadius:'50%', background:'radial-gradient(rgba(201,168,76,0.15),transparent 70%)' }}/>
-          <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1, marginBottom:3 }}>{t('dashboard.savingsAccount')}</div>
-          <div style={{ fontFamily:'monospace', fontSize:12, color:'rgba(255,255,255,0.35)', letterSpacing:2, marginBottom:14 }}>OJ •••• •••• 4421</div>
-          <div style={{ fontFamily:'var(--serif)', fontSize:'clamp(24px,4vw,30px)', color:'#fff', marginBottom:3 }}>{(user?.balance ?? 0).toLocaleString('fr-FR')} <span style={{ fontSize:14, color:'rgba(255,255,255,0.35)' }}>€</span></div>
-          <div style={{ fontSize:11, color:'rgba(255,255,255,0.3)', marginBottom:16 }}>{t('dashboard.availableBalance')}</div>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
-            <span style={{ fontSize:12, color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:1 }}>
+    <div className="animate-[fadeIn_0.35s_ease]">
+      <div className="mb-4 grid grid-cols-1 gap-3.5 md:grid-cols-2">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy to-navy-3 p-[22px]">
+          <div className="absolute -right-5 -top-5 h-[100px] w-[100px] rounded-full bg-[radial-gradient(rgba(201,168,76,0.15),transparent_70%)]"/>
+          <div className="mb-[3px] text-[10px] uppercase tracking-wide text-gold/50">{t('dashboard.savingsAccount')}</div>
+          <div className="mb-3.5 font-mono text-xs tracking-[2px] text-white/35">OJ •••• •••• 4421</div>
+          <div className="mb-[3px] font-serif text-[clamp(24px,4vw,30px)] text-white">{(user?.balance ?? 0).toLocaleString('fr-FR')} <span className="text-sm text-white/35">€</span></div>
+          <div className="mb-4 text-[11px] text-white/30">{t('dashboard.availableBalance')}</div>
+          <div className="flex items-end justify-between">
+            <span className="text-xs uppercase tracking-wide text-white/50">
               {user?.first_name?.[0] || ''}. {user?.last_name?.toUpperCase() || ''}
             </span>
-            <span style={{ ...c.badge,
-              background: user?.status==='active' ? '#EAF3DE' : '#FAEEDA',
-              color:      user?.status==='active' ? '#3B6D11' : '#854F0B' }}>
-              {user?.status==='active' ? t('dashboard.active') : t('dashboard.pendingStatus')}
+            <span className={`${tw.badge} ${isActive ? 'bg-[#EAF3DE] text-[#3B6D11]' : 'bg-[#FAEEDA] text-[#854F0B]'}`}>
+              {isActive ? t('dashboard.active') : t('dashboard.pendingStatus')}
             </span>
           </div>
         </div>
-        <div style={c.card}>
-          <div style={c.cardBd}>
-            <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', marginBottom:14 }}>{t('dashboard.accountDetails')}</div>
+        <div className={tw.card}>
+          <div className={tw.cardBd}>
+            <div className="mb-3.5 text-xs font-medium text-navy">{t('dashboard.accountDetails')}</div>
             {[[t('dashboard.type'), (user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)],[t('dashboard.number'), user?.account_number || '—'],[t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString(dLocale()) : '—'],[t('dashboard.interestRate'),`3,5% ${t('dashboard.perYear')}`],[t('dashboard.nextInterest'), (() => {
                 const d = new Date(); d.setMonth(d.getMonth() + 1); d.setDate(1);
                 return d.toLocaleDateString(dLocale(), { day:'2-digit', month:'long', year:'numeric' });
               })()],[t('dashboard.status'), user?.status === 'active' ? t('dashboard.active') : t('dashboard.pendingStatus')]].map(([k,v]) => (
-              <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom:'1px solid var(--border)', fontSize:12 }}>
-                <span style={{ color:'var(--text2)' }}>{k}</span>
-                {k===t('dashboard.interestRate') ? <span style={{ color:'#3B6D11', fontWeight:500 }}>{v}</span> : k===t('dashboard.status') ? <span style={{ ...c.badge, background:'#EAF3DE', color:'#3B6D11' }}>{v}</span> : <span style={{ fontFamily: k===t('dashboard.number')?'monospace':undefined, fontSize: k===t('dashboard.number')?11:undefined }}>{v}</span>}
+              <div key={k} className="flex justify-between border-b border-navy/10 py-[7px] text-xs">
+                <span className="text-[#64748B]">{k}</span>
+                {k===t('dashboard.interestRate') ? <span className="font-medium text-[#3B6D11]">{v}</span> : k===t('dashboard.status') ? <span className={`${tw.badge} bg-[#EAF3DE] text-[#3B6D11]`}>{v}</span> : <span className={k===t('dashboard.number') ? 'font-mono text-[11px]' : ''}>{v}</span>}
               </div>
             ))}
           </div>
         </div>
       </div>
-      <div style={c.card}>
-        <div style={c.cardHd}><span style={c.cardTitle}>{t('dashboard.activityLastMonths')}</span></div>
-        <div style={c.cardBd}>
+      <div className={tw.card}>
+        <div className={tw.cardHd}><span className={tw.cardTitle}>{t('dashboard.activityLastMonths')}</span></div>
+        <div className={tw.cardBd}>
           <MonthlyActivityChart/>
         </div>
       </div>
 
       {/* ── Informations bancaires IBAN / BIC ── */}
-      <div style={{ ...c.card, marginTop:14 }}>
-        <div style={c.cardHd}><span style={c.cardTitle}>{t('dashboard.bankInfo')}</span></div>
-        <div style={c.cardBd}>
+      <div className={`${tw.card} mt-3.5`}>
+        <div className={tw.cardHd}><span className={tw.cardTitle}>{t('dashboard.bankInfo')}</span></div>
+        <div className={tw.cardBd}>
           {user?.client_iban ? (
             <>
-              <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
-                <span style={{ fontSize:12, color:'var(--text2)' }}>IBAN</span>
-                <span style={{ fontSize:12, fontFamily:'monospace', fontWeight:600, letterSpacing:1, color:'var(--navy)' }}>
+              <div className="flex justify-between border-b border-navy/10 py-2">
+                <span className="text-xs text-[#64748B]">IBAN</span>
+                <span className="font-mono text-xs font-semibold tracking-wide text-navy">
                   {user.client_iban.replace(/(.{4})/g, '$1 ').trim()}
                 </span>
               </div>
-              <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
-                <span style={{ fontSize:12, color:'var(--text2)' }}>BIC / SWIFT</span>
-                <span style={{ fontSize:12, fontFamily:'monospace', fontWeight:600, color:'var(--navy)' }}>{user.client_bic}</span>
+              <div className="flex justify-between border-b border-navy/10 py-2">
+                <span className="text-xs text-[#64748B]">BIC / SWIFT</span>
+                <span className="font-mono text-xs font-semibold text-navy">{user.client_bic}</span>
               </div>
-              <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
-                <span style={{ fontSize:12, color:'var(--text2)' }}>{t('dashboard.holder')}</span>
-                <span style={{ fontSize:12, fontWeight:500 }}>{user.first_name} {user.last_name}</span>
+              <div className="flex justify-between border-b border-navy/10 py-2">
+                <span className="text-xs text-[#64748B]">{t('dashboard.holder')}</span>
+                <span className="text-xs font-medium">{user.first_name} {user.last_name}</span>
               </div>
-              <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0' }}>
-                <span style={{ fontSize:12, color:'var(--text2)' }}>{t('dashboard.bank')}</span>
-                <span style={{ fontSize:12, fontWeight:500 }}>OJADA BANK</span>
+              <div className="flex justify-between py-2">
+                <span className="text-xs text-[#64748B]">{t('dashboard.bank')}</span>
+                <span className="text-xs font-medium">OJADA BANK</span>
               </div>
-              <div style={{ marginTop:10, background:'#EAF3DE', borderRadius:8, padding:'8px 12px', fontSize:11, color:'#3B6D11', display:'flex', gap:6 }}>
-                <i className="ti ti-info-circle" style={{ flexShrink:0, marginTop:1 }}/>
+              <div className="mt-2.5 flex gap-1.5 rounded-lg bg-[#EAF3DE] px-3 py-2 text-[11px] text-[#3B6D11]">
+                <i className="ti ti-info-circle mt-px shrink-0"/>
                 <span>{t('dashboard.bankInfoNote')}</span>
               </div>
             </>
           ) : (
-            <div style={{ textAlign:'center', padding:20 }}>
-              <i className="ti ti-building-bank" style={{ fontSize:32, color:'var(--text2)', opacity:0.3, display:'block', marginBottom:8 }}/>
-              <div style={{ fontSize:12, color:'var(--text2)' }}>{t('dashboard.bankInfoPending')}</div>
+            <div className="py-5 text-center">
+              <i className="ti ti-building-bank mb-2 block text-[32px] text-[#64748B] opacity-30"/>
+              <div className="text-xs text-[#64748B]">{t('dashboard.bankInfoPending')}</div>
             </div>
           )}
         </div>
@@ -494,25 +486,25 @@ function PageTransactions() {
   const filterLabels = { tous: t('dashboard.filterAll'), depot: t('dashboard.filterDeposits'), retrait: t('dashboard.filterWithdrawals'), virement: t('dashboard.filterTransfers') };
 
   return (
-    <div style={{ animation:'fadeIn 0.35s ease' }}>
-      <div style={{ display:'flex', gap:6, marginBottom:14, flexWrap:'wrap' }}>
+    <div className="animate-[fadeIn_0.35s_ease]">
+      <div className="mb-3.5 flex flex-wrap gap-1.5">
         {['tous','depot','retrait','virement'].map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{ fontSize:11, padding:'5px 14px', borderRadius:20, cursor:'pointer', border:'1px solid var(--border)', background: filter===f ? 'var(--navy)' : 'transparent', color: filter===f ? '#fff' : 'var(--text2)', transition:'all 0.15s', fontFamily:'var(--sans)' }}>
+          <button key={f} onClick={() => setFilter(f)} className={`rounded-full border border-navy/10 px-3.5 py-[5px] font-sans text-[11px] transition-colors duration-150 ${filter===f ? 'bg-navy text-white' : 'bg-transparent text-[#64748B]'}`}>
             {filterLabels[f]}
           </button>
         ))}
       </div>
-      <div style={c.card}>
+      <div className={tw.card}>
         {loading ? (
-          <div style={{ padding:16 }}>{[1,2,3,4].map(i => <div key={i} style={{ ...c.skeleton, marginBottom:12, height:36 }}/>)}</div>
+          <div className="p-4">{[1,2,3,4].map(i => <div key={i} className={`${tw.skeleton} mb-3 h-9`}/>)}</div>
         ) : txns.length === 0 ? (
           <EmptyState icon="ti-receipt" message={t('dashboard.noTransactionsYet')}/>
         ) : (
-          <div style={{ overflowX:'auto' }}>
-            <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-xs">
               <thead>
                 <tr>{[t('dashboard.colReference'),t('dashboard.colDescription'),t('dashboard.colType'),t('dashboard.colAmount'),t('dashboard.colDate'),t('dashboard.colStatus')].map(h => (
-                  <th key={h} style={{ textAlign:'left', fontSize:10, color:'var(--text2)', fontWeight:500, padding:'7px 12px', borderBottom:'1px solid var(--border)', textTransform:'uppercase', letterSpacing:0.5, whiteSpace:'nowrap' }}>{h}</th>
+                  <th key={h} className="whitespace-nowrap border-b border-navy/10 px-3 py-[7px] text-left text-[10px] font-medium uppercase tracking-wide text-[#64748B]">{h}</th>
                 ))}</tr>
               </thead>
               <tbody>
@@ -520,13 +512,13 @@ function PageTransactions() {
                   const ts = getTxnStyle(tx);
                   const typeLabel = t('dashboard.type' + tx.type.charAt(0).toUpperCase() + tx.type.slice(1));
                   return (
-                    <tr key={tx.id} style={{ backgroundColor: i%2===0 ? 'transparent' : 'rgba(0,0,0,0.01)' }}>
-                      <td style={{ padding:'9px 12px', fontFamily:'monospace', fontSize:11, color:'var(--text2)', whiteSpace:'nowrap' }}>{tx.reference}</td>
-                      <td style={{ padding:'9px 12px' }}>{translateTxnDescription(t, tx) || typeLabel}</td>
-                      <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background:ts.bg, color:ts.color }}>{typeLabel}</span></td>
-                      <td style={{ padding:'9px 12px', fontWeight:500, color:ts.amountColor, whiteSpace:'nowrap' }}>{fmt(tx.amount, tx.type, tx.description)}</td>
-                      <td style={{ padding:'9px 12px', color:'var(--text2)', fontSize:11, whiteSpace:'nowrap' }}>{fmtDate(tx.created_at)}</td>
-                      <td style={{ padding:'9px 12px' }}><span style={{ ...c.badge, background: tx.status==='valide'?'#EAF3DE':'#FAEEDA', color: tx.status==='valide'?'#3B6D11':'#854F0B' }}>{tx.status==='valide'?t('dashboard.validated'):t('dashboard.pendingStatus')}</span></td>
+                    <tr key={tx.id} className={i%2===0 ? 'bg-transparent' : 'bg-black/[0.01]'}>
+                      <td className="whitespace-nowrap px-3 py-[9px] font-mono text-[11px] text-[#64748B]">{tx.reference}</td>
+                      <td className="px-3 py-[9px]">{translateTxnDescription(t, tx) || typeLabel}</td>
+                      <td className="px-3 py-[9px]"><span className={tw.badge} style={{ background:ts.bg, color:ts.color }}>{typeLabel}</span></td>
+                      <td className="whitespace-nowrap px-3 py-[9px] font-medium" style={{ color:ts.amountColor }}>{fmt(tx.amount, tx.type, tx.description)}</td>
+                      <td className="whitespace-nowrap px-3 py-[9px] text-[11px] text-[#64748B]">{fmtDate(tx.created_at)}</td>
+                      <td className="px-3 py-[9px]"><span className={`${tw.badge} ${tx.status==='valide' ? 'bg-[#EAF3DE] text-[#3B6D11]' : 'bg-[#FAEEDA] text-[#854F0B]'}`}>{tx.status==='valide'?t('dashboard.validated'):t('dashboard.pendingStatus')}</span></td>
                     </tr>
                   );
                 })}
