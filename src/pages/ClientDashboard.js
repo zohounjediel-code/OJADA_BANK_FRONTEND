@@ -5,27 +5,7 @@ import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { clientService } from '../services/api';
 
-const c = {
-  card: { background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:'var(--radius)' },
-  cardHd: { padding:'13px 16px 0', display:'flex', justifyContent:'space-between', alignItems:'center' },
-  cardTitle: { fontSize:13, fontWeight:500, color:'var(--text)' },
-  cardLink: { fontSize:11, color:'#185FA5', cursor:'pointer' },
-  cardBd: { padding:'12px 16px' },
-  txnRow: { display:'flex', alignItems:'center', gap:10, padding:'8px 0', borderBottom:'1px solid var(--border)' },
-  txnIc: { width:32, height:32, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, flexShrink:0 },
-  badge: { fontSize:10, padding:'2px 8px', borderRadius:20, fontWeight:500, display:'inline-block' },
-  field: { display:'flex', flexDirection:'column', gap:5, marginBottom:14 },
-  label: { fontSize:11, color:'var(--text2)' },
-  input: { height:38, border:'1px solid var(--border)', borderRadius:8, padding:'0 12px', fontSize:13, fontFamily:'var(--sans)', color:'var(--text)', background:'var(--bg)', outline:'none' },
-  select: { height:38, border:'1px solid var(--border)', borderRadius:8, padding:'0 12px', fontSize:13, fontFamily:'var(--sans)', color:'var(--text)', background:'var(--bg)', outline:'none' },
-  submitBtn: { height:40, background:'var(--navy)', border:'none', borderRadius:8, fontSize:13, fontFamily:'var(--sans)', color:'#fff', cursor:'pointer', fontWeight:500, width:'100%' },
-  submitGold: { height:40, background:'var(--gold)', border:'none', borderRadius:8, fontSize:13, fontFamily:'var(--sans)', color:'var(--navy)', cursor:'pointer', fontWeight:500, width:'100%' },
-  skeleton: { background:'linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite', borderRadius:6, height:14 },
-};
-
-// Équivalents Tailwind de `c` ci-dessus — utilisés uniquement dans les pages déjà
-// migrées (Accueil pour l'instant). `c` reste utilisé tel quel par les pages pas
-// encore converties ; les deux coexistent le temps de la migration progressive.
+// Classes Tailwind partagées par toutes les pages du dashboard client.
 const tw = {
   card: 'rounded-xl border border-navy/10 bg-white',
   cardHd: 'flex items-center justify-between px-4 pt-[13px]',
@@ -1546,36 +1526,36 @@ function PageNotifications({ onUnreadChange }) {
   };
 
   return (
-    <div style={{ maxWidth:560, animation:'fadeIn 0.35s ease' }}>
-      <div style={c.card}>
-        <div style={c.cardHd}>
-          <span style={c.cardTitle}>{t('notifications.title')} {unread > 0 && <span style={{ ...c.badge, background:'#E24B4A', color:'#fff', marginLeft:6 }}>{unread}</span>}</span>
-          <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-            {unread > 0 && <span style={c.cardLink} onClick={handleMarkAllRead}>{t('notifications.markAllRead')}</span>}
-            <span style={c.cardLink} onClick={() => { setComposeOpen(v => !v); setComposeErr(''); }}>
-              <i className="ti ti-edit" style={{ marginRight:3 }}/>{t('notifications.newMessage')}
+    <div className="max-w-[560px] animate-[fadeIn_0.35s_ease]">
+      <div className={tw.card}>
+        <div className={tw.cardHd}>
+          <span className={tw.cardTitle}>{t('notifications.title')} {unread > 0 && <span className={`${tw.badge} ml-1.5 bg-[#E24B4A] text-white`}>{unread}</span>}</span>
+          <div className="flex items-center gap-3">
+            {unread > 0 && <span className={tw.cardLink} onClick={handleMarkAllRead}>{t('notifications.markAllRead')}</span>}
+            <span className={tw.cardLink} onClick={() => { setComposeOpen(v => !v); setComposeErr(''); }}>
+              <i className="ti ti-edit mr-[3px]"/>{t('notifications.newMessage')}
             </span>
           </div>
         </div>
 
         {composeOpen && (
-          <div style={{ ...c.cardBd, borderBottom:'1px solid var(--border)', paddingTop:0 }}>
-            <div style={{ background:'var(--bg)', borderRadius:10, padding:12 }}>
-              <div style={{ fontSize:11, fontWeight:600, color:'var(--navy)', marginBottom:8 }}>{t('notifications.composeTitle')}</div>
-              <input style={{ ...c.input, fontSize:12, marginBottom:8, width:'100%' }}
+          <div className={`${tw.cardBd} border-b border-navy/10 pt-0`}>
+            <div className="rounded-[10px] bg-[#F8F6F1] p-3">
+              <div className="mb-2 text-[11px] font-semibold text-navy">{t('notifications.composeTitle')}</div>
+              <input className={`${tw.input} mb-2 w-full border-navy/10 text-xs`}
                 placeholder={t('notifications.subject')} value={composeForm.title}
                 onChange={e => setComposeForm(f => ({ ...f, title: e.target.value }))}/>
-              <textarea style={{ ...c.input, fontSize:12, height:70, resize:'vertical', width:'100%', fontFamily:'var(--sans)', paddingTop:8, marginBottom:8 }}
+              <textarea className="mb-2 h-[70px] w-full resize-y rounded-lg border border-navy/10 bg-[#F8F6F1] px-3 pt-2 font-sans text-xs text-navy outline-none"
                 placeholder={t('notifications.messagePlaceholder')} value={composeForm.message}
                 onChange={e => setComposeForm(f => ({ ...f, message: e.target.value }))}/>
-              {composeErr && <div style={{ fontSize:11, color:'#A32D2D', marginBottom:8 }}>{composeErr}</div>}
-              <div style={{ display:'flex', gap:8 }}>
+              {composeErr && <div className="mb-2 text-[11px] text-[#A32D2D]">{composeErr}</div>}
+              <div className="flex gap-2">
                 <button onClick={handleSendMessage} disabled={sendingMsg}
-                  style={{ ...c.saveBtn, flex:1, opacity: sendingMsg ? 0.6 : 1 }}>
+                  className={`${tw.submitBtn} h-[38px] flex-1 ${sendingMsg ? 'opacity-60' : 'opacity-100'}`}>
                   {sendingMsg ? t('common.sending') : t('common.send')}
                 </button>
                 <button onClick={() => setComposeOpen(false)}
-                  style={{ height:38, border:'1px solid var(--border)', borderRadius:8, background:'transparent', padding:'0 16px', fontSize:12, cursor:'pointer', fontFamily:'var(--sans)' }}>
+                  className="h-[38px] rounded-lg border border-navy/10 bg-transparent px-4 font-sans text-xs cursor-pointer">
                   {t('common.cancel')}
                 </button>
               </div>
@@ -1583,9 +1563,9 @@ function PageNotifications({ onUnreadChange }) {
           </div>
         )}
 
-        <div style={c.cardBd}>
+        <div className={tw.cardBd}>
           {loading ? (
-            [1,2,3].map(i => <div key={i} style={{ ...c.skeleton, marginBottom:12, height:60 }}/>)
+            [1,2,3].map(i => <div key={i} className={`${tw.skeleton} mb-3 h-[60px]`}/>)
           ) : notifs.length === 0 ? (
             <EmptyState icon="ti-bell-off" message={t('notifications.empty')}/>
           ) : (
@@ -1593,23 +1573,23 @@ function PageNotifications({ onUnreadChange }) {
               const ns = notifTypeStyle[n.type] || notifTypeStyle.info;
               const canReply = n.sender_role && n.sender_role !== 'client';
               return (
-                <div key={n.id} style={{ borderBottom: i===notifs.length-1 ? 'none' : '1px solid var(--border)', padding:'11px 0' }}>
+                <div key={n.id} className={`py-[11px] ${i===notifs.length-1 ? 'border-b-0' : 'border-b border-navy/10'}`}>
                   <div
                     onClick={() => !n.read && handleMarkRead(n.id)}
-                    style={{ display:'flex', gap:12, cursor: n.read ? 'default' : 'pointer', background: n.read ? 'transparent' : 'rgba(201,168,76,0.03)', borderRadius:6, transition:'background 0.2s' }}>
-                    <div style={{ width:34, height:34, borderRadius:9, background:ns.bg, color:ns.color, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, flexShrink:0 }}>
+                    className={`flex gap-3 rounded-md transition-colors duration-200 ${n.read ? 'cursor-default bg-transparent' : 'cursor-pointer bg-gold/[0.03]'}`}>
+                    <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] text-[15px]" style={{ background:ns.bg, color:ns.color }}>
                       <i className={`ti ${ns.icon}`}/>
                     </div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:12, fontWeight:500, color:'var(--text)' }}>
-                        {!n.read && <span style={{ color:'var(--gold)', fontSize:7, marginRight:5, verticalAlign:'middle' }}>●</span>}
+                    <div className="flex-1">
+                      <div className="text-xs font-medium text-navy">
+                        {!n.read && <span className="mr-[5px] align-middle text-[7px] text-gold">●</span>}
                         {translateNotifTitle(t, n)}
                       </div>
-                      <div style={{ fontSize:11, color:'var(--text2)', marginTop:2, lineHeight:1.5 }}>{translateNotifBody(t, n)}</div>
-                      <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:4 }}>
-                        <div style={{ fontSize:10, color:'var(--text2)' }}>{fmtDate(n.created_at)}</div>
+                      <div className="mt-0.5 text-[11px] leading-[1.5] text-[#64748B]">{translateNotifBody(t, n)}</div>
+                      <div className="mt-1 flex items-center gap-2.5">
+                        <div className="text-[10px] text-[#64748B]">{fmtDate(n.created_at)}</div>
                         {canReply && (
-                          <span style={{ fontSize:10, color:'#185FA5', cursor:'pointer' }}
+                          <span className="cursor-pointer text-[10px] text-[#185FA5]"
                             onClick={(e) => { e.stopPropagation(); setReplyOpenId(replyOpenId === n.id ? null : n.id); setReplyText(''); }}>
                             {t('common.reply')}
                           </span>
@@ -1618,13 +1598,13 @@ function PageNotifications({ onUnreadChange }) {
                     </div>
                   </div>
                   {replyOpenId === n.id && (
-                    <div style={{ marginLeft:46, marginTop:8, display:'flex', gap:6 }}>
-                      <input style={{ ...c.input, fontSize:12, flex:1, height:34 }}
+                    <div className="ml-[46px] mt-2 flex gap-1.5">
+                      <input className={`${tw.input} h-[34px] flex-1 border-navy/10 text-xs`}
                         placeholder={t('notifications.replyPlaceholder')} value={replyText}
                         onChange={e => setReplyText(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && !sendingReply) handleReply(n.id); }}/>
                       <button onClick={() => handleReply(n.id)} disabled={sendingReply || !replyText.trim()}
-                        style={{ height:34, border:'none', borderRadius:8, background:'var(--navy)', color:'#fff', padding:'0 14px', fontSize:11, cursor:'pointer', fontFamily:'var(--sans)', opacity: sendingReply || !replyText.trim() ? 0.6 : 1 }}>
+                        className={`h-[34px] rounded-lg border-none bg-navy px-3.5 font-sans text-[11px] text-white cursor-pointer ${sendingReply || !replyText.trim() ? 'opacity-60' : 'opacity-100'}`}>
                         {sendingReply ? '...' : t('common.send')}
                       </button>
                     </div>
@@ -1698,33 +1678,32 @@ function PageProfil({ user }) {
     } catch(err) { setPwdStatus('error'); setPwdMsg(err.message||t('common.error_generic')); }
   };
 
-  const statusStyle = user?.status==='active' ? {background:'#EAF3DE',color:'#3B6D11'} : {background:'#FAEEDA',color:'#854F0B'};
+  const statusClass = user?.status==='active' ? 'bg-[#EAF3DE] text-[#3B6D11]' : 'bg-[#FAEEDA] text-[#854F0B]';
   const statusLabel = user?.status==='active' ? t('profile.accountActive') : t('profile.accountPending');
 
   const Alert = ({status, msg}) => {
     if (!msg) return null;
     const ok = status==='success';
     return (
-      <div style={{fontSize:12, borderRadius:8, padding:'8px 12px', marginBottom:12,
-        background:ok?'#EAF3DE':'#FCEBEB', color:ok?'#3B6D11':'#A32D2D', display:'flex', gap:6, alignItems:'center'}}>
+      <div className={`mb-3 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs ${ok ? 'bg-[#EAF3DE] text-[#3B6D11]' : 'bg-[#FCEBEB] text-[#A32D2D]'}`}>
         <i className={ok?'ti ti-circle-check':'ti ti-alert-triangle'}/>{msg}
       </div>
     );
   };
 
   const PwdInput = ({label, k, showKey}) => (
-    <div style={c.field}>
-      <label style={c.label}>{label}</label>
-      <div style={{position:'relative'}}>
+    <div className={tw.field}>
+      <label className={tw.label}>{label}</label>
+      <div className="relative">
         <input
-          style={{...c.input, width:'100%', boxSizing:'border-box', paddingRight:36}}
+          className={`${tw.input} w-full box-border border-navy/10 pr-9`}
           type={showPwd[showKey]?'text':'password'}
           placeholder="••••••••"
           value={pwd[k]}
           onChange={e=>{setP(k,e.target.value); setPwdStatus('idle'); setPwdMsg('');}}
         />
         <button onClick={()=>setShowPwd(s=>({...s,[showKey]:!s[showKey]}))}
-          style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'var(--text2)',padding:0,fontSize:14}}>
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 border-none bg-transparent p-0 text-sm text-[#64748B] cursor-pointer">
           <i className={showPwd[showKey]?'ti ti-eye-off':'ti ti-eye'}/>
         </button>
       </div>
@@ -1732,65 +1711,64 @@ function PageProfil({ user }) {
   );
 
   return (
-    <div style={{animation:'fadeIn 0.35s ease'}}>
+    <div className="animate-[fadeIn_0.35s_ease]">
 
       {/* ── Carte identité ── */}
-      <div style={{...c.card, marginBottom:16, padding:22, display:'flex', alignItems:'center', gap:16, flexWrap:'wrap'}}>
-        <div style={{width:56,height:56,borderRadius:'50%',background:'var(--navy)',display:'flex',alignItems:'center',justifyContent:'center',
-          fontFamily:'var(--serif)',fontSize:22,color:'var(--gold)',flexShrink:0,textTransform:'uppercase'}}>
+      <div className={`${tw.card} mb-4 flex flex-wrap items-center gap-4 p-[22px]`}>
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-navy font-serif text-xl uppercase text-gold">
           {initials}
         </div>
-        <div style={{flex:1}}>
-          <div style={{fontFamily:'var(--serif)',fontSize:20,color:'var(--navy)'}}>{user?.first_name} {user?.last_name}</div>
-          <div style={{fontSize:12,color:'var(--text2)',marginTop:3}}>
-            {t('profile.memberSince')} {memberSince} · <span style={{fontFamily:'monospace'}}>{user?.account_number||'—'}</span>
+        <div className="flex-1">
+          <div className="font-serif text-xl text-navy">{user?.first_name} {user?.last_name}</div>
+          <div className="mt-[3px] text-xs text-[#64748B]">
+            {t('profile.memberSince')} {memberSince} · <span className="font-mono">{user?.account_number||'—'}</span>
           </div>
         </div>
-        <span style={{...c.badge,...statusStyle,padding:'6px 14px',fontSize:11}}>{statusLabel}</span>
+        <span className={`${tw.badge} px-3.5 py-1.5 text-[11px] ${statusClass}`}>{statusLabel}</span>
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14}}>
+      <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
 
         {/* ── Infos personnelles ── */}
-        <div style={{...c.card,padding:20}}>
-          <div style={{fontFamily:'var(--serif)',fontSize:18,color:'var(--navy)',marginBottom:16}}>{t('profile.personalInfo')}</div>
+        <div className={`${tw.card} p-5`}>
+          <div className="mb-4 font-serif text-lg text-navy">{t('profile.personalInfo')}</div>
           <Alert status={infoStatus} msg={infoMsg}/>
           {[
             [t('profile.firstName'),'first_name','text'],[t('profile.lastName'),'last_name','text'],
             [t('profile.email'),'email','email'],[t('profile.phone'),'phone','tel'],
             [t('profile.address'),'address','text'],[t('profile.city'),'city','text'],[t('profile.postalCode'),'postal_code','text'],
           ].map(([label,k,type]) => (
-            <div key={k} style={c.field}>
-              <label style={c.label}>{label}</label>
-              <input style={c.input} type={type} placeholder={label}
+            <div key={k} className={tw.field}>
+              <label className={tw.label}>{label}</label>
+              <input className={`${tw.input} border-navy/10`} type={type} placeholder={label}
                 value={info[k]}
                 onChange={e=>{setI(k,e.target.value);setInfoStatus('idle');setInfoMsg('');}}/>
             </div>
           ))}
           <button
-            style={{...c.submitBtn,display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:infoStatus==='loading'?0.6:1}}
+            className={`${tw.submitBtn} flex items-center justify-center gap-2 ${infoStatus==='loading' ? 'opacity-60' : 'opacity-100'}`}
             onClick={handleUpdateProfile} disabled={infoStatus==='loading'}>
             {infoStatus==='loading'
-              ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('profile.saving')}</>
+              ? <><i className="ti ti-loader-2 animate-spin"/>{t('profile.saving')}</>
               : <><i className="ti ti-device-floppy"/>{t('profile.saveChanges')}</>}
           </button>
         </div>
 
         {/* ── Sécurité ── */}
-        <div style={{...c.card,padding:20}}>
-          <div style={{fontFamily:'var(--serif)',fontSize:18,color:'var(--navy)',marginBottom:16}}>{t('profile.security')}</div>
+        <div className={`${tw.card} p-5`}>
+          <div className="mb-4 font-serif text-lg text-navy">{t('profile.security')}</div>
           <Alert status={pwdStatus} msg={pwdMsg}/>
           <PwdInput label={t('profile.currentPassword')}    k="current_password" showKey="current"/>
           <PwdInput label={t('profile.newPassword')}   k="new_password"     showKey="new"/>
           <PwdInput label={t('profile.confirmPassword')} k="confirm_password" showKey="confirm"/>
           {pwd.new_password && pwd.confirm_password && pwd.new_password !== pwd.confirm_password && (
-            <div style={{fontSize:11,color:'#A32D2D',marginBottom:8}}>{t('profile.passwordsMismatch')}</div>
+            <div className="mb-2 text-[11px] text-[#A32D2D]">{t('profile.passwordsMismatch')}</div>
           )}
           <button
-            style={{...c.submitBtn,display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:pwdStatus==='loading'?0.6:1}}
+            className={`${tw.submitBtn} flex items-center justify-center gap-2 ${pwdStatus==='loading' ? 'opacity-60' : 'opacity-100'}`}
             onClick={handleChangePassword} disabled={pwdStatus==='loading'}>
             {pwdStatus==='loading'
-              ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('profile.changingPassword')}</>
+              ? <><i className="ti ti-loader-2 animate-spin"/>{t('profile.changingPassword')}</>
               : <><i className="ti ti-lock"/>{t('profile.changePassword')}</>}
           </button>
         </div>
@@ -1819,12 +1797,12 @@ function SidebarExtra({ user }) {
   const accountNum = user?.account_number || '—';
   const statusLabel = user?.status === 'active' ? t('dashboard.active').toUpperCase() : t('dashboard.pendingStatus').toUpperCase();
   return (
-    <div style={{ margin:'14px 14px 0', background:'rgba(201,168,76,0.1)', border:'1px solid rgba(201,168,76,0.25)', borderRadius:10, padding:'12px 14px' }}>
-      <div style={{ width:36, height:36, borderRadius:'50%', background:'var(--gold)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--serif)', fontSize:15, fontWeight:700, color:'var(--navy)', margin:'0 auto 7px' }}>{initials}</div>
-      <div style={{ fontSize:13, color:'#fff', fontWeight:500, textAlign:'center' }}>{fullName}</div>
-      <div style={{ fontSize:10, color:'rgba(201,168,76,0.6)', textAlign:'center', fontFamily:'monospace', marginTop:2 }}>{accountNum}</div>
-      <div style={{ display:'flex', justifyContent:'center', marginTop:8 }}>
-        <span style={{ background:'rgba(201,168,76,0.2)', color:'var(--gold-light)', fontSize:9, padding:'2px 10px', borderRadius:10, letterSpacing:1, border:'1px solid rgba(201,168,76,0.3)' }}>{statusLabel}</span>
+    <div className="mx-3.5 mt-3.5 rounded-[10px] border border-gold/25 bg-gold/10 px-3.5 py-3">
+      <div className="mx-auto mb-[7px] flex h-9 w-9 items-center justify-center rounded-full bg-gold font-serif text-[15px] font-bold text-navy">{initials}</div>
+      <div className="text-center text-[13px] font-medium text-white">{fullName}</div>
+      <div className="mt-0.5 text-center font-mono text-[10px] text-gold/60">{accountNum}</div>
+      <div className="mt-2 flex justify-center">
+        <span className="rounded-[10px] border border-gold/30 bg-gold/20 px-2.5 py-0.5 text-[9px] tracking-wide text-gold-light">{statusLabel}</span>
       </div>
     </div>
   );
@@ -1895,7 +1873,7 @@ function PageFondsBlockes({ user }) {
     setPaying(false);
   };
 
-  if (loading) return (<div style={{padding:20,color:'var(--text2)',fontSize:12}}>{t('common.loading')}</div>);
+  if (loading) return (<div className="p-5 text-xs text-[#64748B]">{t('common.loading')}</div>);
 
     const DEBLOCAGE_FEES    = { basic_moins:2000, basic:8542, basic_plus:8950, premium:10785, premium_plus:15500, vip:19630, vip_plus:28630 };
     const ALIMENTATION_FEES = { basic_moins:700,  basic:450,  basic_plus:560,  premium:630,   premium_plus:800,   vip:950,   vip_plus:1200  };
@@ -1908,19 +1886,19 @@ function PageFondsBlockes({ user }) {
   const failMsg   = vf?.status === 'awaiting_payment' && vf?.admin_note && isNaN(Number(vf.admin_note)) ? vf.admin_note : null;
 
   return (
-    <div style={{maxWidth:500, animation:'fadeIn 0.35s ease'}}>
+    <div className="max-w-[500px] animate-[fadeIn_0.35s_ease]">
 
       {/* Bannière blocage */}
-      <div style={{background:'#A32D2D',borderRadius:14,padding:'22px 20px',marginBottom:16,color:'#fff'}}>
-        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:8}}>
-          <i className="ti ti-lock" style={{fontSize:32,color:'#ffb3b3'}}/>
+      <div className="mb-4 rounded-2xl bg-[#A32D2D] px-5 py-[22px] text-white">
+        <div className="mb-2 flex items-center gap-3">
+          <i className="ti ti-lock text-[32px] text-[#ffb3b3]"/>
           <div>
-            <div style={{fontFamily:'var(--serif)',fontSize:18}}>{t('verification.title')}</div>
-            <div style={{fontSize:11,color:'#ffb3b3',marginTop:2}}>{t('verification.subtitle')}</div>
+            <div className="font-serif text-lg">{t('verification.title')}</div>
+            <div className="mt-0.5 text-[11px] text-[#ffb3b3]">{t('verification.subtitle')}</div>
           </div>
         </div>
         {user?.funds_block_reason && (
-          <div style={{background:'rgba(0,0,0,0.2)',borderRadius:8,padding:'10px 14px',fontSize:12,lineHeight:1.6}}>
+          <div className="rounded-lg bg-black/20 px-3.5 py-2.5 text-xs leading-[1.6]">
             <strong>{t('verification.reasonLabel')}</strong> {user.funds_block_reason}
           </div>
         )}
@@ -1928,14 +1906,14 @@ function PageFondsBlockes({ user }) {
 
       {/* Étape 1 : Pas encore de vérification → afficher le contrat */}
       {!vf && step === 'init' && (
-        <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>{t('verification.startTitle')}</span></div>
-          <div style={c.cardBd}>
-            <div style={{background:'#FAEEDA',borderRadius:9,padding:14,marginBottom:14,fontSize:12,color:'#854F0B',lineHeight:1.7}}>
-              <div style={{fontWeight:600,marginBottom:4}}>💼 {t('verification.feeLabel')} <span style={{fontSize:18,color:'#0a1628'}}>{totalFee.toLocaleString('fr-FR')} €</span></div>
+        <div className={`${tw.card} mb-3.5`}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>{t('verification.startTitle')}</span></div>
+          <div className={tw.cardBd}>
+            <div className="mb-3.5 rounded-[9px] bg-[#FAEEDA] p-3.5 text-xs leading-[1.7] text-[#854F0B]">
+              <div className="mb-1 font-semibold">💼 {t('verification.feeLabel')} <span className="text-lg text-[#0a1628]">{totalFee.toLocaleString('fr-FR')} €</span></div>
               {t('verification.feeDesc')}
             </div>
-            <button style={{...c.submitBtn,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}
+            <button className={`${tw.submitBtn} flex items-center justify-center gap-2`}
               onClick={()=>setStep('contract')}>
               <i className="ti ti-file-description"/>{t('verification.readSignContract')}
             </button>
@@ -1945,11 +1923,11 @@ function PageFondsBlockes({ user }) {
 
       {/* Étape 2 : Contrat à signer */}
       {step === 'contract' && (
-        <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>{t('verification.contractCardTitle')}</span></div>
-          <div style={c.cardBd}>
+        <div className={`${tw.card} mb-3.5`}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>{t('verification.contractCardTitle')}</span></div>
+          <div className={tw.cardBd}>
             {/* Texte du contrat */}
-            <div style={{background:'var(--bg)',borderRadius:8,padding:14,fontSize:11,color:'var(--text)',lineHeight:1.8,maxHeight:220,overflowY:'auto',marginBottom:16,border:'1px solid var(--border)'}}>
+            <div className="mb-4 max-h-[220px] overflow-y-auto rounded-lg border border-navy/10 bg-[#F8F6F1] p-3.5 text-[11px] leading-[1.8] text-navy">
               <strong>{t('verification.contractHeading')}</strong>
               <br/><br/>
               <Trans i18nKey="verification.contractIntro"
@@ -1979,35 +1957,33 @@ function PageFondsBlockes({ user }) {
             </div>
 
             {/* Signature électronique */}
-            <div style={c.field}>
-              <div style={{background:'#FAEEDA',borderRadius:8,padding:'10px 14px',marginBottom:10,fontSize:11,color:'#854F0B',lineHeight:1.7}}>
-                <i className="ti ti-alert-triangle" style={{marginRight:6}}/>
+            <div className={tw.field}>
+              <div className="mb-2.5 rounded-lg bg-[#FAEEDA] px-3.5 py-2.5 text-[11px] leading-[1.7] text-[#854F0B]">
+                <i className="ti ti-alert-triangle mr-1.5"/>
                 <strong>{t('verification.monthlyDepositWarningLabel')}</strong>{' '}
                 <Trans i18nKey="verification.monthlyDepositWarningBody"
                   values={{ alimFee: `${alimFee.toLocaleString('fr-FR')} €` }}
                   components={{ b: <strong/> }}/>
               </div>
-              <label style={c.label}>
+              <label className={tw.label}>
                 {t('verification.signatureLabel')} <strong>{user?.first_name} {user?.last_name}</strong>
               </label>
               <input
-                style={{...c.input, borderColor: signError ? '#A32D2D' : 'var(--border)', fontStyle:'italic'}}
+                className={`${tw.input} italic ${signError ? 'border-[#A32D2D]' : 'border-navy/10'}`}
                 placeholder={user?.first_name + ' ' + user?.last_name}
                 value={signature}
                 onChange={e=>{setSignature(e.target.value);setSignError('');}}
               />
-              {signError && <div style={{fontSize:11,color:'#A32D2D',marginTop:2}}>{signError}</div>}
+              {signError && <div className="mt-0.5 text-[11px] text-[#A32D2D]">{signError}</div>}
             </div>
 
-            <div style={{display:'flex',gap:8}}>
-              <button style={{flex:1,height:40,borderRadius:8,border:'1px solid var(--border)',background:'transparent',cursor:'pointer',fontSize:12,fontFamily:'var(--sans)'}}
+            <div className="flex gap-2">
+              <button className="h-10 flex-1 rounded-lg border border-navy/10 bg-transparent font-sans text-xs cursor-pointer"
                 onClick={()=>setStep('init')}>{t('common.back')}</button>
               <button
-                style={{flex:2,height:40,borderRadius:8,border:'none',background:'var(--navy)',color:'#fff',
-                  cursor:'pointer',fontSize:13,fontWeight:600,fontFamily:'var(--sans)',
-                  display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:signing?0.6:1}}
+                className={`flex h-10 flex-[2] items-center justify-center gap-2 rounded-lg border-none bg-navy font-sans text-[13px] font-semibold text-white cursor-pointer ${signing ? 'opacity-60' : 'opacity-100'}`}
                 onClick={handleSign} disabled={signing}>
-                {signing ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('verification.signing')}</>
+                {signing ? <><i className="ti ti-loader-2 animate-spin"/>{t('verification.signing')}</>
                   : <><i className="ti ti-signature"/>{t('verification.signAndAccept')}</>}
               </button>
             </div>
@@ -2017,28 +1993,28 @@ function PageFondsBlockes({ user }) {
 
       {/* Étape 3 : Paiement */}
       {(step === 'payment' || step === 'waiting') && vf && (
-        <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardHd}><span style={c.cardTitle}>{t('verification.paymentCardTitle')}</span></div>
-          <div style={c.cardBd}>
+        <div className={`${tw.card} mb-3.5`}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>{t('verification.paymentCardTitle')}</span></div>
+          <div className={tw.cardBd}>
 
             {/* Barre de progression */}
-            <div style={{marginBottom:16}}>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--text2)',marginBottom:6}}>
+            <div className="mb-4">
+              <div className="mb-1.5 flex justify-between text-[11px] text-[#64748B]">
                 <span>{t('verification.paymentProgress')}</span>
                 <span><strong>{amtPaid.toLocaleString('fr-FR')} €</strong> / {totalFee.toLocaleString('fr-FR')} €</span>
               </div>
-              <div style={{height:10,background:'#e8e2d6',borderRadius:10,overflow:'hidden'}}>
-                <div style={{height:'100%',width:progress+'%',background:'var(--navy)',borderRadius:10,transition:'width 0.4s ease'}}/>
+              <div className="h-2.5 overflow-hidden rounded-[10px] bg-[#e8e2d6]">
+                <div className="h-full rounded-[10px] bg-navy transition-[width] duration-[400ms] ease-in-out" style={{ width:progress+'%' }}/>
               </div>
-              <div style={{fontSize:11,color:'var(--text2)',marginTop:4,textAlign:'right'}}>
+              <div className="mt-1 text-right text-[11px] text-[#64748B]">
                 {t('verification.remainingToPay')} <strong>{remaining.toLocaleString('fr-FR')} €</strong>
               </div>
             </div>
 
             {/* Rappel obligation de dépôt mensuel pendant l'audit */}
-            <div style={{background:'#FAEEDA',borderRadius:8,padding:'10px 14px',marginBottom:12,display:'flex',gap:8,alignItems:'flex-start'}}>
-              <i className="ti ti-calendar-stats" style={{color:'#854F0B',flexShrink:0,marginTop:1}}/>
-              <div style={{fontSize:12,color:'#854F0B'}}>
+            <div className="mb-3 flex items-start gap-2 rounded-lg bg-[#FAEEDA] px-3.5 py-2.5">
+              <i className="ti ti-calendar-stats mt-px shrink-0 text-[#854F0B]"/>
+              <div className="text-xs text-[#854F0B]">
                 <strong>{t('verification.monthlyReminderLabel')}</strong>{' '}
                 <Trans i18nKey="verification.monthlyReminderPaymentStep"
                   values={{ alimFee: `${alimFee.toLocaleString('fr-FR')} €` }}
@@ -2048,31 +2024,31 @@ function PageFondsBlockes({ user }) {
 
             {/* Message échec si applicable */}
             {failMsg && (
-              <div style={{background:'#FCEBEB',borderRadius:8,padding:'10px 14px',marginBottom:12,display:'flex',gap:8}}>
-                <i className="ti ti-alert-triangle" style={{color:'#A32D2D',flexShrink:0}}/>
-                <div style={{fontSize:12,color:'#A32D2D'}}><strong>{t('verification.transactionFailedLabel')}</strong> {failMsg}</div>
+              <div className="mb-3 flex gap-2 rounded-lg bg-[#FCEBEB] px-3.5 py-2.5">
+                <i className="ti ti-alert-triangle shrink-0 text-[#A32D2D]"/>
+                <div className="text-xs text-[#A32D2D]"><strong>{t('verification.transactionFailedLabel')}</strong> {failMsg}</div>
               </div>
             )}
 
             {step === 'waiting' ? (
-              <div style={{background:'#FAEEDA',borderRadius:8,padding:14,textAlign:'center',fontSize:12,color:'#854F0B'}}>
-                <i className="ti ti-clock" style={{fontSize:24,display:'block',marginBottom:6}}/>
+              <div className="rounded-lg bg-[#FAEEDA] p-3.5 text-center text-xs text-[#854F0B]">
+                <i className="ti ti-clock mb-1.5 block text-2xl"/>
                 <strong>{t('verification.waitingTitle')}</strong>
-                <div style={{marginTop:4}}>{t('verification.waitingBody')}</div>
+                <div className="mt-1">{t('verification.waitingBody')}</div>
               </div>
             ) : (
               <>
-                <div style={c.field}>
-                  <label style={c.label}>{t('verification.amountToPayLabel')}</label>
-                  <input style={{...c.input,borderColor:payStatus==='error'?'#A32D2D':'var(--border)'}}
+                <div className={tw.field}>
+                  <label className={tw.label}>{t('verification.amountToPayLabel')}</label>
+                  <input className={`${tw.input} ${payStatus==='error' ? 'border-[#A32D2D]' : 'border-navy/10'}`}
                     type="number" min="1" max={remaining} placeholder={t('verification.maxPlaceholder', { amount: remaining.toLocaleString('fr-FR') + ' €' })}
                     value={payAmt} onChange={e=>{setPayAmt(e.target.value);setPayStatus('idle');setPayMsg('');}}/>
-                  {payStatus === 'error' && <div style={{fontSize:11,color:'#A32D2D'}}>{payMsg}</div>}
+                  {payStatus === 'error' && <div className="text-[11px] text-[#A32D2D]">{payMsg}</div>}
                 </div>
                 <button
-                  style={{...c.submitBtn,display:'flex',alignItems:'center',justifyContent:'center',gap:8,opacity:paying?0.6:1}}
+                  className={`${tw.submitBtn} flex items-center justify-center gap-2 ${paying ? 'opacity-60' : 'opacity-100'}`}
                   onClick={handlePayment} disabled={paying}>
-                  {paying ? <><i className="ti ti-loader-2" style={{animation:'spin 1s linear infinite'}}/>{t('common.sending')}</>
+                  {paying ? <><i className="ti ti-loader-2 animate-spin"/>{t('common.sending')}</>
                     : <><i className="ti ti-send"/>{t('verification.submitPayment')}</>}
                 </button>
               </>
@@ -2083,18 +2059,18 @@ function PageFondsBlockes({ user }) {
 
       {/* Étape 4 : Paiement complet, en attente de déblocage manuel */}
       {(step === 'done' || vf?.status === 'completed_pending_unblock') && (
-        <div style={{...c.card,marginBottom:14}}>
-          <div style={c.cardBd}>
-            <div style={{textAlign:'center',padding:20}}>
-              <i className="ti ti-circle-check" style={{fontSize:40,color:'#3B6D11',display:'block',marginBottom:12}}/>
-              <div style={{fontSize:14,fontWeight:600,color:'var(--navy)',marginBottom:6}}>{t('verification.paymentCompleteTitle')}</div>
-              <div style={{fontSize:12,color:'var(--text2)',lineHeight:1.7}}>
+        <div className={`${tw.card} mb-3.5`}>
+          <div className={tw.cardBd}>
+            <div className="p-5 text-center">
+              <i className="ti ti-circle-check mb-3 block text-[40px] text-[#3B6D11]"/>
+              <div className="mb-1.5 text-sm font-semibold text-navy">{t('verification.paymentCompleteTitle')}</div>
+              <div className="text-xs leading-[1.7] text-[#64748B]">
                 {t('verification.paymentCompleteBody', { fee: `${totalFee.toLocaleString('fr-FR')} €` })}
               </div>
             </div>
-            <div style={{background:'#FAEEDA',borderRadius:8,padding:'10px 14px',display:'flex',gap:8,alignItems:'flex-start'}}>
-              <i className="ti ti-calendar-stats" style={{color:'#854F0B',flexShrink:0,marginTop:1}}/>
-              <div style={{fontSize:12,color:'#854F0B'}}>
+            <div className="flex items-start gap-2 rounded-lg bg-[#FAEEDA] px-3.5 py-2.5">
+              <i className="ti ti-calendar-stats mt-px shrink-0 text-[#854F0B]"/>
+              <div className="text-xs text-[#854F0B]">
                 <strong>{t('verification.monthlyReminderLabel')}</strong>{' '}
                 <Trans i18nKey="verification.monthlyReminderDoneStep"
                   values={{ alimFee: `${alimFee.toLocaleString('fr-FR')} €` }}
@@ -2107,19 +2083,19 @@ function PageFondsBlockes({ user }) {
 
       {/* Refus */}
       {step === 'rejected' && (
-        <div style={{background:'#FCEBEB',borderRadius:12,padding:20,marginBottom:14,textAlign:'center'}}>
-          <i className="ti ti-circle-x" style={{fontSize:36,color:'#A32D2D',display:'block',marginBottom:8}}/>
-          <div style={{fontSize:13,fontWeight:600,color:'#A32D2D',marginBottom:4}}>{t('verification.rejectedTitle')}</div>
-          {vf?.admin_note && <div style={{fontSize:12,color:'#A32D2D'}}>{t('verification.reasonLabel')} {vf.admin_note}</div>}
+        <div className="mb-3.5 rounded-xl bg-[#FCEBEB] p-5 text-center">
+          <i className="ti ti-circle-x mb-2 block text-4xl text-[#A32D2D]"/>
+          <div className="mb-1 text-[13px] font-semibold text-[#A32D2D]">{t('verification.rejectedTitle')}</div>
+          {vf?.admin_note && <div className="text-xs text-[#A32D2D]">{t('verification.reasonLabel')} {vf.admin_note}</div>}
         </div>
       )}
 
       {/* Info contrat signé */}
       {vf?.contract_signed === 1 && (
-        <div style={{...c.card}}>
-          <div style={c.cardBd}>
-            <div style={{fontSize:11,color:'var(--text2)',display:'flex',gap:8}}>
-              <i className="ti ti-signature" style={{color:'var(--gold)',flexShrink:0}}/>
+        <div className={tw.card}>
+          <div className={tw.cardBd}>
+            <div className="flex gap-2 text-[11px] text-[#64748B]">
+              <i className="ti ti-signature shrink-0 text-gold"/>
               <Trans i18nKey="verification.contractSignedInfo"
                 values={{ name: vf.contract_signature, date: new Date(vf.contract_signed_at).toLocaleDateString(dLocale(),{day:'2-digit',month:'long',year:'numeric'}) }}
                 components={{ b: <strong/> }}/>
