@@ -1,0 +1,13 @@
+{
+  "appId": "com.ojadabank.app",
+  "appName": "OjadaBank",
+  "webDir": "build",
+  "backgroundColor": "#0A1628",
+  "plugins": {
+    "SplashScreen": {
+      "backgroundColor": "#0A1628",
+      "launchAutoHide": true,
+      "launchShowDuration": 1200
+    }
+  }
+}
