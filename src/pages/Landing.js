@@ -316,7 +316,7 @@ export default function Landing() {
               {t('landing.heroTitleLine3')}
             </h1>
             <p className="mb-9 max-w-lg text-[15px] font-light leading-[1.75] text-white/55">{t('landing.heroP')}</p>
-            <div className="mb-12 flex flex-wrap gap-3">
+            <div className="mb-6 flex flex-wrap gap-3">
               <button className="rounded-md bg-gold px-7 py-3.5 text-sm font-medium text-navy transition-opacity hover:opacity-90" onClick={() => openModal('register')}>
                 {t('landing.openAccount')}
               </button>
@@ -324,6 +324,17 @@ export default function Landing() {
                 {t('landing.discoverServices')}
               </button>
             </div>
+            <a
+              href="/downloads/ojadabank.apk"
+              download
+              className="mb-12 inline-flex items-center gap-3 rounded-md border border-gold/30 bg-white/5 px-5 py-3 text-sm text-white/85 transition-colors hover:border-gold/60 hover:bg-white/[0.08]"
+            >
+              <i className="ti ti-brand-android text-xl text-gold" />
+              <span className="text-left">
+                <span className="block font-medium leading-tight">{t('landing.downloadApp')}</span>
+                <span className="block text-[11px] font-light leading-tight text-white/45">{t('landing.downloadAppSub')}</span>
+              </span>
+            </a>
             <div className="flex flex-wrap gap-x-10 gap-y-4 border-t border-white/[0.08] pt-7">
               {[['24+', t('landing.statActiveClients')], ['8,75M €', t('landing.statManaged')], ['100%', t('landing.statSecured')]].map(([n, l]) => (
                 <div key={l}>
