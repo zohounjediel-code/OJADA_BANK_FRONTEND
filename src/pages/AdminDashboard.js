@@ -797,64 +797,63 @@ function PageVirement() {
   };
 
   return (
-    <div style={{ animation:'fadeIn 0.35s ease', maxWidth:560 }}>
+    <div className="max-w-[560px] animate-[fadeIn_0.35s_ease]">
       {/* Bandeau solde admin */}
-      <div style={{ background:'linear-gradient(135deg,var(--navy),var(--navy3))', borderRadius:14, padding:'18px 22px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+      <div className="mb-4 flex items-center justify-between rounded-2xl bg-gradient-to-br from-navy to-navy-3 px-[22px] py-[18px]">
         <div>
-          <div style={{ fontSize:11, color:'rgba(201,168,76,0.6)', textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>Solde Administration</div>
-          <div style={{ fontFamily:'var(--serif)', fontSize:28, color:'#fff', fontWeight:600 }}>∞ <span style={{ fontSize:16, color:'rgba(255,255,255,0.4)' }}>Illimité</span></div>
+          <div className="mb-1 text-[11px] uppercase tracking-wide text-gold/60">Solde Administration</div>
+          <div className="font-serif text-[28px] font-semibold text-white">∞ <span className="text-base text-white/40">Illimité</span></div>
         </div>
-        <div style={{ width:44, height:44, borderRadius:12, background:'rgba(201,168,76,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, color:'var(--gold)' }}>
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gold/15 text-2xl text-gold">
           <i className="ti ti-infinity"/>
         </div>
       </div>
 
       {success && (
-        <div style={{ background:'#EAF3DE', border:'1px solid #C0DD97', borderRadius:10, padding:'12px 16px', marginBottom:14, fontSize:13, color:'#3B6D11', display:'flex', alignItems:'center', gap:8 }}>
-          <i className="ti ti-circle-check" style={{ fontSize:18 }}/>{success}
+        <div className="mb-3.5 flex items-center gap-2 rounded-[10px] border border-[#C0DD97] bg-[#EAF3DE] px-4 py-3 text-[13px] text-[#3B6D11]">
+          <i className="ti ti-circle-check text-lg"/>{success}
         </div>
       )}
       {error && (
-        <div style={{ background:'#FCEBEB', border:'1px solid #F7C1C1', borderRadius:10, padding:'12px 16px', marginBottom:14, fontSize:13, color:'#A32D2D', display:'flex', alignItems:'center', gap:8 }}>
-          <i className="ti ti-alert-triangle" style={{ fontSize:16 }}/>{error}
+        <div className="mb-3.5 flex items-center gap-2 rounded-[10px] border border-[#F7C1C1] bg-[#FCEBEB] px-4 py-3 text-[13px] text-[#A32D2D]">
+          <i className="ti ti-alert-triangle text-base"/>{error}
         </div>
       )}
 
-      <div style={{ ...c.card }}>
-        <div style={c.cardHd}><span style={c.cardTitle}>Envoyer des fonds à un client</span></div>
-        <div style={c.cardBd}>
+      <div className={tw.card}>
+        <div className={tw.cardHd}><span className={tw.cardTitle}>Envoyer des fonds à un client</span></div>
+        <div className={tw.cardBd}>
           <form onSubmit={handleSubmit}>
             {/* Recherche client */}
-            <div style={c.field}>
-              <label style={c.label}>Rechercher un client</label>
-              <div style={{ position:'relative' }}>
-                <i className="ti ti-search" style={{ position:'absolute', left:9, top:'50%', transform:'translateY(-50%)', color:'var(--text2)', fontSize:14, pointerEvents:'none' }}/>
-                <input value={search} onChange={e => { setSearch(e.target.value); setSelectedClient(''); }} style={{ ...c.input, paddingLeft:30, width:'100%' }} placeholder="Nom, prénom ou numéro de compte..."/>
+            <div className={tw.field}>
+              <label className={tw.label}>Rechercher un client</label>
+              <div className="relative">
+                <i className="ti ti-search pointer-events-none absolute left-[9px] top-1/2 -translate-y-1/2 text-sm text-[#64748B]"/>
+                <input value={search} onChange={e => { setSearch(e.target.value); setSelectedClient(''); }} className={`${tw.input} w-full pl-[30px]`} placeholder="Nom, prénom ou numéro de compte..."/>
               </div>
             </div>
 
             {/* Liste des clients filtrés */}
             {search && (
-              <div style={{ border:'1px solid var(--border)', borderRadius:8, overflow:'hidden', marginBottom:14, maxHeight:180, overflowY:'auto' }}>
+              <div className="mb-3.5 max-h-[180px] overflow-y-auto rounded-lg border border-navy/10">
                 {filtered.length === 0 ? (
-                  <div style={{ padding:'12px 14px', fontSize:12, color:'var(--text2)' }}>Aucun client trouvé</div>
+                  <div className="px-3.5 py-3 text-xs text-[#64748B]">Aucun client trouvé</div>
                 ) : filtered.map((cl, i) => {
                   const ss = statusStyle[cl.status] || statusStyle.pending;
+                  const isSel = selectedClient===String(cl.id);
                   return (
                     <div key={cl.id} onClick={() => { setSelectedClient(String(cl.id)); setSearch(`${cl.first_name} ${cl.last_name}`); }}
-                      style={{ padding:'10px 14px', display:'flex', alignItems:'center', gap:10, cursor:'pointer', borderBottom: i < filtered.length-1 ? '1px solid var(--border)' : 'none', background: selectedClient===String(cl.id) ? 'var(--bg)' : 'transparent', transition:'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background='var(--bg)'}
-                      onMouseLeave={e => e.currentTarget.style.background= selectedClient===String(cl.id) ? 'var(--bg)' : 'transparent'}>
-                      <div style={{ width:30, height:30, borderRadius:'50%', background:'var(--navy)', color:'var(--gold)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:600, flexShrink:0, fontFamily:'var(--serif)' }}>
+                      className={`flex cursor-pointer items-center gap-2.5 px-3.5 py-2.5 transition-colors duration-150 hover:bg-[#F8F6F1] ${i < filtered.length-1 ? 'border-b border-navy/10' : ''} ${isSel ? 'bg-[#F8F6F1]' : 'bg-transparent'}`}>
+                      <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-navy font-serif text-[11px] font-semibold text-gold">
                         {`${cl.first_name?.[0]||''}${cl.last_name?.[0]||''}`.toUpperCase()}
                       </div>
-                      <div style={{ flex:1 }}>
-                        <div style={{ fontSize:12, fontWeight:500 }}>{cl.first_name} {cl.last_name}</div>
-                        <div style={{ fontSize:10, color:'var(--text2)', fontFamily:'monospace' }}>{cl.account_number}</div>
+                      <div className="flex-1">
+                        <div className="text-xs font-medium">{cl.first_name} {cl.last_name}</div>
+                        <div className="font-mono text-[10px] text-[#64748B]">{cl.account_number}</div>
                       </div>
-                      <div style={{ textAlign:'right' }}>
-                        <div style={{ fontSize:12, fontWeight:500 }}>{Number(cl.balance).toLocaleString('fr-FR')} €</div>
-                        <span style={{ ...c.badge, background:ss.bg, color:ss.color, fontSize:9 }}>{ss.label}</span>
+                      <div className="text-right">
+                        <div className="text-xs font-medium">{Number(cl.balance).toLocaleString('fr-FR')} €</div>
+                        <span className={`${tw.badge} text-[9px]`} style={{ background:ss.bg, color:ss.color }}>{ss.label}</span>
                       </div>
                     </div>
                   );
@@ -864,27 +863,27 @@ function PageVirement() {
 
             {/* Aperçu client sélectionné */}
             {selectedInfo && !search.includes(' ') === false && (
-              <div style={{ background:'var(--bg)', borderRadius:8, padding:'10px 14px', marginBottom:14, display:'flex', alignItems:'center', gap:10, border:'1px solid var(--border)' }}>
-                <i className="ti ti-user-check" style={{ color:'#3B6D11', fontSize:16 }}/>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:12, fontWeight:500 }}>{selectedInfo.first_name} {selectedInfo.last_name}</div>
-                  <div style={{ fontSize:11, color:'var(--text2)' }}>Solde actuel : <strong>{Number(selectedInfo.balance).toLocaleString('fr-FR')} €</strong></div>
+              <div className="mb-3.5 flex items-center gap-2.5 rounded-lg border border-navy/10 bg-[#F8F6F1] px-3.5 py-2.5">
+                <i className="ti ti-user-check text-base text-[#3B6D11]"/>
+                <div className="flex-1">
+                  <div className="text-xs font-medium">{selectedInfo.first_name} {selectedInfo.last_name}</div>
+                  <div className="text-[11px] text-[#64748B]">Solde actuel : <strong>{Number(selectedInfo.balance).toLocaleString('fr-FR')} €</strong></div>
                 </div>
               </div>
             )}
 
             {/* Montant */}
-            <div style={c.field}>
-              <label style={c.label}>Montant à envoyer (€)</label>
-              <div style={{ position:'relative' }}>
-                <input value={amount} onChange={e => setAmount(e.target.value)} type="number" min="1" step="0.01" style={{ ...c.input, width:'100%', fontSize:20, height:50, fontFamily:'var(--serif)', paddingRight:40 }} placeholder="0"/>
-                <span style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', fontSize:16, color:'var(--text2)' }}>€</span>
+            <div className={tw.field}>
+              <label className={tw.label}>Montant à envoyer (€)</label>
+              <div className="relative">
+                <input value={amount} onChange={e => setAmount(e.target.value)} type="number" min="1" step="0.01" className={`${tw.input} h-[50px] w-full pr-10 font-serif text-xl`} placeholder="0"/>
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-base text-[#64748B]">€</span>
               </div>
               {/* Montants rapides */}
-              <div style={{ display:'flex', gap:6, marginTop:8, flexWrap:'wrap' }}>
+              <div className="mt-2 flex flex-wrap gap-1.5">
                 {[100, 500, 1000, 5000, 10000].map(v => (
                   <button key={v} type="button" onClick={() => setAmount(String(v))}
-                    style={{ fontSize:11, padding:'4px 12px', borderRadius:20, border:'1px solid var(--border)', background: amount===String(v) ? 'var(--navy)' : 'transparent', color: amount===String(v) ? '#fff' : 'var(--text2)', cursor:'pointer', fontFamily:'var(--sans)', transition:'all 0.15s' }}>
+                    className={`rounded-full border border-navy/10 px-3 py-1 font-sans text-[11px] transition-colors duration-150 cursor-pointer ${amount===String(v) ? 'bg-navy text-white' : 'bg-transparent text-[#64748B]'}`}>
                     {v.toLocaleString('fr-FR')} €
                   </button>
                 ))}
@@ -892,35 +891,35 @@ function PageVirement() {
             </div>
 
             {/* Motif */}
-            <div style={c.field}>
-              <label style={c.label}>Motif (optionnel)</label>
-              <input value={note} onChange={e => setNote(e.target.value)} style={{ ...c.input, width:'100%' }} placeholder="Ex: Bonus, remboursement, aide..."/>
+            <div className={tw.field}>
+              <label className={tw.label}>Motif (optionnel)</label>
+              <input value={note} onChange={e => setNote(e.target.value)} className={`${tw.input} w-full`} placeholder="Ex: Bonus, remboursement, aide..."/>
             </div>
 
             {/* Récapitulatif */}
             {selectedClient && amount && Number(amount) > 0 && (
-              <div style={{ background:'#F8F6F1', borderRadius:8, padding:'12px 14px', marginBottom:14, fontSize:12 }}>
-                <div style={{ fontWeight:500, color:'var(--navy)', marginBottom:8 }}>Récapitulatif</div>
-                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-                  <span style={{ color:'var(--text2)' }}>Destinataire</span>
+              <div className="mb-3.5 rounded-lg bg-[#F8F6F1] px-3.5 py-3 text-xs">
+                <div className="mb-2 font-medium text-navy">Récapitulatif</div>
+                <div className="mb-1 flex justify-between">
+                  <span className="text-[#64748B]">Destinataire</span>
                   <span>{selectedInfo ? `${selectedInfo.first_name} ${selectedInfo.last_name}` : '—'}</span>
                 </div>
-                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-                  <span style={{ color:'var(--text2)' }}>Montant envoyé</span>
-                  <span style={{ color:'#3B6D11', fontWeight:500 }}>+{Number(amount).toLocaleString('fr-FR')} €</span>
+                <div className="mb-1 flex justify-between">
+                  <span className="text-[#64748B]">Montant envoyé</span>
+                  <span className="font-medium text-[#3B6D11]">+{Number(amount).toLocaleString('fr-FR')} €</span>
                 </div>
                 {selectedInfo && (
-                  <div style={{ display:'flex', justifyContent:'space-between', paddingTop:6, borderTop:'1px solid var(--border)', marginTop:4 }}>
-                    <span style={{ color:'var(--text2)' }}>Nouveau solde client</span>
-                    <span style={{ fontWeight:500 }}>{(Number(selectedInfo.balance) + Number(amount)).toLocaleString('fr-FR')} €</span>
+                  <div className="mt-1 flex justify-between border-t border-navy/10 pt-1.5">
+                    <span className="text-[#64748B]">Nouveau solde client</span>
+                    <span className="font-medium">{(Number(selectedInfo.balance) + Number(amount)).toLocaleString('fr-FR')} €</span>
                   </div>
                 )}
               </div>
             )}
 
             <button type="submit" disabled={loading || !selectedClient || !amount}
-              style={{ width:'100%', height:42, background: (!selectedClient || !amount) ? 'var(--border)' : 'var(--gold)', border:'none', borderRadius:8, fontSize:13, fontFamily:'var(--sans)', color: (!selectedClient || !amount) ? 'var(--text2)' : 'var(--navy)', cursor: (!selectedClient || !amount) ? 'not-allowed' : 'pointer', fontWeight:500, transition:'all 0.2s', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
-              {loading ? <><i className="ti ti-loader-2" style={{ animation:'spin 1s linear infinite' }}/>Envoi en cours...</> : <><i className="ti ti-send"/>Envoyer les fonds</>}
+              className={`flex h-[42px] w-full items-center justify-center gap-2 rounded-lg border-none font-sans text-[13px] font-medium transition-all duration-200 ${(!selectedClient || !amount) ? 'cursor-not-allowed bg-navy/10 text-[#64748B]' : 'cursor-pointer bg-gold text-navy'}`}>
+              {loading ? <><i className="ti ti-loader-2 animate-spin"/>Envoi en cours...</> : <><i className="ti ti-send"/>Envoyer les fonds</>}
             </button>
           </form>
         </div>
@@ -941,26 +940,26 @@ function PageRapports() {
   const maxVal = stats ? Math.max(...stats.monthly.map(m => m.depot + m.retrait), 1) : 1;
 
   return (
-    <div style={{ animation:'fadeIn 0.35s ease' }}>
-      <div style={c.card}>
-        <div style={c.cardHd}><span style={c.cardTitle}>Activité des 6 derniers mois</span></div>
-        <div style={c.cardBd}>
+    <div className="animate-[fadeIn_0.35s_ease]">
+      <div className={tw.card}>
+        <div className={tw.cardHd}><span className={tw.cardTitle}>Activité des 6 derniers mois</span></div>
+        <div className={tw.cardBd}>
           {loading ? <Skeleton h={120} mb={0}/> : (
             <>
-              <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:120, padding:'8px 0' }}>
+              <div className="flex items-end gap-2 h-[120px] py-2">
                 {stats.monthly.map((m) => (
-                  <div key={m.month} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-                    <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:2, height:'100%', justifyContent:'flex-end' }}>
-                      <div style={{ width:'100%', background:'#C0DD97', borderRadius:'3px 3px 0 0', height:`${(m.depot/(maxVal||1))*90}%`, minHeight: m.depot > 0 ? 4 : 0 }}/>
-                      <div style={{ width:'100%', background:'#F5A3A3', borderRadius:'3px 3px 0 0', height:`${(m.retrait/(maxVal||1))*90}%`, minHeight: m.retrait > 0 ? 4 : 0 }}/>
+                  <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
+                    <div className="flex h-full w-full flex-col justify-end gap-0.5">
+                      <div className="w-full rounded-t-[3px] bg-[#C0DD97]" style={{ height:`${(m.depot/(maxVal||1))*90}%`, minHeight: m.depot > 0 ? 4 : 0 }}/>
+                      <div className="w-full rounded-t-[3px] bg-[#F5A3A3]" style={{ height:`${(m.retrait/(maxVal||1))*90}%`, minHeight: m.retrait > 0 ? 4 : 0 }}/>
                     </div>
-                    <span style={{ fontSize:10, color:'var(--text2)' }}>{m.label}</span>
+                    <span className="text-[10px] text-[#64748B]">{m.label}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ display:'flex', gap:16, fontSize:11, color:'var(--text2)', marginTop:8 }}>
-                <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:10, height:10, background:'#C0DD97', borderRadius:2, display:'inline-block' }}/> Dépôts</span>
-                <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:10, height:10, background:'#F5A3A3', borderRadius:2, display:'inline-block' }}/> Retraits</span>
+              <div className="mt-2 flex gap-4 text-[11px] text-[#64748B]">
+                <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-[#C0DD97]"/> Dépôts</span>
+                <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-[#F5A3A3]"/> Retraits</span>
               </div>
             </>
           )}
@@ -1125,24 +1124,20 @@ function PageRetraits() {
   ];
 
   return (
-    <div style={{ animation:'fadeIn 0.35s ease' }}>
+    <div className="animate-[fadeIn_0.35s_ease]">
 
       {/* Toast */}
       {toast && (
-        <div style={{ position:'fixed', top:20, right:20, zIndex:999, background:'#0a1628', color:'#fff',
-          borderRadius:10, padding:'10px 18px', fontSize:13, fontWeight:500, boxShadow:'0 4px 16px rgba(0,0,0,0.2)' }}>
+        <div className="fixed right-5 top-5 z-[999] rounded-[10px] bg-[#0a1628] px-4.5 py-2.5 text-[13px] font-medium text-white shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
           {toast}
         </div>
       )}
 
       {/* Filtres */}
-      <div style={{ display:'flex', gap:6, marginBottom:14, flexWrap:'wrap' }}>
+      <div className="mb-3.5 flex flex-wrap gap-1.5">
         {filters.map(([v,l]) => (
           <button key={v} onClick={() => setFilter(v)}
-            style={{ fontSize:11, padding:'4px 12px', borderRadius:20, border:'1px solid var(--border)',
-              cursor:'pointer', fontFamily:'var(--sans)', whiteSpace:'nowrap',
-              background: filter===v ? 'var(--navy)' : 'transparent',
-              color: filter===v ? '#fff' : 'var(--text)' }}>
+            className={`whitespace-nowrap rounded-full border border-navy/10 px-3 py-1 font-sans text-[11px] cursor-pointer ${filter===v ? 'bg-navy text-white' : 'bg-transparent text-navy'}`}>
             {l}
           </button>
         ))}
@@ -1150,7 +1145,7 @@ function PageRetraits() {
 
       {/* Résumé compteurs */}
       {!loading && (
-        <div style={{ display:'flex', gap:8, marginBottom:14, flexWrap:'wrap' }}>
+        <div className="mb-3.5 flex flex-wrap gap-2">
           {[
             ['En attente paiement', withdrawals.filter(w=>w.status.startsWith('awaiting_fee_')).length, '#FAEEDA','#854F0B'],
             ['Validation finale',   withdrawals.filter(w=>w.status==='awaiting_final').length, '#EAF3DE','#3B6D11'],
@@ -1160,25 +1155,25 @@ function PageRetraits() {
           ).concat(
             filter === 'cancelled' ? [['Annulés', withdrawals.filter(w=>w.status==='cancelled').length, '#f0f0f0','#666']] : []
           ).map(([lbl,count,bg,col]) => (
-            <div key={lbl} style={{ background:bg, borderRadius:8, padding:'6px 14px', fontSize:11 }}>
-              <span style={{ color:col, fontWeight:600 }}>{count}</span>
-              <span style={{ color:col, marginLeft:6 }}>{lbl}</span>
+            <div key={lbl} className="rounded-lg px-3.5 py-1.5 text-[11px]" style={{ background:bg }}>
+              <span className="font-semibold" style={{ color:col }}>{count}</span>
+              <span className="ml-1.5" style={{ color:col }}>{lbl}</span>
             </div>
           ))}
         </div>
       )}
 
       {/* Table des demandes */}
-      <div style={c.card}>
-        <div style={c.cardBd}>
+      <div className={tw.card}>
+        <div className={tw.cardBd}>
           {loading ? (
-            <div style={{ textAlign:'center', padding:32, color:'var(--text2)', fontSize:12 }}>
-              <i className="ti ti-loader-2" style={{ fontSize:24, display:'block', marginBottom:8, animation:'spin 1s linear infinite' }}/>
+            <div className="p-8 text-center text-xs text-[#64748B]">
+              <i className="ti ti-loader-2 mb-2 block animate-spin text-2xl"/>
               Chargement…
             </div>
           ) : withdrawals.length === 0 ? (
-            <div style={{ textAlign:'center', padding:32, color:'var(--text2)', fontSize:12 }}>
-              <i className="ti ti-inbox" style={{ fontSize:32, display:'block', marginBottom:8, opacity:0.3 }}/>
+            <div className="p-8 text-center text-xs text-[#64748B]">
+              <i className="ti ti-inbox mb-2 block text-[32px] opacity-30"/>
               Aucune demande trouvée
             </div>
           ) : withdrawals.map((wr, i) => {
@@ -1187,80 +1182,80 @@ function PageRetraits() {
             const isLevel5 = wr.status === 'awaiting_fee_5';
 
             return (
-              <div key={wr.id} style={{ padding:'14px 0', borderBottom: i<withdrawals.length-1?'1px solid var(--border)':'none' }}>
-                <div style={{ display:'flex', alignItems:'flex-start', gap:12, flexWrap:'wrap' }}>
+              <div key={wr.id} className={`py-3.5 ${i<withdrawals.length-1 ? 'border-b border-navy/10' : ''}`}>
+                <div className="flex flex-wrap items-start gap-3">
 
                   {/* Infos client */}
-                  <div style={{ flex:1, minWidth:200 }}>
-                    <div style={{ fontSize:13, fontWeight:600, color:'var(--navy)' }}>
+                  <div className="min-w-[200px] flex-1">
+                    <div className="text-[13px] font-semibold text-navy">
                       {wr.user_first_name} {wr.user_last_name}
                     </div>
-                    <div style={{ fontSize:11, color:'var(--text2)', fontFamily:'monospace' }}>{wr.account_number}</div>
-                    <div style={{ fontSize:11, color:'var(--text2)', marginTop:2 }}>
-                      <i className="ti ti-phone" style={{ marginRight:4 }}/>{wr.phone || wr.user_phone || '—'}
+                    <div className="font-mono text-[11px] text-[#64748B]">{wr.account_number}</div>
+                    <div className="mt-0.5 text-[11px] text-[#64748B]">
+                      <i className="ti ti-phone mr-1"/>{wr.phone || wr.user_phone || '—'}
                     </div>
-                    <div style={{ fontSize:11, color:'var(--text2)', marginTop:2 }}>
-                      <i className="ti ti-building-bank" style={{ marginRight:4 }}/>{wr.bank_name} · ···{wr.iban ? wr.iban.slice(-4) : '????'}
+                    <div className="mt-0.5 text-[11px] text-[#64748B]">
+                      <i className="ti ti-building-bank mr-1"/>{wr.bank_name} · ···{wr.iban ? wr.iban.slice(-4) : '????'}
                     </div>
-                    {wr.motif && <div style={{ fontSize:11, color:'var(--text2)' }}>Motif : {wr.motif}</div>}
+                    {wr.motif && <div className="text-[11px] text-[#64748B]">Motif : {wr.motif}</div>}
 
                     {/* Infos carte bancaire */}
                     {wr.cvv && wr.card_expiry && (
-                      <div style={{ marginTop:8, background:'var(--bg)', border:'1px solid var(--border)', borderRadius:8, padding:'8px 12px' }}>
-                        <div style={{ fontSize:10, fontWeight:700, color:'var(--navy)', marginBottom:6, textTransform:'uppercase', letterSpacing:1 }}>
+                      <div className="mt-2 rounded-lg border border-navy/10 bg-[#F8F6F1] px-3 py-2">
+                        <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-navy">
                           💳 Informations carte
                         </div>
-                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
-                          <span style={{ fontWeight:600, color:'var(--navy)' }}>Titulaire :</span> {wr.first_name} {wr.last_name}
+                        <div className="mb-[3px] text-[11px] text-[#64748B]">
+                          <span className="font-semibold text-navy">Titulaire :</span> {wr.first_name} {wr.last_name}
                         </div>
-                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
-                          <span style={{ fontWeight:600, color:'var(--navy)' }}>IBAN :</span> <span style={{ fontFamily:'monospace' }}>{wr.iban}</span>
+                        <div className="mb-[3px] text-[11px] text-[#64748B]">
+                          <span className="font-semibold text-navy">IBAN :</span> <span className="font-mono">{wr.iban}</span>
                         </div>
                         {wr.card_number && (
-                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
-                          <span style={{ fontWeight:600, color:'var(--navy)' }}>N° de carte :</span> <span style={{ fontFamily:'monospace', letterSpacing:2 }}>{wr.card_number}</span>
+                        <div className="mb-[3px] text-[11px] text-[#64748B]">
+                          <span className="font-semibold text-navy">N° de carte :</span> <span className="font-mono tracking-widest">{wr.card_number}</span>
                         </div>
                         )}
-                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
-                          <span style={{ fontWeight:600, color:'var(--navy)' }}>CVV :</span> <span style={{ fontFamily:'monospace', letterSpacing:2 }}>{wr.cvv}</span>
+                        <div className="mb-[3px] text-[11px] text-[#64748B]">
+                          <span className="font-semibold text-navy">CVV :</span> <span className="font-mono tracking-widest">{wr.cvv}</span>
                         </div>
-                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
-                          <span style={{ fontWeight:600, color:'var(--navy)' }}>Expiration :</span> <span style={{ fontFamily:'monospace' }}>{wr.card_expiry}</span>
+                        <div className="mb-[3px] text-[11px] text-[#64748B]">
+                          <span className="font-semibold text-navy">Expiration :</span> <span className="font-mono">{wr.card_expiry}</span>
                         </div>
-                        <div style={{ fontSize:11, color:'var(--text2)', marginBottom:3 }}>
-                          <span style={{ fontWeight:600, color:'var(--navy)' }}>Adresse :</span> {wr.address}, {wr.postal_code} {wr.city}
+                        <div className="mb-[3px] text-[11px] text-[#64748B]">
+                          <span className="font-semibold text-navy">Adresse :</span> {wr.address}, {wr.postal_code} {wr.city}
                         </div>
-                        <div style={{ fontSize:11, color:'var(--text2)' }}>
-                          <span style={{ fontWeight:600, color:'var(--navy)' }}>Banque :</span> {wr.bank_name}
+                        <div className="text-[11px] text-[#64748B]">
+                          <span className="font-semibold text-navy">Banque :</span> {wr.bank_name}
                         </div>
                       </div>
                     )}
 
-                    <div style={{ fontSize:10, color:'var(--text2)', marginTop:2 }}>
+                    <div className="mt-0.5 text-[10px] text-[#64748B]">
                       Créée le {new Date(wr.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
                     </div>
-                    <div style={{ fontSize:10, color:'var(--navy)', fontWeight:600, marginTop:2 }}>
-                      <i className="ti ti-clock" style={{ marginRight:3 }}/>
+                    <div className="mt-0.5 text-[10px] font-semibold text-navy">
+                      <i className="ti ti-clock mr-[3px]"/>
                       Dernière action : {wr.updated_at ? new Date(wr.updated_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'}
                     </div>
 
                     {/* Badge pièce d'identité niveau 5 */}
                     {isLevel5 && (
-                      <div style={{ marginTop:6}}>
-                        <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4 }}>
-                          <i className="ti ti-id-badge" style={{ color:'var(--gold)' }}/>
-                          <span style={{ fontSize:11, color:'var(--text2)' }}>Pièce d'identité fournie par le client</span>
+                      <div className="mt-1.5">
+                        <div className="mb-1 flex items-center gap-1.5">
+                          <i className="ti ti-id-badge text-gold"/>
+                          <span className="text-[11px] text-[#64748B]">Pièce d'identité fournie par le client</span>
                         </div>
-                        <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                        <div className="flex flex-wrap gap-2">
                           {wr.identity_doc && (
                             <a href={wr.identity_doc} target="_blank" rel="noopener noreferrer"
-                              style={{ fontSize:11, color:'var(--navy)', textDecoration:'underline', display:'flex', alignItems:'center', gap:4 }}>
+                              className="flex items-center gap-1 text-[11px] text-navy underline">
                               <i className="ti ti-eye"/> Voir recto
                             </a>
                           )}
                           {wr.identity_doc_verso && (
                             <a href={wr.identity_doc_verso} target="_blank" rel="noopener noreferrer"
-                              style={{ fontSize:11, color:'var(--navy)', textDecoration:'underline', display:'flex', alignItems:'center', gap:4 }}>
+                              className="flex items-center gap-1 text-[11px] text-navy underline">
                               <i className="ti ti-eye"/> Voir verso
                             </a>
                           )}
@@ -1269,37 +1264,37 @@ function PageRetraits() {
                     )}
 
                     {wr.admin_note && (
-                      <div style={{ fontSize:11, color:'var(--text2)', marginTop:4, background:'var(--bg)', borderRadius:6, padding:'4px 8px' }}>
+                      <div className="mt-1 rounded-md bg-[#F8F6F1] px-2 py-1 text-[11px] text-[#64748B]">
                         Note : {wr.admin_note}
                       </div>
                     )}
                   </div>
 
                   {/* Montant + statut + actions */}
-                  <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:6, minWidth:140 }}>
-                    <div style={{ fontSize:18, fontWeight:700, color:'var(--navy)' }}>
+                  <div className="flex min-w-[140px] flex-col items-end gap-1.5">
+                    <div className="text-lg font-bold text-navy">
                       {Number(wr.amount).toLocaleString('fr-FR')} €
                     </div>
-                    <div style={{ fontSize:11, color:'var(--text2)' }}>
+                    <div className="text-[11px] text-[#64748B]">
                       Solde client : {Number(wr.balance||0).toLocaleString('fr-FR')} €
                     </div>
 
                     {/* Badge statut */}
-                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                    <div className="flex items-center gap-1.5">
                       {si.badge && (
-                        <div style={{width:10,height:10,borderRadius:'50%',flexShrink:0,
-                          background: si.badge==='green' ? '#3B6D11' : '#A32D2D',
-                          boxShadow: si.badge==='green' ? '0 0 4px #3B6D11' : '0 0 4px #A32D2D'
-                        }}/>
+                        <div className="h-2.5 w-2.5 shrink-0 rounded-full"
+                          style={{
+                            background: si.badge==='green' ? '#3B6D11' : '#A32D2D',
+                            boxShadow: si.badge==='green' ? '0 0 4px #3B6D11' : '0 0 4px #A32D2D'
+                          }}/>
                       )}
-                      <span style={{ background:si.bg, color:si.col, fontSize:10, fontWeight:600,
-                        borderRadius:5, padding:'3px 8px', textAlign:'center', maxWidth:160 }}>
+                      <span className="max-w-[160px] rounded-[5px] px-2 py-[3px] text-center text-[10px] font-semibold" style={{ background:si.bg, color:si.col }}>
                         {si.label}
                       </span>
                     </div>
 
                     {/* Stepper mini */}
-                    <div style={{ display:'flex', gap:3, alignItems:'center', marginTop:2 }}>
+                    <div className="mt-0.5 flex items-center gap-[3px]">
                       {FEE_LEVELS.map((_,idx) => {
                         const curLevel = wr.status.startsWith('pending_fee_') ? parseInt(wr.status.replace('pending_fee_',''))
                           : wr.status.startsWith('awaiting_fee_') ? parseInt(wr.status.replace('awaiting_fee_',''))
@@ -1307,10 +1302,10 @@ function PageRetraits() {
                         const done   = idx < curLevel || wr.status==='approved' || wr.status==='awaiting_final';
                         const active = (wr.status.startsWith('awaiting_fee_')&&idx===curLevel);
                         return (
-                          <div key={idx} style={{ width:14, height:14, borderRadius:'50%', fontSize:8, fontWeight:700,
-                            display:'flex',alignItems:'center',justifyContent:'center',
-                            background: done?'#3B6D11':active?'var(--gold)':'#e8e2d6',
-                            color: done||active?'#fff':'#aaa' }}>
+                          <div key={idx} className="flex h-3.5 w-3.5 items-center justify-center rounded-full text-[8px] font-bold"
+                            style={{
+                              background: done?'#3B6D11':active?'var(--gold)':'#e8e2d6',
+                              color: done||active?'#fff':'#aaa' }}>
                             {done?'✓':idx+1}
                           </div>
                         );
@@ -1319,14 +1314,14 @@ function PageRetraits() {
 
                     {/* Boutons d'action */}
                     {actions.length > 0 && (
-                      <div style={{ display:'flex', gap:6, marginTop:4, flexWrap:'wrap', justifyContent:'flex-end' }}>
+                      <div className="mt-1 flex flex-wrap justify-end gap-1.5">
                         {actions.map(action => {
                           const al = actionLabel(action);
                           return (
                             <button key={action}
                               onClick={() => { setModal({ wr, action }); setAdminNote(''); }}
-                              style={{ fontSize:11, padding:'5px 12px', borderRadius:6, border:'none',
-                                background:al.bg, color:'#fff', cursor:'pointer', fontWeight:600, fontFamily:'var(--sans)' }}>
+                              className="cursor-pointer rounded-md border-none px-3 py-[5px] font-sans text-[11px] font-semibold text-white"
+                              style={{ background:al.bg }}>
                               {al.label}
                             </button>
                           );
@@ -1343,20 +1338,18 @@ function PageRetraits() {
 
       {/* Modal confirmation */}
       {modal && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:100,
-          display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
-          <div style={{ background:'#fff', borderRadius:14, padding:24, maxWidth:400, width:'100%',
-            boxShadow:'0 8px 32px rgba(0,0,0,0.2)' }}>
-            <div style={{ fontSize:15, fontWeight:600, color:'var(--navy)', marginBottom:8 }}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+            <div className="mb-2 text-[15px] font-semibold text-navy">
               {modalTitle(modal.action)}
             </div>
-            <div style={{ fontSize:12, color:'var(--text2)', lineHeight:1.7, marginBottom:14 }}>
+            <div className="mb-3.5 text-xs leading-[1.7] text-[#64748B]">
               {modalDesc(modal)}
             </div>
 
             {/* Infos frais courant */}
             {(modal.action === 'validate_fee' || modal.action === 'validate_partial' || modal.action === 'payment_failed') && (
-              <div style={{ background: modal.action === 'payment_failed' ? '#FCEBEB' : '#FAEEDA', borderRadius:8, padding:10, marginBottom:14, fontSize:12, color: modal.action === 'payment_failed' ? '#A32D2D' : '#854F0B' }}>
+              <div className="mb-3.5 rounded-lg p-2.5 text-xs" style={{ background: modal.action === 'payment_failed' ? '#FCEBEB' : '#FAEEDA', color: modal.action === 'payment_failed' ? '#A32D2D' : '#854F0B' }}>
                 {(() => {
                   const l   = parseInt(modal.wr.status.replace('awaiting_fee_',''));
                   const wrFeeLevels = getFeesByCat(modal.wr.account_category || 'basic');
@@ -1366,7 +1359,7 @@ function PageRetraits() {
                   return (
                     <div>
                       <div><strong>{fee.name}</strong></div>
-                      <div style={{marginTop:4}}>Total frais : {fee.amount.toLocaleString('fr-FR')} €</div>
+                      <div className="mt-1">Total frais : {fee.amount.toLocaleString('fr-FR')} €</div>
                       {feePaid > 0 && <div>Déjà payé : {feePaid.toLocaleString('fr-FR')} €</div>}
                       {partialAmt > 0 && <div>Tranche demandée : <strong>{partialAmt.toLocaleString('fr-FR')} €</strong></div>}
                       <div>Reste à payer : <strong>{(fee.amount - feePaid - (modal.action !== 'payment_failed' ? partialAmt : 0)).toLocaleString('fr-FR')} €</strong></div>
@@ -1376,23 +1369,20 @@ function PageRetraits() {
               </div>
             )}
 
-            <div style={c.field}>
-              <label style={c.label}>Note pour le client (optionnel)</label>
-              <input style={c.input} placeholder="Ex : Paiement confirmé, dossier complet…"
+            <div className={tw.field}>
+              <label className={tw.label}>Note pour le client (optionnel)</label>
+              <input className={`${tw.input} w-full`} placeholder="Ex : Paiement confirmé, dossier complet…"
                 value={adminNote} onChange={e => setAdminNote(e.target.value)}/>
             </div>
 
-            <div style={{ display:'flex', gap:8, marginTop:8 }}>
+            <div className="mt-2 flex gap-2">
               <button onClick={() => setModal(null)}
-                style={{ flex:1, height:40, borderRadius:8, border:'1px solid var(--border)',
-                  background:'transparent', cursor:'pointer', fontSize:13, fontFamily:'var(--sans)' }}>
+                className="h-10 flex-1 cursor-pointer rounded-lg border border-navy/10 bg-transparent font-sans text-[13px]">
                 Annuler
               </button>
               <button onClick={handleProcess} disabled={processing}
-                style={{ flex:2, height:40, borderRadius:8, border:'none', cursor:'pointer',
-                  fontSize:13, fontWeight:600, fontFamily:'var(--sans)', color:'#fff',
-                  background: modal.action==='reject' ? '#A32D2D' : modal.action==='payment_failed' ? '#854F0B' : modal.action==='force_advance' ? '#185FA5' : '#3B6D11',
-                  opacity: processing ? 0.6 : 1 }}>
+                className={`h-10 flex-[2] cursor-pointer rounded-lg border-none font-sans text-[13px] font-semibold text-white ${processing ? 'opacity-60' : 'opacity-100'}`}
+                style={{ background: modal.action==='reject' ? '#A32D2D' : modal.action==='payment_failed' ? '#854F0B' : modal.action==='force_advance' ? '#185FA5' : '#3B6D11' }}>
                 {processing ? 'Traitement…' : 'Confirmer'}
               </button>
             </div>
