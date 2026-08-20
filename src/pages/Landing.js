@@ -6,99 +6,29 @@ import { authService } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import logo from '../assets/logo.png';
 
-const s = {
-  nav: { position:'fixed', top:0, left:0, right:0, zIndex:100, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 clamp(16px,4vw,60px)', height:68, background:'rgba(10,22,40,0.96)', backdropFilter:'blur(12px)', borderBottom:'1px solid rgba(201,168,76,0.2)' },
-  navLogo: { display:'flex', alignItems:'center', gap:10 },
-  navLogoIcon: { width:36, height:36, borderRadius:'50%', objectFit:'cover', flexShrink:0, boxShadow:'0 0 0 1.5px rgba(201,168,76,0.5)' },
-  navLogoText: { fontFamily:'var(--serif)', fontSize:20, fontWeight:600, color:'#fff', letterSpacing:1 },
-  navLinks: { display:'flex', alignItems:'center', gap:28 },
-  navLink: { fontSize:13, color:'rgba(255,255,255,0.65)', transition:'color 0.2s', cursor:'pointer' },
-  navCta: { display:'flex', gap:10 },
-  btnOutline: { padding:'8px 18px', border:'1px solid rgba(201,168,76,0.5)', borderRadius:6, fontSize:12, color:'var(--gold-light)', background:'transparent', cursor:'pointer', transition:'all 0.2s', fontFamily:'var(--sans)' },
-  btnPrimary: { padding:'8px 18px', border:'none', borderRadius:6, fontSize:12, color:'var(--navy)', background:'var(--gold)', cursor:'pointer', transition:'all 0.2s', fontWeight:500, fontFamily:'var(--sans)' },
-  hero: { minHeight:'100vh', display:'flex', alignItems:'center', background:'var(--navy)', padding:'100px clamp(16px,4vw,60px) 60px', position:'relative', overflow:'hidden' },
-  heroGlow: { position:'absolute', width:500, height:500, borderRadius:'50%', background:'radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%)', top:-100, right:-80, pointerEvents:'none' },
-  heroContent: { maxWidth:620, position:'relative', zIndex:1, animation:'fadeIn 0.7s ease forwards' },
-  heroEyebrow: { display:'inline-flex', alignItems:'center', gap:8, fontSize:11, letterSpacing:2, textTransform:'uppercase', color:'var(--gold)', marginBottom:24, padding:'5px 14px', border:'1px solid rgba(201,168,76,0.3)', borderRadius:20 },
-  heroH1: { fontFamily:'var(--serif)', fontSize:'clamp(40px,6vw,68px)', fontWeight:600, lineHeight:1.08, color:'#fff', marginBottom:20 },
-  heroP: { fontSize:15, color:'rgba(255,255,255,0.55)', lineHeight:1.75, maxWidth:500, marginBottom:36, fontWeight:300 },
-  heroActions: { display:'flex', gap:12, marginBottom:48, flexWrap:'wrap' },
-  btnHeroPrimary: { padding:'13px 28px', borderRadius:6, fontSize:14, fontWeight:500, cursor:'pointer', background:'var(--gold)', color:'var(--navy)', border:'none', transition:'all 0.25s', fontFamily:'var(--sans)' },
-  btnHeroSecondary: { padding:'13px 28px', borderRadius:6, fontSize:14, cursor:'pointer', background:'transparent', color:'rgba(255,255,255,0.75)', border:'1px solid rgba(255,255,255,0.2)', transition:'all 0.25s', fontFamily:'var(--sans)' },
-  heroStats: { display:'flex', gap:40, paddingTop:28, borderTop:'1px solid rgba(255,255,255,0.08)', flexWrap:'wrap' },
-  statNum: { fontFamily:'var(--serif)', fontSize:30, fontWeight:600, color:'var(--gold)', lineHeight:1 },
-  statLabel: { fontSize:11, color:'rgba(255,255,255,0.35)', marginTop:3 },
-  heroVisual: { position:'absolute', right:'clamp(16px,4vw,60px)', top:'50%', transform:'translateY(-50%)', width:'min(380px,42vw)', zIndex:1 },
-  cardMock: { background:'rgba(255,255,255,0.05)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:16, padding:22, backdropFilter:'blur(8px)', marginBottom:10 },
-  trust: { background:'var(--navy2)', padding:'48px clamp(16px,4vw,60px)', display:'flex', alignItems:'center', justifyContent:'space-around', gap:20, flexWrap:'wrap' },
-  trustItem: { textAlign:'center', padding:'8px 0' },
-  trustNum: { fontFamily:'var(--serif)', fontSize:36, fontWeight:600, color:'var(--gold)' },
-  trustLabel: { fontSize:12, color:'rgba(255,255,255,0.4)', marginTop:3 },
-  services: { padding:'80px clamp(16px,4vw,60px)', background:'var(--cream)' },
-  sectionTag: { fontSize:11, letterSpacing:2, textTransform:'uppercase', color:'var(--gold-dark)', marginBottom:10 },
-  sectionTitle: { fontFamily:'var(--serif)', fontSize:'clamp(28px,4vw,44px)', fontWeight:600, color:'var(--navy)', lineHeight:1.15, marginBottom:14 },
-  sectionSub: { fontSize:14, color:'var(--text2)', maxWidth:480, lineHeight:1.7, marginBottom:48, fontWeight:300 },
-  servicesGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:16 },
-  serviceCard: { background:'#fff', border:'1px solid #E8E2D6', borderRadius:12, padding:'28px 24px', transition:'all 0.3s', cursor:'pointer' },
-  serviceIcon: { width:44, height:44, borderRadius:10, background:'#FDF6E3', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:16, fontSize:20, color:'var(--gold-dark)' },
-  serviceName: { fontFamily:'var(--serif)', fontSize:20, fontWeight:600, color:'var(--navy)', marginBottom:8 },
-  serviceDesc: { fontSize:13, color:'var(--text2)', lineHeight:1.65, fontWeight:300 },
-  how: { padding:'80px clamp(16px,4vw,60px)', background:'var(--cream2)' },
-  stepsGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:16, marginTop:48 },
-  step: { textAlign:'center', padding:'0 12px' },
-  stepNum: { width:52, height:52, borderRadius:'50%', background:'#fff', border:'1px solid var(--gold)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--serif)', fontSize:20, color:'var(--gold)', margin:'0 auto 16px' },
-  stepTitle: { fontFamily:'var(--serif)', fontSize:17, fontWeight:600, color:'var(--navy)', marginBottom:7 },
-  stepDesc: { fontSize:12, color:'var(--text2)', lineHeight:1.6, fontWeight:300 },
-  testimonials: { padding:'80px clamp(16px,4vw,60px)', background:'var(--cream)' },
-  testimonialGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:16, marginTop:48 },
-  testimonialCard: { background:'#fff', border:'1px solid #E8E2D6', borderRadius:12, padding:24 },
-  testimonialText: { fontSize:13, color:'var(--text2)', lineHeight:1.7, fontStyle:'italic', marginBottom:18, fontWeight:300 },
-  authorName: { fontSize:12, fontWeight:500, color:'var(--navy)' },
-  authorRole: { fontSize:11, color:'var(--text2)' },
-  cta: { background:'var(--navy)', padding:'80px clamp(16px,4vw,60px)', textAlign:'center', position:'relative', overflow:'hidden' },
-  ctaH2: { fontFamily:'var(--serif)', fontSize:'clamp(28px,4vw,50px)', color:'#fff', marginBottom:14, position:'relative' },
-  ctaP: { fontSize:15, color:'rgba(255,255,255,0.45)', maxWidth:440, margin:'0 auto 36px', fontWeight:300, lineHeight:1.7, position:'relative' },
-  ctaActions: { display:'flex', justifyContent:'center', gap:14, flexWrap:'wrap', position:'relative' },
-  footer: { background:'#070F1E', padding:'48px clamp(16px,4vw,60px)', borderTop:'1px solid rgba(201,168,76,0.15)' },
-  footerGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(160px,1fr))', gap:32, marginBottom:36 },
-  footerColTitle: { fontSize:10, letterSpacing:1.5, textTransform:'uppercase', color:'var(--gold)', marginBottom:14 },
-  footerLink: { display:'block', fontSize:12, color:'rgba(255,255,255,0.35)', marginBottom:9, cursor:'pointer', transition:'color 0.2s' },
-  footerBottom: { display:'flex', justifyContent:'space-between', alignItems:'center', paddingTop:20, borderTop:'1px solid rgba(255,255,255,0.06)', flexWrap:'wrap', gap:8 },
-  footerBottomText: { fontSize:11, color:'rgba(255,255,255,0.2)' },
-  overlay: { position:'fixed', inset:0, background:'rgba(7,15,30,0.88)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(4px)', padding:16, overflowY:'auto' },
-  modal: { background:'var(--cream)', borderRadius:16, padding:'32px 28px', width:'100%', maxWidth:460, position:'relative', border:'1px solid #E8E2D6', animation:'fadeIn 0.25s ease', margin:'auto' },
-  modalClose: { position:'absolute', top:14, right:14, width:28, height:28, border:'none', background:'transparent', cursor:'pointer', fontSize:18, color:'var(--text2)', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:6 },
-  roleSwitch: { display:'flex', background:'#EDE8DF', borderRadius:6, padding:3, marginBottom:20 },
-  roleBtn: { flex:1, padding:'7px', border:'none', borderRadius:4, fontSize:12, cursor:'pointer', background:'transparent', color:'var(--text2)', transition:'all 0.2s', fontFamily:'var(--sans)' },
-  roleBtnActive: { background:'#fff', color:'var(--navy)', fontWeight:500, boxShadow:'0 1px 4px rgba(0,0,0,0.08)' },
-  formGroup: { marginBottom:12 },
-  formLabel: { fontSize:11, color:'var(--text2)', marginBottom:5, display:'block' },
-  formInput: { width:'100%', height:40, border:'1px solid #D8D2C6', borderRadius:7, padding:'0 12px', fontSize:13, color:'var(--text)', background:'#fff', outline:'none', fontFamily:'var(--sans)', transition:'border-color 0.2s' },
-  formRow: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 },
-  formSubmit: { width:'100%', height:42, background:'var(--navy)', border:'none', borderRadius:7, fontSize:13, color:'#fff', cursor:'pointer', marginTop:6, fontWeight:500, fontFamily:'var(--sans)', transition:'opacity 0.15s' },
-  errBox: { background:'#FCEBEB', border:'1px solid #F7C1C1', borderRadius:7, padding:'9px 12px', fontSize:12, color:'#A32D2D', marginBottom:12 },
-  successBox: { background:'#EAF3DE', border:'1px solid #C0DD97', borderRadius:7, padding:'9px 12px', fontSize:12, color:'#3B6D11', marginBottom:12 },
-  tabLink: { color:'var(--gold-dark)', cursor:'pointer', fontSize:12 },
-};
+const inputCls = 'w-full h-10 rounded-lg border border-navy/15 bg-white px-3 text-[13px] text-navy outline-none transition-colors focus:border-gold-dark';
+const labelCls = 'mb-1.5 block text-[11px] text-navy/50';
+const submitCls = 'mt-1.5 h-[42px] w-full rounded-lg bg-navy text-[13px] font-medium text-white transition-opacity disabled:opacity-60';
+const linkCls = 'cursor-pointer text-gold-dark';
 
 const getServices = (t) => [
-  { icon:'ti-credit-card', name:t('landing.service1Name'), desc:t('landing.service1Desc') },
-  { icon:'ti-piggy-bank', name:t('landing.service2Name'), desc:t('landing.service2Desc') },
-  { icon:'ti-building', name:t('landing.service3Name'), desc:t('landing.service3Desc') },
-  { icon:'ti-send', name:t('landing.service4Name'), desc:t('landing.service4Desc') },
-  { icon:'ti-chart-line', name:t('landing.service5Name'), desc:t('landing.service5Desc') },
-  { icon:'ti-shield-check', name:t('landing.service6Name'), desc:t('landing.service6Desc') },
+  { icon: 'ti-credit-card', name: t('landing.service1Name'), desc: t('landing.service1Desc') },
+  { icon: 'ti-piggy-bank', name: t('landing.service2Name'), desc: t('landing.service2Desc') },
+  { icon: 'ti-building', name: t('landing.service3Name'), desc: t('landing.service3Desc') },
+  { icon: 'ti-send', name: t('landing.service4Name'), desc: t('landing.service4Desc') },
+  { icon: 'ti-chart-line', name: t('landing.service5Name'), desc: t('landing.service5Desc') },
+  { icon: 'ti-shield-check', name: t('landing.service6Name'), desc: t('landing.service6Desc') },
 ];
 const getSteps = (t) => [
-  { num:'1', title:t('landing.step1Title'), desc:t('landing.step1Desc') },
-  { num:'2', title:t('landing.step2Title'), desc:t('landing.step2Desc') },
-  { num:'3', title:t('landing.step3Title'), desc:t('landing.step3Desc') },
-  { num:'4', title:t('landing.step4Title'), desc:t('landing.step4Desc') },
+  { num: '1', title: t('landing.step1Title'), desc: t('landing.step1Desc') },
+  { num: '2', title: t('landing.step2Title'), desc: t('landing.step2Desc') },
+  { num: '3', title: t('landing.step3Title'), desc: t('landing.step3Desc') },
+  { num: '4', title: t('landing.step4Title'), desc: t('landing.step4Desc') },
 ];
 const getTestimonials = (t) => [
-  { text:t('landing.testimonial1Text'), author:'Kofi Mensah', role:t('landing.testimonial1Role'), initials:'KM', color:'#E6F1FB', textColor:'#185FA5' },
-  { text:t('landing.testimonial2Text'), author:'Fatou Ndiaye', role:t('landing.testimonial2Role'), initials:'FN', color:'#FBEAF0', textColor:'#993556' },
-  { text:t('landing.testimonial3Text'), author:'Aïssatou Diallo', role:t('landing.testimonial3Role'), initials:'AD', color:'#EAF3DE', textColor:'#3B6D11' },
+  { text: t('landing.testimonial1Text'), author: 'Kofi Mensah', role: t('landing.testimonial1Role'), initials: 'KM', color: '#E6F1FB', textColor: '#185FA5' },
+  { text: t('landing.testimonial2Text'), author: 'Fatou Ndiaye', role: t('landing.testimonial2Role'), initials: 'FN', color: '#FBEAF0', textColor: '#993556' },
+  { text: t('landing.testimonial3Text'), author: 'Aïssatou Diallo', role: t('landing.testimonial3Role'), initials: 'AD', color: '#EAF3DE', textColor: '#3B6D11' },
 ];
 
 // ─── MODAL CONTENT ────────────────────────────────────────────────
@@ -123,24 +53,24 @@ function LoginForm({ onSuccess, onForgot, onRegister }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>{t('auth.clientLoginTitle')}</h3>
-      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:18 }}>{t('auth.clientLoginSubtitle')}</p>
-      {error && <div style={s.errBox}>{error}</div>}
-      <div style={s.formGroup}>
-        <label style={s.formLabel}>{t('auth.emailGmail')}</label>
-        <input style={s.formInput} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@gmail.com" required autoFocus/>
+      <h3 className="font-serif text-[22px] text-navy">{t('auth.clientLoginTitle')}</h3>
+      <p className="mb-4 mt-1 text-xs text-navy/50">{t('auth.clientLoginSubtitle')}</p>
+      {error && <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700">{error}</div>}
+      <div className="mb-3">
+        <label className={labelCls}>{t('auth.emailGmail')}</label>
+        <input className={inputCls} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="votre@gmail.com" required autoFocus />
       </div>
-      <div style={s.formGroup}>
-        <label style={s.formLabel}>{t('auth.password')}</label>
-        <input style={s.formInput} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required/>
+      <div className="mb-3">
+        <label className={labelCls}>{t('auth.password')}</label>
+        <input className={inputCls} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
       </div>
-      <button style={{ ...s.formSubmit, opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
+      <button className={submitCls} type="submit" disabled={loading}>
         {loading ? t('auth.loggingIn') : t('auth.loginButton')}
       </button>
-      <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'var(--text2)' }}>
-        <span style={s.tabLink} onClick={onForgot}>{t('auth.forgotPassword')}</span>
+      <div className="mt-3.5 text-center text-xs text-navy/50">
+        <span className={linkCls} onClick={onForgot}>{t('auth.forgotPassword')}</span>
         {' · '}
-        <span style={s.tabLink} onClick={onRegister}>{t('auth.register')}</span>
+        <span className={linkCls} onClick={onRegister}>{t('auth.register')}</span>
       </div>
     </form>
   );
@@ -167,18 +97,18 @@ function AdminLoginForm({ onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>{t('auth.adminLoginTitle')}</h3>
-      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:18 }}>{t('auth.adminLoginSubtitle')}</p>
-      {error && <div style={s.errBox}>{error}</div>}
-      <div style={s.formGroup}>
-        <label style={s.formLabel}>{t('auth.username')}</label>
-        <input style={s.formInput} type="text" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Username" required autoFocus/>
+      <h3 className="font-serif text-[22px] text-navy">{t('auth.adminLoginTitle')}</h3>
+      <p className="mb-4 mt-1 text-xs text-navy/50">{t('auth.adminLoginSubtitle')}</p>
+      {error && <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700">{error}</div>}
+      <div className="mb-3">
+        <label className={labelCls}>{t('auth.username')}</label>
+        <input className={inputCls} type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" required autoFocus />
       </div>
-      <div style={s.formGroup}>
-        <label style={s.formLabel}>{t('auth.password')}</label>
-        <input style={s.formInput} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required/>
+      <div className="mb-3">
+        <label className={labelCls}>{t('auth.password')}</label>
+        <input className={inputCls} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
       </div>
-      <button style={{ ...s.formSubmit, opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
+      <button className={submitCls} type="submit" disabled={loading}>
         {loading ? t('auth.loggingIn') : t('auth.loginButton')}
       </button>
     </form>
@@ -188,7 +118,7 @@ function AdminLoginForm({ onSuccess }) {
 function RegisterForm({ onSuccess, onLogin }) {
   const { t, i18n } = useTranslation();
   const { register } = useAuth();
-  const [form, setForm] = useState({ email:'', password:'', confirm:'', first_name:'', last_name:'', phone:'', address:'', city:'', postal_code:'' });
+  const [form, setForm] = useState({ email: '', password: '', confirm: '', first_name: '', last_name: '', phone: '', address: '', city: '', postal_code: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
@@ -212,49 +142,49 @@ function RegisterForm({ onSuccess, onLogin }) {
     } finally { setLoading(false); }
   };
 
-  const inp = (k, type='text', placeholder='', required=true) => (
-    <input style={s.formInput} type={type} value={form[k]} onChange={set(k)} placeholder={placeholder} required={required}/>
+  const inp = (k, type = 'text', placeholder = '', required = true) => (
+    <input className={inputCls} type={type} value={form[k]} onChange={set(k)} placeholder={placeholder} required={required} />
   );
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>{t('auth.registerTitle')}</h3>
-      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:16 }}>{t('auth.registerSubtitle')}</p>
-      {error && <div style={s.errBox}>{error}</div>}
+      <h3 className="font-serif text-[22px] text-navy">{t('auth.registerTitle')}</h3>
+      <p className="mb-4 mt-1 text-xs text-navy/50">{t('auth.registerSubtitle')}</p>
+      {error && <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700">{error}</div>}
 
-      <div style={s.formRow}>
-        <div style={s.formGroup}><label style={s.formLabel}>{t('auth.firstName')} *</label>{inp('first_name','text','Ex: Kofi')}</div>
-        <div style={s.formGroup}><label style={s.formLabel}>{t('auth.lastName')} *</label>{inp('last_name','text','Ex: Mensah')}</div>
+      <div className="mb-3 grid grid-cols-2 gap-2.5">
+        <div><label className={labelCls}>{t('auth.firstName')} *</label>{inp('first_name', 'text', 'Ex: Kofi')}</div>
+        <div><label className={labelCls}>{t('auth.lastName')} *</label>{inp('last_name', 'text', 'Ex: Mensah')}</div>
       </div>
-      <div style={s.formGroup}><label style={s.formLabel}>{t('auth.emailGmail')} *</label>{inp('email','email','votre@gmail.com')}</div>
-      <div style={s.formGroup}>
-        <label style={s.formLabel}>{t('auth.phoneOptional')} <span style={{ color:'var(--text2)', fontWeight:300 }}>{t('auth.optionalTag')}</span></label>
-        {inp('phone','tel','Ex: 0612345678', false)}
+      <div className="mb-3"><label className={labelCls}>{t('auth.emailGmail')} *</label>{inp('email', 'email', 'votre@gmail.com')}</div>
+      <div className="mb-3">
+        <label className={labelCls}>{t('auth.phoneOptional')} <span className="font-light text-navy/40">{t('auth.optionalTag')}</span></label>
+        {inp('phone', 'tel', 'Ex: 0612345678', false)}
       </div>
-      <div style={s.formGroup}>
-        <label style={s.formLabel}>{t('auth.addressOptional')} <span style={{ color:'var(--text2)', fontWeight:300 }}>{t('auth.optionalTag')}</span></label>
-        {inp('address','text','Ex: 12 rue de la Paix', false)}
+      <div className="mb-3">
+        <label className={labelCls}>{t('auth.addressOptional')} <span className="font-light text-navy/40">{t('auth.optionalTag')}</span></label>
+        {inp('address', 'text', 'Ex: 12 rue de la Paix', false)}
       </div>
-      <div style={s.formRow}>
-        <div style={s.formGroup}>
-          <label style={s.formLabel}>{t('auth.cityOptional')} <span style={{ color:'var(--text2)', fontWeight:300 }}>{t('auth.optionalTag')}</span></label>
-          {inp('city','text','Ex: Villejuif', false)}
+      <div className="mb-3 grid grid-cols-2 gap-2.5">
+        <div>
+          <label className={labelCls}>{t('auth.cityOptional')} <span className="font-light text-navy/40">{t('auth.optionalTag')}</span></label>
+          {inp('city', 'text', 'Ex: Villejuif', false)}
         </div>
-        <div style={s.formGroup}>
-          <label style={s.formLabel}>{t('auth.postalCodeOptional')} <span style={{ color:'var(--text2)', fontWeight:300 }}>{t('auth.optionalTag')}</span></label>
-          {inp('postal_code','text','Ex: 94800', false)}
+        <div>
+          <label className={labelCls}>{t('auth.postalCodeOptional')} <span className="font-light text-navy/40">{t('auth.optionalTag')}</span></label>
+          {inp('postal_code', 'text', 'Ex: 94800', false)}
         </div>
       </div>
-      <div style={s.formRow}>
-        <div style={s.formGroup}><label style={s.formLabel}>{t('auth.password')} *</label>{inp('password','password',t('auth.passwordMin'))}</div>
-        <div style={s.formGroup}><label style={s.formLabel}>{t('auth.confirmPasswordLabel')} *</label>{inp('confirm','password',t('auth.confirmRepeat'))}</div>
+      <div className="mb-3 grid grid-cols-2 gap-2.5">
+        <div><label className={labelCls}>{t('auth.password')} *</label>{inp('password', 'password', t('auth.passwordMin'))}</div>
+        <div><label className={labelCls}>{t('auth.confirmPasswordLabel')} *</label>{inp('confirm', 'password', t('auth.confirmRepeat'))}</div>
       </div>
-      <p style={{ fontSize:10, color:'var(--text2)', marginBottom:10 }}>{t('auth.requiredNote')}</p>
-      <button style={{ ...s.formSubmit, opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
+      <p className="mb-2.5 text-[10px] text-navy/40">{t('auth.requiredNote')}</p>
+      <button className={submitCls} type="submit" disabled={loading}>
         {loading ? t('auth.creatingAccount') : t('auth.createAccountButton')}
       </button>
-      <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'var(--text2)' }}>
-        {t('auth.alreadyAccount')} <span style={s.tabLink} onClick={onLogin}>{t('auth.loginButton')}</span>
+      <div className="mt-3.5 text-center text-xs text-navy/50">
+        {t('auth.alreadyAccount')} <span className={linkCls} onClick={onLogin}>{t('auth.loginButton')}</span>
       </div>
     </form>
   );
@@ -280,28 +210,38 @@ function ForgotForm({ onBack }) {
 
   return (
     <div>
-      <h3 style={{ fontFamily:'var(--serif)', fontSize:22, color:'var(--navy)', marginBottom:4 }}>{t('auth.forgotTitle')}</h3>
-      <p style={{ fontSize:12, color:'var(--text2)', marginBottom:18 }}>{t('auth.forgotSubtitle')}</p>
-      {error && <div style={s.errBox}>{error}</div>}
+      <h3 className="font-serif text-[22px] text-navy">{t('auth.forgotTitle')}</h3>
+      <p className="mb-4 mt-1 text-xs text-navy/50">{t('auth.forgotSubtitle')}</p>
+      {error && <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700">{error}</div>}
       {sent ? (
-        <div style={s.successBox}>
-          <i className="ti ti-circle-check" style={{ marginRight:6 }}/>
+        <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-xs text-green-800">
+          <i className="ti ti-circle-check mr-1.5" />
           {t('auth.forgotSent')}
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
-          <div style={s.formGroup}>
-            <label style={s.formLabel}>{t('auth.yourGmailAddress')}</label>
-            <input style={s.formInput} type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@gmail.com" required autoFocus/>
+          <div className="mb-3">
+            <label className={labelCls}>{t('auth.yourGmailAddress')}</label>
+            <input className={inputCls} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="votre@gmail.com" required autoFocus />
           </div>
-          <button style={{ ...s.formSubmit, opacity: loading ? 0.7 : 1 }} type="submit" disabled={loading}>
+          <button className={submitCls} type="submit" disabled={loading}>
             {loading ? t('auth.sendingLink') : t('auth.sendLinkButton')}
           </button>
         </form>
       )}
-      <div style={{ textAlign:'center', marginTop:14 }}>
-        <span style={s.tabLink} onClick={onBack}>{t('auth.backToLogin')}</span>
+      <div className="mt-3.5 text-center">
+        <span className={linkCls} onClick={onBack}>{t('auth.backToLogin')}</span>
       </div>
+    </div>
+  );
+}
+
+// ─── SHARED BITS ──────────────────────────────────────────────────
+function Brand({ sizeCls = 'h-8 w-8 sm:h-9 sm:w-9', textCls = 'text-base sm:text-xl', dark = true }) {
+  return (
+    <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
+      <img src={logo} alt="OjadaBank" className={`shrink-0 rounded-full ring-1 ring-gold/50 ${sizeCls}`} />
+      <span className={`whitespace-nowrap font-serif font-semibold tracking-wide ${textCls} ${dark ? 'text-white' : 'text-navy'}`}>OJADA BANK</span>
     </div>
   );
 }
@@ -315,26 +255,23 @@ export default function Landing() {
   const [role, setRole] = useState('client');
   const [view, setView] = useState('login'); // login | register | forgot
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const services = getServices(t);
   const steps = getSteps(t);
   const testimonials = getTestimonials(t);
-  const navLabels = { services: t('landing.navServices'), comment: t('landing.navHow'), temoignages: t('landing.navTestimonials'), contact: t('landing.navContact') };
+  const navItems = [
+    ['services', t('landing.navServices')],
+    ['comment', t('landing.navHow')],
+    ['temoignages', t('landing.navTestimonials')],
+    ['contact', t('landing.navContact')],
+  ];
 
-  // Rediriger si déjà connecté
   useEffect(() => {
     if (user) navigate(user.role === 'admin' ? '/admin' : '/client', { replace: true });
   }, [user, navigate]);
 
-  useEffect(() => {
-    const fn = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', fn);
-    return () => window.removeEventListener('resize', fn);
-  }, []);
-
-  const openModal = (r, v='login') => { setRole(r); setView(v); setModal(true); };
-  const scrollTo = (id) => { document.getElementById(id)?.scrollIntoView({ behavior:'smooth' }); setMenuOpen(false); };
+  const openModal = (r, v = 'login') => { setRole(r); setView(v); setModal(true); };
+  const scrollTo = (id) => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false); };
 
   const handleSuccess = (user) => {
     setModal(false);
@@ -342,206 +279,297 @@ export default function Landing() {
   };
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       {/* NAV */}
-      <nav style={s.nav}>
-        <div style={s.navLogo}>
-          <img src={logo} alt="OjadaBank" style={s.navLogoIcon}/>
-          <span style={s.navLogoText}>OJADA BANK</span>
+      <nav className="fixed inset-x-0 top-0 z-[100] flex h-[68px] items-center justify-between gap-3 border-b border-gold/20 bg-navy/95 px-4 backdrop-blur-md sm:px-8 lg:px-12">
+        <Brand />
+
+        <div className="hidden shrink-0 items-center gap-7 lg:flex">
+          {navItems.map(([id, label]) => (
+            <span key={id} className="cursor-pointer text-[13px] text-white/65 transition-colors hover:text-gold-light" onClick={() => scrollTo(id)}>
+              {label}
+            </span>
+          ))}
         </div>
-        {!isMobile && (
-          <div style={s.navLinks}>
-            {['services','comment','temoignages','contact'].map(id => (
-              <span key={id} style={s.navLink} onClick={() => scrollTo(id)}>
-                {navLabels[id]}
-              </span>
-            ))}
-          </div>
-        )}
-        <div style={s.navCta}>
-          <LanguageSwitcher dark style={{ marginRight: 4 }}/>
-          {!isMobile && <button style={s.btnOutline} onClick={() => openModal('client')}>{t('auth.clientSpace')}</button>}
-          <button style={s.btnPrimary} onClick={() => openModal('admin')}>
-            {isMobile ? t('auth.connexionShort') : t('auth.administration')}
+
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
+          <LanguageSwitcher dark />
+          <button
+            className="hidden rounded-md border border-gold/50 px-4 py-2 text-xs text-gold-light transition-colors hover:bg-gold/10 lg:inline-block"
+            onClick={() => openModal('client')}
+          >
+            {t('auth.clientSpace')}
           </button>
-          {isMobile && (
-            <button onClick={() => setMenuOpen(!menuOpen)} style={{ background:'transparent', border:'none', color:'#fff', fontSize:22, cursor:'pointer', marginLeft:4 }}>
-              <i className={`ti ${menuOpen?'ti-x':'ti-menu-2'}`}/>
-            </button>
-          )}
+          <button
+            className="rounded-md bg-gold px-4 py-2 text-xs font-medium text-navy transition-opacity hover:opacity-90"
+            onClick={() => openModal('admin')}
+          >
+            <span className="lg:hidden">{t('auth.connexionShort')}</span>
+            <span className="hidden lg:inline">{t('auth.administration')}</span>
+          </button>
+          <button
+            className="flex h-8 w-8 items-center justify-center text-xl text-white lg:hidden"
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label="menu"
+          >
+            <i className={`ti ${menuOpen ? 'ti-x' : 'ti-menu-2'}`} />
+          </button>
         </div>
       </nav>
 
-      {isMobile && menuOpen && (
-        <div style={{ position:'fixed', top:68, left:0, right:0, background:'var(--navy)', zIndex:99, padding:'16px 20px', borderBottom:'1px solid rgba(201,168,76,0.2)', animation:'fadeIn 0.2s ease' }}>
-          {['services','comment','temoignages','contact'].map(id => (
-            <div key={id} onClick={() => scrollTo(id)} style={{ padding:'12px 0', fontSize:14, color:'rgba(255,255,255,0.7)', borderBottom:'1px solid rgba(255,255,255,0.06)', cursor:'pointer' }}>
-              {navLabels[id]}
+      {menuOpen && (
+        <div className="fixed inset-x-0 top-[68px] z-[99] border-b border-gold/20 bg-navy px-5 py-4 lg:hidden">
+          {navItems.map(([id, label]) => (
+            <div
+              key={id}
+              onClick={() => scrollTo(id)}
+              className="cursor-pointer border-b border-white/[0.06] py-3 text-sm text-white/70 last:border-0"
+            >
+              {label}
             </div>
           ))}
-          <button style={{ ...s.btnOutline, width:'100%', marginTop:14, padding:'11px 0' }} onClick={() => { openModal('client'); setMenuOpen(false); }}>{t('auth.clientSpace')}</button>
+          <button
+            className="mt-3.5 w-full rounded-md border border-gold/50 py-2.5 text-xs text-gold-light"
+            onClick={() => { openModal('client'); setMenuOpen(false); }}
+          >
+            {t('auth.clientSpace')}
+          </button>
         </div>
       )}
 
       {/* HERO */}
-      <section style={s.hero} id="home">
-        <div style={s.heroGlow}/>
-        <div style={{ position:'absolute', inset:0, opacity:0.03, backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(201,168,76,0.5) 40px,rgba(201,168,76,0.5) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(201,168,76,0.5) 40px,rgba(201,168,76,0.5) 41px)' }}/>
-        <div style={s.heroContent}>
-          <div style={s.heroEyebrow}><span style={{ width:6, height:6, background:'var(--gold)', borderRadius:'50%' }}/>{t('landing.heroEyebrow')}</div>
-          <h1 style={s.heroH1}>{t('landing.heroTitleLine1')}<br/>{t('landing.heroTitleLine2')} <span style={{ color:'var(--gold)' }}>{t('landing.heroTitleHighlight')}</span><br/>{t('landing.heroTitleLine3')}</h1>
-          <p style={s.heroP}>{t('landing.heroP')}</p>
-          <div style={s.heroActions}>
-            <button style={s.btnHeroPrimary} onClick={() => openModal('client','register')}>{t('landing.openAccount')}</button>
-            <button style={s.btnHeroSecondary} onClick={() => scrollTo('services')}>{t('landing.discoverServices')}</button>
+      <section className="relative overflow-hidden bg-navy px-4 pb-14 pt-28 sm:px-8 lg:px-12" id="home">
+        <div className="pointer-events-none absolute -right-20 -top-24 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,rgba(201,168,76,0.1)_0%,transparent_70%)]" />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(201,168,76,0.5) 40px,rgba(201,168,76,0.5) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(201,168,76,0.5) 40px,rgba(201,168,76,0.5) 41px)' }}
+        />
+
+        <div className="relative z-10 mx-auto grid max-w-6xl gap-12 py-6 lg:grid-cols-[1fr_380px] lg:items-center lg:py-10">
+          <div>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/30 px-3.5 py-1.5 text-[11px] uppercase tracking-[2px] text-gold">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              {t('landing.heroEyebrow')}
+            </div>
+            <h1 className="mb-5 font-serif text-[clamp(36px,6vw,64px)] font-semibold leading-[1.12] text-white">
+              {t('landing.heroTitleLine1')}<br />
+              {t('landing.heroTitleLine2')} <span className="text-gold">{t('landing.heroTitleHighlight')}</span><br />
+              {t('landing.heroTitleLine3')}
+            </h1>
+            <p className="mb-9 max-w-lg text-[15px] font-light leading-[1.75] text-white/55">{t('landing.heroP')}</p>
+            <div className="mb-12 flex flex-wrap gap-3">
+              <button className="rounded-md bg-gold px-7 py-3.5 text-sm font-medium text-navy transition-opacity hover:opacity-90" onClick={() => openModal('client', 'register')}>
+                {t('landing.openAccount')}
+              </button>
+              <button className="rounded-md border border-white/20 px-7 py-3.5 text-sm text-white/75 transition-colors hover:border-white/40" onClick={() => scrollTo('services')}>
+                {t('landing.discoverServices')}
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-x-10 gap-y-4 border-t border-white/[0.08] pt-7">
+              {[['24+', t('landing.statActiveClients')], ['8,75M €', t('landing.statManaged')], ['100%', t('landing.statSecured')]].map(([n, l]) => (
+                <div key={l}>
+                  <div className="font-serif text-3xl font-semibold leading-none text-gold">{n}</div>
+                  <div className="mt-1 text-[11px] text-white/35">{l}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={s.heroStats}>
-            {[['24+',t('landing.statActiveClients')],['8,75M €',t('landing.statManaged')],['100%',t('landing.statSecured')]].map(([n,l]) => (
-              <div key={l}><div style={s.statNum}>{n}</div><div style={s.statLabel}>{l}</div></div>
-            ))}
-          </div>
-        </div>
-        {!isMobile && (
-          <div style={s.heroVisual}>
-            <div style={s.cardMock}>
-              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:28 }}>
-                <div style={{ width:34, height:26, background:'var(--gold)', borderRadius:4, opacity:0.8 }}/>
-                <span style={{ fontFamily:'var(--serif)', fontSize:13, color:'rgba(255,255,255,0.5)', letterSpacing:1 }}>OJADA</span>
+
+          <div className="hidden lg:block">
+            <div className="mb-2.5 rounded-2xl border border-gold/20 bg-white/5 p-5 backdrop-blur-sm">
+              <div className="mb-7 flex items-center justify-between">
+                <div className="h-[26px] w-[34px] rounded opacity-80" style={{ background: 'var(--gold)' }} />
+                <span className="font-serif text-[13px] tracking-wide text-white/50">OJADA</span>
               </div>
-              <div style={{ fontFamily:'monospace', fontSize:14, color:'rgba(255,255,255,0.6)', letterSpacing:3, marginBottom:16 }}>•••• •••• •••• 4421</div>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
-                <span style={{ fontSize:12, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:1 }}>K. Mensah</span>
-                <div>
-                  <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1 }}>{t('landing.mockBalance')}</div>
-                  <div style={{ fontFamily:'var(--serif)', fontSize:20, color:'var(--gold)' }}>147 000 €</div>
+              <div className="mb-4 font-mono text-sm tracking-[3px] text-white/60">•••• •••• •••• 4421</div>
+              <div className="flex items-end justify-between">
+                <span className="text-xs uppercase tracking-wide text-white/40">K. Mensah</span>
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-wide text-gold/50">{t('landing.mockBalance')}</div>
+                  <div className="font-serif text-xl text-gold">147 000 €</div>
                 </div>
               </div>
             </div>
-            <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:12, padding:'12px 16px', display:'flex', alignItems:'center', gap:12 }}>
-              <div style={{ width:34, height:34, borderRadius:9, background:'rgba(123,198,122,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, color:'#7BC67A' }}><i className="ti ti-arrow-down-left"/></div>
-              <div style={{ flex:1 }}><div style={{ fontSize:12, color:'rgba(255,255,255,0.8)' }}>{t('landing.mockDepositReceived')}</div><div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{t('common.today')} · 09:14</div></div>
-              <div style={{ fontSize:13, fontWeight:500, color:'#7BC67A' }}>+30 000 €</div>
+            <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3">
+              <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-[rgba(123,198,122,0.15)] text-base text-[#7BC67A]">
+                <i className="ti ti-arrow-down-left" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-xs text-white/80">{t('landing.mockDepositReceived')}</div>
+                <div className="mt-0.5 text-[10px] text-white/30">{t('common.today')} · 09:14</div>
+              </div>
+              <div className="shrink-0 text-[13px] font-medium text-[#7BC67A]">+30 000 €</div>
             </div>
           </div>
-        )}
+        </div>
       </section>
 
       {/* TRUST */}
-      <div style={s.trust}>
-        {[['2024',t('landing.trustFoundation')],['24/7',t('landing.trustAvailable')],['0 €',t('landing.trustOpening')],['100%',t('landing.trustSecured')],['Île-de-France',t('landing.trustRegion')]].map(([n,l]) => (
-          <div key={l} style={s.trustItem}><div style={s.trustNum}>{n}</div><div style={s.trustLabel}>{l}</div></div>
-        ))}
+      <div className="bg-navy-2 px-4 py-10 sm:px-8 lg:px-12">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-x-6 gap-y-7 text-center sm:grid-cols-3 lg:grid-cols-5">
+          {[['2024', t('landing.trustFoundation')], ['24/7', t('landing.trustAvailable')], ['0 €', t('landing.trustOpening')], ['100%', t('landing.trustSecured')], ['Île-de-France', t('landing.trustRegion')]].map(([n, l]) => (
+            <div key={l}>
+              <div className="font-serif text-2xl font-semibold text-gold sm:text-[32px]">{n}</div>
+              <div className="mt-1 text-[11px] text-white/40">{l}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* SERVICES */}
-      <section style={s.services} id="services">
-        <div style={s.sectionTag}>{t('landing.servicesTag')}</div>
-        <div style={s.sectionTitle}>{t('landing.servicesTitleLine1')}<br/>{t('landing.servicesTitleLine2')}</div>
-        <div style={s.sectionSub}>{t('landing.servicesSub')}</div>
-        <div style={s.servicesGrid}>
-          {services.map(sv => (
-            <div key={sv.name} style={s.serviceCard}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 16px 48px rgba(10,22,40,0.08)'; e.currentTarget.style.borderColor='var(--gold)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; e.currentTarget.style.borderColor='#E8E2D6'; }}>
-              <div style={s.serviceIcon}><i className={`ti ${sv.icon}`}/></div>
-              <div style={s.serviceName}>{sv.name}</div>
-              <div style={s.serviceDesc}>{sv.desc}</div>
-            </div>
-          ))}
+      <section className="bg-cream px-4 py-16 sm:px-8 sm:py-20 lg:px-12" id="services">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-2.5 text-[11px] uppercase tracking-[2px] text-gold-dark">{t('landing.servicesTag')}</div>
+          <h2 className="mb-3.5 font-serif text-[clamp(26px,4vw,40px)] font-semibold leading-[1.15] text-navy">
+            {t('landing.servicesTitleLine1')}<br />{t('landing.servicesTitleLine2')}
+          </h2>
+          <p className="mb-11 max-w-lg text-sm font-light leading-[1.7] text-navy/60">{t('landing.servicesSub')}</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map(sv => (
+              <div
+                key={sv.name}
+                className="group rounded-xl border border-[#E8E2D6] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:shadow-[0_16px_48px_rgba(10,22,40,0.08)]"
+              >
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-[10px] bg-[#FDF6E3] text-xl text-gold-dark">
+                  <i className={`ti ${sv.icon}`} />
+                </div>
+                <div className="mb-2 font-serif text-xl font-semibold text-navy">{sv.name}</div>
+                <div className="text-[13px] font-light leading-[1.65] text-navy/60">{sv.desc}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* HOW */}
-      <section style={s.how} id="comment">
-        <div style={s.sectionTag}>{t('landing.howTag')}</div>
-        <div style={s.sectionTitle}>{t('landing.howTitle')}</div>
-        <div style={s.stepsGrid}>
-          {steps.map(st => (
-            <div key={st.num} style={s.step}>
-              <div style={s.stepNum}>{st.num}</div>
-              <div style={s.stepTitle}>{st.title}</div>
-              <div style={s.stepDesc}>{st.desc}</div>
-            </div>
-          ))}
+      <section className="bg-cream-2 px-4 py-16 sm:px-8 sm:py-20 lg:px-12" id="comment">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-2.5 text-[11px] uppercase tracking-[2px] text-gold-dark">{t('landing.howTag')}</div>
+          <h2 className="font-serif text-[clamp(26px,4vw,40px)] font-semibold leading-[1.15] text-navy">{t('landing.howTitle')}</h2>
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map(st => (
+              <div key={st.num} className="px-1 text-center">
+                <div className="mx-auto mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-full border border-gold bg-white font-serif text-xl text-gold">
+                  {st.num}
+                </div>
+                <div className="mb-1.5 font-serif text-lg font-semibold text-navy">{st.title}</div>
+                <div className="text-xs leading-[1.6] text-navy/60">{st.desc}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* TESTIMONIALS */}
-      <section style={s.testimonials} id="temoignages">
-        <div style={s.sectionTag}>{t('landing.testimonialsTag')}</div>
-        <div style={s.sectionTitle}>{t('landing.testimonialsTitle')}</div>
-        <div style={s.testimonialGrid}>
-          {testimonials.map(tm => (
-            <div key={tm.author} style={s.testimonialCard}>
-              <div style={{ color:'var(--gold)', fontSize:13, marginBottom:12 }}>★★★★★</div>
-              <div style={s.testimonialText}>{tm.text}</div>
-              <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                <div style={{ width:34, height:34, borderRadius:'50%', background:tm.color, color:tm.textColor, display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:600 }}>{tm.initials}</div>
-                <div><div style={s.authorName}>{tm.author}</div><div style={s.authorRole}>{tm.role}</div></div>
+      <section className="bg-cream px-4 py-16 sm:px-8 sm:py-20 lg:px-12" id="temoignages">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-2.5 text-[11px] uppercase tracking-[2px] text-gold-dark">{t('landing.testimonialsTag')}</div>
+          <h2 className="font-serif text-[clamp(26px,4vw,40px)] font-semibold leading-[1.15] text-navy">{t('landing.testimonialsTitle')}</h2>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {testimonials.map(tm => (
+              <div key={tm.author} className="rounded-xl border border-[#E8E2D6] bg-white p-6">
+                <div className="mb-3 text-[13px] text-gold">★★★★★</div>
+                <div className="mb-4.5 text-[13px] font-light italic leading-[1.7] text-navy/60">{tm.text}</div>
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                    style={{ background: tm.color, color: tm.textColor }}
+                  >
+                    {tm.initials}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="truncate text-xs font-medium text-navy">{tm.author}</div>
+                    <div className="truncate text-[11px] text-navy/60">{tm.role}</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section style={s.cta} id="contact">
-        <h2 style={s.ctaH2}><Trans i18nKey="landing.ctaTitle" components={{ b: <span style={{ color:'var(--gold)' }}/> }}/></h2>
-        <p style={s.ctaP}>{t('landing.ctaP')}</p>
-        <div style={s.ctaActions}>
-          <button style={s.btnHeroPrimary} onClick={() => openModal('client','register')}>{t('landing.ctaOpenAccount')}</button>
-          <button style={s.btnHeroSecondary}>{t('landing.ctaContactUs')}</button>
+      <section className="relative overflow-hidden bg-navy px-4 py-16 text-center sm:py-20" id="contact">
+        <h2 className="relative mb-3.5 font-serif text-[clamp(26px,4vw,46px)] leading-tight text-white">
+          <Trans i18nKey="landing.ctaTitle" components={{ b: <span className="text-gold" /> }} />
+        </h2>
+        <p className="relative mx-auto mb-9 max-w-md text-[15px] font-light leading-[1.7] text-white/45">{t('landing.ctaP')}</p>
+        <div className="relative flex flex-wrap justify-center gap-3.5">
+          <button className="rounded-md bg-gold px-7 py-3.5 text-sm font-medium text-navy transition-opacity hover:opacity-90" onClick={() => openModal('client', 'register')}>
+            {t('landing.ctaOpenAccount')}
+          </button>
+          <button className="rounded-md border border-white/20 px-7 py-3.5 text-sm text-white/75 transition-colors hover:border-white/40">
+            {t('landing.ctaContactUs')}
+          </button>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer style={s.footer}>
-        <div style={s.footerGrid}>
-          <div>
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
-              <img src={logo} alt="OjadaBank" style={{ ...s.navLogoIcon, width:30, height:30 }}/>
-              <span style={{ ...s.navLogoText, fontSize:16 }}>OJADA BANK</span>
-            </div>
-            <p style={{ fontSize:12, color:'rgba(255,255,255,0.3)', lineHeight:1.7, maxWidth:240, fontWeight:300 }}>{t('landing.footerTagline')}</p>
+      <footer className="border-t border-gold/15 bg-[#070F1E] px-4 pb-8 pt-12 sm:px-8 lg:px-12">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-4">
+          <div className="col-span-2 sm:col-span-1">
+            <Brand sizeCls="h-8 w-8" textCls="text-base" />
+            <p className="mt-3 max-w-[240px] text-xs font-light leading-[1.7] text-white/30">{t('landing.footerTagline')}</p>
           </div>
-          {[[t('landing.footerColServices'),[services[0].name,services[1].name,services[2].name,services[3].name]],[t('landing.footerColBank'),[t('landing.footerAbout'),t('landing.footerTeam'),t('landing.footerCareers'),t('landing.navContact')]],[t('landing.footerColLegal'),[t('landing.footerTerms'),t('landing.footerPrivacy'),t('landing.footerLegalNotice')]]].map(([title, links]) => (
-            <div key={title}>
-              <div style={s.footerColTitle}>{title}</div>
-              {links.map(l => <span key={l} style={{ ...s.footerLink, display:'block' }}>{l}</span>)}
+          {[
+            [t('landing.footerColServices'), [services[0].name, services[1].name, services[2].name, services[3].name]],
+            [t('landing.footerColBank'), [t('landing.footerAbout'), t('landing.footerTeam'), t('landing.footerCareers'), t('landing.navContact')]],
+            [t('landing.footerColLegal'), [t('landing.footerTerms'), t('landing.footerPrivacy'), t('landing.footerLegalNotice')]],
+          ].map(([title, links]) => (
+            <div key={title} className="min-w-0">
+              <div className="mb-3.5 text-[10px] uppercase tracking-[1.5px] text-gold">{title}</div>
+              {links.map(l => (
+                <span key={l} className="mb-2.5 block cursor-pointer truncate text-xs text-white/35 transition-colors hover:text-white/60">
+                  {l}
+                </span>
+              ))}
             </div>
           ))}
         </div>
-        <div style={s.footerBottom}>
-          <span style={s.footerBottomText}>{t('landing.footerCopyright')}</span>
-          <span style={s.footerBottomText}>{t('landing.footerAgreement')}</span>
+        <div className="mx-auto mt-9 flex max-w-6xl flex-col gap-2 border-t border-white/[0.06] pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-[11px] text-white/20">{t('landing.footerCopyright')}</span>
+          <span className="text-[11px] text-white/20">{t('landing.footerAgreement')}</span>
         </div>
       </footer>
 
       {/* MODAL */}
       {modal && (
-        <div style={s.overlay} onClick={e => e.target===e.currentTarget && setModal(false)}>
-          <div style={s.modal}>
-            <button style={s.modalClose} onClick={() => setModal(false)}>✕</button>
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:18 }}>
-              <img src={logo} alt="OjadaBank" style={{ ...s.navLogoIcon, width:30, height:30 }}/>
-              <span style={{ fontFamily:'var(--serif)', fontSize:16, fontWeight:600, color:'var(--navy)' }}>OJADA BANK</span>
+        <div
+          className="fixed inset-0 z-[1000] flex items-center justify-center overflow-y-auto bg-[rgba(7,15,30,0.88)] p-4 backdrop-blur-sm"
+          onClick={e => e.target === e.currentTarget && setModal(false)}
+        >
+          <div className="relative my-auto w-full max-w-[460px] rounded-2xl border border-[#E8E2D6] bg-cream p-7 sm:p-8">
+            <button
+              className="absolute right-3.5 top-3.5 flex h-7 w-7 items-center justify-center rounded-md text-lg text-navy/50 hover:bg-black/5"
+              onClick={() => setModal(false)}
+            >
+              ✕
+            </button>
+            <div className="mb-5">
+              <Brand sizeCls="h-8 w-8" textCls="text-base" dark={false} />
             </div>
 
-            {/* Role switch — only for login */}
             {view === 'login' && (
-              <div style={s.roleSwitch}>
-                {['client','admin'].map(r => (
-                  <button key={r} style={{ ...s.roleBtn, ...(role===r ? s.roleBtnActive : {}) }} onClick={() => setRole(r)}>
-                    {r==='client' ? t('auth.clientSpace') : t('auth.administration')}
+              <div className="mb-5 flex rounded-lg bg-[#EDE8DF] p-1">
+                {['client', 'admin'].map(r => (
+                  <button
+                    key={r}
+                    className={[
+                      'flex-1 rounded-md py-2 text-xs transition-colors',
+                      role === r ? 'bg-white font-medium text-navy shadow-sm' : 'text-navy/50',
+                    ].join(' ')}
+                    onClick={() => setRole(r)}
+                  >
+                    {r === 'client' ? t('auth.clientSpace') : t('auth.administration')}
                   </button>
                 ))}
               </div>
             )}
 
-            {view === 'login' && role === 'client' && <LoginForm onSuccess={handleSuccess} onForgot={() => setView('forgot')} onRegister={() => setView('register')}/>}
-            {view === 'login' && role === 'admin' && <AdminLoginForm onSuccess={handleSuccess}/>}
-            {view === 'register' && <RegisterForm onSuccess={handleSuccess} onLogin={() => setView('login')}/>}
-            {view === 'forgot' && <ForgotForm onBack={() => setView('login')}/>}
+            {view === 'login' && role === 'client' && <LoginForm onSuccess={handleSuccess} onForgot={() => setView('forgot')} onRegister={() => setView('register')} />}
+            {view === 'login' && role === 'admin' && <AdminLoginForm onSuccess={handleSuccess} />}
+            {view === 'register' && <RegisterForm onSuccess={handleSuccess} onLogin={() => setView('login')} />}
+            {view === 'forgot' && <ForgotForm onBack={() => setView('login')} />}
           </div>
         </div>
       )}
