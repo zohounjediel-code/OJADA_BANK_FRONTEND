@@ -4,11 +4,12 @@ import { useTranslation, Trans } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import logo from '../assets/logo.png';
 
 const s = {
   nav: { position:'fixed', top:0, left:0, right:0, zIndex:100, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 clamp(16px,4vw,60px)', height:68, background:'rgba(10,22,40,0.96)', backdropFilter:'blur(12px)', borderBottom:'1px solid rgba(201,168,76,0.2)' },
   navLogo: { display:'flex', alignItems:'center', gap:10 },
-  navLogoIcon: { width:36, height:36, background:'var(--gold)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--serif)', fontWeight:700, fontSize:15, color:'var(--navy)' },
+  navLogoIcon: { width:36, height:36, borderRadius:'50%', objectFit:'cover', flexShrink:0, boxShadow:'0 0 0 1.5px rgba(201,168,76,0.5)' },
   navLogoText: { fontFamily:'var(--serif)', fontSize:20, fontWeight:600, color:'#fff', letterSpacing:1 },
   navLinks: { display:'flex', alignItems:'center', gap:28 },
   navLink: { fontSize:13, color:'rgba(255,255,255,0.65)', transition:'color 0.2s', cursor:'pointer' },
@@ -345,7 +346,7 @@ export default function Landing() {
       {/* NAV */}
       <nav style={s.nav}>
         <div style={s.navLogo}>
-          <div style={s.navLogoIcon}>OJ</div>
+          <img src={logo} alt="OjadaBank" style={s.navLogoIcon}/>
           <span style={s.navLogoText}>OJADA BANK</span>
         </div>
         {!isMobile && (
@@ -498,7 +499,7 @@ export default function Landing() {
         <div style={s.footerGrid}>
           <div>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
-              <div style={{ ...s.navLogoIcon, width:30, height:30, fontSize:12 }}>OJ</div>
+              <img src={logo} alt="OjadaBank" style={{ ...s.navLogoIcon, width:30, height:30 }}/>
               <span style={{ ...s.navLogoText, fontSize:16 }}>OJADA BANK</span>
             </div>
             <p style={{ fontSize:12, color:'rgba(255,255,255,0.3)', lineHeight:1.7, maxWidth:240, fontWeight:300 }}>{t('landing.footerTagline')}</p>
@@ -522,7 +523,7 @@ export default function Landing() {
           <div style={s.modal}>
             <button style={s.modalClose} onClick={() => setModal(false)}>✕</button>
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:18 }}>
-              <div style={{ ...s.navLogoIcon, background:'var(--navy)', color:'var(--gold)', width:30, height:30, fontSize:12 }}>OJ</div>
+              <img src={logo} alt="OjadaBank" style={{ ...s.navLogoIcon, width:30, height:30 }}/>
               <span style={{ fontFamily:'var(--serif)', fontSize:16, fontWeight:600, color:'var(--navy)' }}>OJADA BANK</span>
             </div>
 

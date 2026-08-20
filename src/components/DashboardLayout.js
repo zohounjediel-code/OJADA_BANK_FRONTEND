@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
+import logo from '../assets/logo.png';
 
 const s = {
   app: { display:'flex', height:'100vh', overflow:'hidden' },
@@ -11,7 +12,7 @@ const s = {
   sidebarMobileClosed: { position:'fixed', top:0, bottom:0, left:0, width:240, zIndex:99, transform:'translateX(-100%)' },
   logoArea: { padding:'18px 16px 14px', borderBottom:'1px solid rgba(201,168,76,0.2)' },
   logoBadge: { display:'flex', alignItems:'center', gap:10 },
-  logoIcon: { width:34, height:34, background:'var(--gold)', borderRadius:7, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--serif)', fontWeight:700, fontSize:14, color:'var(--navy)', flexShrink:0 },
+  logoIcon: { width:34, height:34, borderRadius:'50%', objectFit:'cover', flexShrink:0, boxShadow:'0 0 0 1.5px rgba(201,168,76,0.5)' },
   logoName: { fontFamily:'var(--serif)', fontSize:17, color:'#fff', letterSpacing:0.5 },
   logoSub: { fontSize:10, color:'rgba(201,168,76,0.5)', letterSpacing:0.5, marginTop:1 },
   nav: { flex:1, padding:'8px 0', overflowY:'auto' },
@@ -63,7 +64,7 @@ export default function DashboardLayout({ title, subtitle, navItems, children, a
         <div style={s.logoArea}>
           <div style={s.logoBadge}>
             {isMobile && <button style={s.menuBtn} onClick={() => setSidebarOpen(false)}><i className="ti ti-x"/></button>}
-            <div style={s.logoIcon}>OJ</div>
+            <img src={logo} alt="OjadaBank" style={s.logoIcon}/>
             <div>
               <div style={s.logoName}>OJADA BANK</div>
               <div style={s.logoSub}>{logoSub}</div>

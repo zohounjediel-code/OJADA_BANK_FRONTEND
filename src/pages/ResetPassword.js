@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../services/api';
+import logo from '../assets/logo.png';
 
 const s = {
   page: { minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--navy)', padding:16 },
   card: { background:'var(--cream)', borderRadius:16, padding:'36px 32px', width:'100%', maxWidth:420, border:'1px solid #E8E2D6' },
   logoArea: { display:'flex', alignItems:'center', gap:10, marginBottom:24 },
-  logoIcon: { width:34, height:34, background:'var(--navy)', borderRadius:7, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--serif)', fontWeight:700, fontSize:14, color:'var(--gold)' },
+  logoIcon: { width:34, height:34, borderRadius:'50%', objectFit:'cover', flexShrink:0, boxShadow:'0 0 0 1.5px rgba(201,168,76,0.5)' },
   logoText: { fontFamily:'var(--serif)', fontSize:18, fontWeight:600, color:'var(--navy)' },
   title: { fontFamily:'var(--serif)', fontSize:24, color:'var(--navy)', marginBottom:6 },
   sub: { fontSize:13, color:'var(--text2)', marginBottom:24 },
@@ -59,7 +60,7 @@ export default function ResetPassword() {
     <div style={s.page}>
       <div style={s.card}>
         <div style={s.logoArea}>
-          <div style={s.logoIcon}>OJ</div>
+          <img src={logo} alt="OjadaBank" style={s.logoIcon}/>
           <span style={s.logoText}>OJADA BANK</span>
         </div>
 
