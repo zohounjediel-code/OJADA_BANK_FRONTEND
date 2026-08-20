@@ -8,3 +8,6 @@ android/.gradle/
 android/local.properties
 android/captures/
 android/.idea/
+android/keystore.properties
+android/*.keystore
+android/*.jks
