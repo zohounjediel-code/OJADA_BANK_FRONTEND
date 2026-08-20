@@ -23,6 +23,21 @@ const c = {
   skeleton: { background:'linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite', borderRadius:6, height:14 },
 };
 
+// Équivalents Tailwind de `c` ci-dessus — utilisés uniquement dans les pages déjà
+// migrées (Accueil pour l'instant). `c` reste utilisé tel quel par les pages pas
+// encore converties ; les deux coexistent le temps de la migration progressive.
+const tw = {
+  card: 'rounded-xl border border-navy/10 bg-white',
+  cardHd: 'flex items-center justify-between px-4 pt-[13px]',
+  cardTitle: 'text-[13px] font-medium text-navy',
+  cardLink: 'cursor-pointer text-[11px] text-[#185FA5]',
+  cardBd: 'px-4 py-3',
+  txnRow: 'flex items-center gap-2.5 py-2 border-b border-navy/10',
+  txnIc: 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[15px]',
+  badge: 'inline-block rounded-full px-2 py-0.5 text-[10px] font-medium',
+  skeleton: 'rounded-md bg-gradient-to-r from-[#F8F6F1] via-navy/10 to-[#F8F6F1] bg-[length:200%_100%] animate-[shimmer_1.4s_infinite]',
+};
+
 const getNavItems = (t) => [
   { section: t('client.mySpace') },
   { id:'accueil', icon:'ti-home', label: t('client.home') },
@@ -204,13 +219,13 @@ function TxnRow({ t: txn, last }) {
   const ts = getTxnStyle(txn);
   const typeLabel = t('dashboard.type' + txn.type.charAt(0).toUpperCase() + txn.type.slice(1));
   return (
-    <div style={{ ...c.txnRow, borderBottom: last ? 'none' : '1px solid var(--border)' }}>
-      <div style={{ ...c.txnIc, background:ts.bg, color:ts.color }}><i className={`ti ${ts.icon}`}/></div>
-      <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ fontSize:12, fontWeight:500, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{translateTxnDescription(t, txn) || typeLabel}</div>
-        <div style={{ fontSize:10, color:'var(--text2)' }}>{fmtDate(txn.created_at)}</div>
+    <div className={`${tw.txnRow} ${last ? 'border-b-0' : ''}`}>
+      <div className={tw.txnIc} style={{ background: ts.bg, color: ts.color }}><i className={`ti ${ts.icon}`} /></div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-xs font-medium text-navy">{translateTxnDescription(t, txn) || typeLabel}</div>
+        <div className="text-[10px] text-[#64748B]">{fmtDate(txn.created_at)}</div>
       </div>
-      <div style={{ fontSize:13, fontWeight:500, color:ts.amountColor, flexShrink:0 }}>{fmt(txn.amount, txn.type, txn.description)}</div>
+      <div className="shrink-0 text-[13px] font-medium" style={{ color: ts.amountColor }}>{fmt(txn.amount, txn.type, txn.description)}</div>
     </div>
   );
 }
@@ -218,9 +233,9 @@ function TxnRow({ t: txn, last }) {
 // État vide
 function EmptyState({ icon, message }) {
   return (
-    <div style={{ textAlign:'center', padding:'28px 16px', color:'var(--text2)' }}>
-      <i className={`ti ${icon}`} style={{ fontSize:32, opacity:0.3, display:'block', marginBottom:8 }}/>
-      <div style={{ fontSize:12 }}>{message}</div>
+    <div className="px-4 py-7 text-center text-[#64748B]">
+      <i className={`ti ${icon} mb-2 block text-3xl opacity-30`} />
+      <div className="text-xs">{message}</div>
     </div>
   );
 }
@@ -233,24 +248,31 @@ function PageAccueil({ setPage, dashData, loading }) {
   const accountNum = user?.account_number || '—';
 
   return (
-    <div style={{ animation:'fadeIn 0.35s ease' }}>
+    <div className="animate-[fadeIn_0.35s_ease]">
       {/* Balance Hero */}
-      <div style={{ background:'linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%)', borderRadius:16, padding:'24px 20px', marginBottom:16, position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', right:-30, top:-30, width:160, height:160, borderRadius:'50%', background:'radial-gradient(rgba(201,168,76,0.15),transparent 70%)' }}/>
-        <div style={{ textAlign:'right', marginBottom:16, position:'relative' }}>
-          <div style={{ fontSize:10, color:'rgba(201,168,76,0.5)', textTransform:'uppercase', letterSpacing:1 }}>{(user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)} · {accountNum.slice(-4)}</div>
+      <div className="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-navy to-navy-3 px-5 py-6">
+        <div className="pointer-events-none absolute -right-[30px] -top-[30px] h-40 w-40 rounded-full bg-[radial-gradient(rgba(201,168,76,0.15),transparent_70%)]" />
+        <div className="relative mb-4 text-right">
+          <div className="text-[10px] uppercase tracking-wide text-gold/50">{(user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)} · {accountNum.slice(-4)}</div>
         </div>
-        <div style={{ fontSize:11, color:'rgba(255,255,255,0.45)', marginBottom:4, position:'relative' }}>{t('dashboard.availableBalance')}</div>
-        <div style={{ fontFamily:'var(--serif)', fontSize:'clamp(30px,5vw,42px)', color:'#fff', fontWeight:600, marginBottom:4, position:'relative' }}>
-          {loading ? <span style={{ opacity:0.4 }}>—</span> : balance.toLocaleString('fr-FR')}
-          <span style={{ fontSize:'clamp(16px,2.5vw,20px)', color:'rgba(255,255,255,0.4)' }}> €</span>
+        <div className="relative mb-1 text-[11px] text-white/45">{t('dashboard.availableBalance')}</div>
+        <div className="relative mb-1 font-serif text-[clamp(30px,5vw,42px)] font-semibold text-white">
+          {loading ? <span className="opacity-40">—</span> : balance.toLocaleString('fr-FR')}
+          <span className="text-[clamp(16px,2.5vw,20px)] text-white/40"> €</span>
         </div>
-        <div style={{ fontSize:12, color:'rgba(255,255,255,0.35)', marginBottom:22, position:'relative' }}>
-          {t('dashboard.thisMonth')} : <span style={{ color:'#7BC67A' }}>+{(monthStats.total_depot || 0).toLocaleString('fr-FR')} € {t('dashboard.received')}</span>
+        <div className="relative mb-[22px] text-xs text-white/35">
+          {t('dashboard.thisMonth')} : <span className="text-[#7BC67A]">+{(monthStats.total_depot || 0).toLocaleString('fr-FR')} € {t('dashboard.received')}</span>
         </div>
-        <div style={{ display:'flex', gap:10, flexWrap:'wrap', position:'relative' }}>
+        <div className="relative flex flex-wrap gap-2.5">
           {[['ti-send',t('nav.transfer'),'virement'],['ti-arrow-down-circle',t('nav.deposit'),'depot'],['ti-arrow-up-circle',t('nav.withdrawal'),'retrait']].map(([ic,lb,pg]) => (
-            <button key={pg} onClick={() => setPage(pg)} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:7, fontSize:12, fontWeight:500, cursor:'pointer', fontFamily:'var(--sans)', background: pg==='virement' ? 'var(--gold)' : 'rgba(255,255,255,0.08)', color: pg==='virement' ? 'var(--navy)' : 'rgba(255,255,255,0.75)', border: pg==='virement' ? 'none' : '1px solid rgba(255,255,255,0.15)', transition:'all 0.2s' }}>
+            <button
+              key={pg}
+              onClick={() => setPage(pg)}
+              className={[
+                'flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-medium transition-all',
+                pg === 'virement' ? 'bg-gold text-navy' : 'border border-white/15 bg-white/[0.08] text-white/75',
+              ].join(' ')}
+            >
               <i className={`ti ${ic}`}/>{lb}
             </button>
           ))}
@@ -258,24 +280,26 @@ function PageAccueil({ setPage, dashData, loading }) {
       </div>
 
       {/* Quick Actions */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:16 }}>
+      <div className="mb-4 grid grid-cols-4 gap-2.5">
         {[['ti-send',t('nav.transfer'),'#E6F1FB','#185FA5','virement'],['ti-arrow-down-circle',t('nav.deposit'),'#EAF3DE','#3B6D11','depot'],['ti-arrow-up-circle',t('nav.withdrawal'),'#FCEBEB','#A32D2D','retrait'],['ti-receipt',t('nav.statement'),'#FDF6E3','#854F0B','transactions']].map(([ic,lb,bg,col,pg]) => (
-          <div key={pg} onClick={() => setPage(pg)} style={{ background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:12, padding:'14px 10px', textAlign:'center', cursor:'pointer', transition:'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 20px rgba(10,22,40,0.08)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}>
-            <div style={{ width:40, height:40, borderRadius:11, background:bg, color:col, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, margin:'0 auto 8px' }}><i className={`ti ${ic}`}/></div>
-            <div style={{ fontSize:11, fontWeight:500, color:'var(--text)' }}>{lb}</div>
+          <div
+            key={pg}
+            onClick={() => setPage(pg)}
+            className="cursor-pointer rounded-xl border border-navy/10 bg-white px-2.5 py-3.5 text-center transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(10,22,40,0.08)]"
+          >
+            <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-[11px] text-lg" style={{ background: bg, color: col }}><i className={`ti ${ic}`}/></div>
+            <div className="text-[11px] font-medium text-navy">{lb}</div>
           </div>
         ))}
       </div>
 
       {/* 2-col grid */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:14 }}>
-        <div style={c.card}>
-          <div style={c.cardHd}><span style={c.cardTitle}>{t('dashboard.recentTransactions')}</span><span style={c.cardLink} onClick={() => setPage('transactions')}>{t('common.seeAll')} →</span></div>
-          <div style={c.cardBd}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-3.5">
+        <div className={tw.card}>
+          <div className={tw.cardHd}><span className={tw.cardTitle}>{t('dashboard.recentTransactions')}</span><span className={tw.cardLink} onClick={() => setPage('transactions')}>{t('common.seeAll')} →</span></div>
+          <div className={tw.cardBd}>
             {loading ? (
-              [1,2,3].map(i => <div key={i} style={{ ...c.skeleton, marginBottom:12, height:40 }}/>)
+              [1,2,3].map(i => <div key={i} className={`${tw.skeleton} mb-3 h-10`}/>)
             ) : recentTxns.length === 0 ? (
               <EmptyState icon="ti-arrows-exchange" message={t('dashboard.noTransactionsYet')}/>
             ) : (
@@ -283,21 +307,21 @@ function PageAccueil({ setPage, dashData, loading }) {
             )}
           </div>
         </div>
-        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-          <div style={c.card}>
-            <div style={c.cardHd}><span style={c.cardTitle}>{t('dashboard.accountInfo')}</span></div>
-            <div style={c.cardBd}>
+        <div className="flex flex-col gap-3">
+          <div className={tw.card}>
+            <div className={tw.cardHd}><span className={tw.cardTitle}>{t('dashboard.accountInfo')}</span></div>
+            <div className={tw.cardBd}>
               {[
                 [t('dashboard.type'), (user?.account_type === 'epargne' || !user?.account_type ? t('dashboard.savings') : user.account_type)],
                 [t('dashboard.number'), user?.account_number || '—'],
                 [t('dashboard.opening'), user?.created_at ? new Date(user.created_at).toLocaleDateString(dLocale(),{day:'2-digit',month:'short',year:'numeric'}) : '—'],
                 [t('dashboard.status'), user?.status === 'active' ? t('dashboard.active') : t('dashboard.pendingStatus')]
               ].map(([k,v]) => (
-                <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid var(--border)', fontSize:12 }}>
-                  <span style={{ color:'var(--text2)' }}>{k}</span>
+                <div key={k} className="flex items-center justify-between border-b border-navy/10 py-1.5 text-xs">
+                  <span className="text-[#64748B]">{k}</span>
                   {k===t('dashboard.status')
-                    ? <span style={{ ...c.badge, background: user?.status==='active' ? '#EAF3DE' : '#FAEEDA', color: user?.status==='active' ? '#3B6D11' : '#854F0B' }}>{v}</span>
-                    : <span style={{ fontFamily: k===t('dashboard.number') ? 'monospace' : undefined, fontSize: k===t('dashboard.number') ? 11 : undefined }}>{v}</span>}
+                    ? <span className={tw.badge} style={{ background: user?.status==='active' ? '#EAF3DE' : '#FAEEDA', color: user?.status==='active' ? '#3B6D11' : '#854F0B' }}>{v}</span>
+                    : <span className={k===t('dashboard.number') ? 'font-mono text-[11px]' : ''}>{v}</span>}
                 </div>
               ))}
             </div>
