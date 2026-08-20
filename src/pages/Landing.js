@@ -32,10 +32,13 @@ const getTestimonials = (t) => [
 ];
 
 // ─── MODAL CONTENT ────────────────────────────────────────────────
+// Un seul formulaire pour client et admin : l'identifiant tapé détermine le compte
+// (une adresse email — toujours @gmail.com pour un client — bascule sur la connexion
+// client, tout le reste est traité comme un nom d'utilisateur admin).
 function LoginForm({ onSuccess, onForgot, onRegister }) {
   const { t } = useTranslation();
-  const { loginClient } = useAuth();
-  const [email, setEmail] = useState('');
+  const { loginClient, loginAdmin } = useAuth();
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -44,7 +47,10 @@ function LoginForm({ onSuccess, onForgot, onRegister }) {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      const user = await loginClient(email, password);
+      const id = identifier.trim();
+      const user = id.includes('@')
+        ? await loginClient(id, password)
+        : await loginAdmin(id, password);
       onSuccess(user);
     } catch (err) {
       setError(err.message || t('auth.err_login_invalid'));
@@ -53,12 +59,12 @@ function LoginForm({ onSuccess, onForgot, onRegister }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 className="font-serif text-[22px] text-navy">{t('auth.clientLoginTitle')}</h3>
-      <p className="mb-4 mt-1 text-xs text-navy/50">{t('auth.clientLoginSubtitle')}</p>
+      <h3 className="font-serif text-[22px] text-navy">{t('auth.loginTitle')}</h3>
+      <p className="mb-4 mt-1 text-xs text-navy/50">{t('auth.loginSubtitle')}</p>
       {error && <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700">{error}</div>}
       <div className="mb-3">
-        <label className={labelCls}>{t('auth.emailGmail')}</label>
-        <input className={inputCls} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="votre@gmail.com" required autoFocus />
+        <label className={labelCls}>{t('auth.identifierLabel')}</label>
+        <input className={inputCls} type="text" value={identifier} onChange={e => setIdentifier(e.target.value)} placeholder={t('auth.identifierPlaceholder')} required autoFocus autoCapitalize="none" autoCorrect="off" />
       </div>
       <div className="mb-3">
         <label className={labelCls}>{t('auth.password')}</label>
@@ -72,45 +78,6 @@ function LoginForm({ onSuccess, onForgot, onRegister }) {
         {' · '}
         <span className={linkCls} onClick={onRegister}>{t('auth.register')}</span>
       </div>
-    </form>
-  );
-}
-
-function AdminLoginForm({ onSuccess }) {
-  const { t } = useTranslation();
-  const { loginAdmin } = useAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(''); setLoading(true);
-    try {
-      const user = await loginAdmin(username, password);
-      onSuccess(user);
-    } catch (err) {
-      setError(err.message || t('auth.err_admin_invalid'));
-    } finally { setLoading(false); }
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <h3 className="font-serif text-[22px] text-navy">{t('auth.adminLoginTitle')}</h3>
-      <p className="mb-4 mt-1 text-xs text-navy/50">{t('auth.adminLoginSubtitle')}</p>
-      {error && <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700">{error}</div>}
-      <div className="mb-3">
-        <label className={labelCls}>{t('auth.username')}</label>
-        <input className={inputCls} type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" required autoFocus />
-      </div>
-      <div className="mb-3">
-        <label className={labelCls}>{t('auth.password')}</label>
-        <input className={inputCls} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
-      </div>
-      <button className={submitCls} type="submit" disabled={loading}>
-        {loading ? t('auth.loggingIn') : t('auth.loginButton')}
-      </button>
     </form>
   );
 }
@@ -252,7 +219,6 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [modal, setModal] = useState(false);
-  const [role, setRole] = useState('client');
   const [view, setView] = useState('login'); // login | register | forgot
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -270,7 +236,7 @@ export default function Landing() {
     if (user) navigate(user.role === 'admin' ? '/admin' : '/client', { replace: true });
   }, [user, navigate]);
 
-  const openModal = (r, v = 'login') => { setRole(r); setView(v); setModal(true); };
+  const openModal = (v = 'login') => { setView(v); setModal(true); };
   const scrollTo = (id) => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false); };
 
   const handleSuccess = (user) => {
@@ -295,17 +261,10 @@ export default function Landing() {
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
           <LanguageSwitcher dark />
           <button
-            className="hidden rounded-md border border-gold/50 px-4 py-2 text-xs text-gold-light transition-colors hover:bg-gold/10 lg:inline-block"
-            onClick={() => openModal('client')}
-          >
-            {t('auth.clientSpace')}
-          </button>
-          <button
             className="rounded-md bg-gold px-4 py-2 text-xs font-medium text-navy transition-opacity hover:opacity-90"
-            onClick={() => openModal('admin')}
+            onClick={() => openModal()}
           >
-            <span className="lg:hidden">{t('auth.connexionShort')}</span>
-            <span className="hidden lg:inline">{t('auth.administration')}</span>
+            {t('auth.loginButton')}
           </button>
           <button
             className="flex h-8 w-8 items-center justify-center text-xl text-white lg:hidden"
@@ -330,9 +289,9 @@ export default function Landing() {
           ))}
           <button
             className="mt-3.5 w-full rounded-md border border-gold/50 py-2.5 text-xs text-gold-light"
-            onClick={() => { openModal('client'); setMenuOpen(false); }}
+            onClick={() => { openModal(); setMenuOpen(false); }}
           >
-            {t('auth.clientSpace')}
+            {t('auth.loginButton')}
           </button>
         </div>
       )}
@@ -358,7 +317,7 @@ export default function Landing() {
             </h1>
             <p className="mb-9 max-w-lg text-[15px] font-light leading-[1.75] text-white/55">{t('landing.heroP')}</p>
             <div className="mb-12 flex flex-wrap gap-3">
-              <button className="rounded-md bg-gold px-7 py-3.5 text-sm font-medium text-navy transition-opacity hover:opacity-90" onClick={() => openModal('client', 'register')}>
+              <button className="rounded-md bg-gold px-7 py-3.5 text-sm font-medium text-navy transition-opacity hover:opacity-90" onClick={() => openModal('register')}>
                 {t('landing.openAccount')}
               </button>
               <button className="rounded-md border border-white/20 px-7 py-3.5 text-sm text-white/75 transition-colors hover:border-white/40" onClick={() => scrollTo('services')}>
@@ -495,7 +454,7 @@ export default function Landing() {
         </h2>
         <p className="relative mx-auto mb-9 max-w-md text-[15px] font-light leading-[1.7] text-white/45">{t('landing.ctaP')}</p>
         <div className="relative flex flex-wrap justify-center gap-3.5">
-          <button className="rounded-md bg-gold px-7 py-3.5 text-sm font-medium text-navy transition-opacity hover:opacity-90" onClick={() => openModal('client', 'register')}>
+          <button className="rounded-md bg-gold px-7 py-3.5 text-sm font-medium text-navy transition-opacity hover:opacity-90" onClick={() => openModal('register')}>
             {t('landing.ctaOpenAccount')}
           </button>
           <button className="rounded-md border border-white/20 px-7 py-3.5 text-sm text-white/75 transition-colors hover:border-white/40">
@@ -549,25 +508,7 @@ export default function Landing() {
               <Brand sizeCls="h-8 w-8" textCls="text-base" dark={false} />
             </div>
 
-            {view === 'login' && (
-              <div className="mb-5 flex rounded-lg bg-[#EDE8DF] p-1">
-                {['client', 'admin'].map(r => (
-                  <button
-                    key={r}
-                    className={[
-                      'flex-1 rounded-md py-2 text-xs transition-colors',
-                      role === r ? 'bg-white font-medium text-navy shadow-sm' : 'text-navy/50',
-                    ].join(' ')}
-                    onClick={() => setRole(r)}
-                  >
-                    {r === 'client' ? t('auth.clientSpace') : t('auth.administration')}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {view === 'login' && role === 'client' && <LoginForm onSuccess={handleSuccess} onForgot={() => setView('forgot')} onRegister={() => setView('register')} />}
-            {view === 'login' && role === 'admin' && <AdminLoginForm onSuccess={handleSuccess} />}
+            {view === 'login' && <LoginForm onSuccess={handleSuccess} onForgot={() => setView('forgot')} onRegister={() => setView('register')} />}
             {view === 'register' && <RegisterForm onSuccess={handleSuccess} onLogin={() => setView('login')} />}
             {view === 'forgot' && <ForgotForm onBack={() => setView('login')} />}
           </div>
